@@ -79,6 +79,7 @@ export function SeletorIdioma() {
 /** Cores do tema escuro: troca as cores claras mais usadas no portal. */
 export const CSS_TEMA_ESCURO = `
 html.tema-escuro { color-scheme: dark; }
+html.tema-escuro .logo-marinho { fill: #ffffff; }
 html.tema-escuro .bg-white, html.tema-escuro body { background-color: #0b1220 !important; }
 html.tema-escuro .bg-white\\/95 { background-color: rgba(11,18,32,.95) !important; }
 html.tema-escuro .bg-slate-50, html.tema-escuro .bg-slate-100 { background-color: #111a2e !important; }
