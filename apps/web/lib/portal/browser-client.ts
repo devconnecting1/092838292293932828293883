@@ -51,6 +51,8 @@ export type Perfil = {
   motivo: string | null
   aceite_termos: string | null
   enviado_em: string | null
+  bairros_atuacao?: string[] | null
+  recebe_leads?: boolean | null
 }
 
 export function slugDe(nome: string) {

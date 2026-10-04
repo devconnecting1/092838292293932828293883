@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation"
 
 import { BRAZILIAN_STATES } from "@workspace/core/br/states"
 
+import { AreaAtendimento, LeadsRodizio } from "@/components/portal/leads-rodizio"
 import { DOCS, portalBrowserClient, slugDe, type Perfil } from "@/lib/portal/browser-client"
 
 const campo = "h-11 rounded-lg border border-slate-300 px-3"
@@ -190,6 +191,19 @@ export function CorretorPainel() {
       </div>
 
       <p className={`rounded-2xl border p-4 font-semibold ${selo.cor}`}>{selo.t}</p>
+
+      {status === "aprovado" && uid && (perfil?.perfil === "corretor" || admin) ? (
+        <>
+          <LeadsRodizio uid={uid} />
+          <AreaAtendimento
+            uid={uid}
+            cidade={perfil?.cidade ?? null}
+            uf={perfil?.uf ?? null}
+            bairros={perfil?.bairros_atuacao ?? []}
+            recebe={perfil?.recebe_leads ?? true}
+          />
+        </>
+      ) : null}
 
       {status === "aprovado" ? (
         <div className="grid gap-3 sm:grid-cols-3">
