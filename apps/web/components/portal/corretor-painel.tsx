@@ -159,6 +159,14 @@ export function CorretorPainel() {
               Aprovar corretores
             </Link>
           ) : null}
+          {admin ? (
+            <Link
+              href="/corretores/importar"
+              className="rounded-lg border border-[var(--brand)] px-4 py-2.5 text-sm font-bold text-[var(--brand)]"
+            >
+              Atualizar imóveis
+            </Link>
+          ) : null}
           <button
             type="button"
             onClick={async () => {
