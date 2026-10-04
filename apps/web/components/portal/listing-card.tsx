@@ -1,6 +1,5 @@
 import Link from "next/link"
 
-import { AdCartToggle } from "@/components/portal/ad-cart"
 import { ListingPhoto } from "@/components/portal/listing-photo"
 import { brl, dataHora, tipoLabel, usaFotoCaixa, type PortalListing } from "@/lib/portal/imoveis"
 
@@ -67,7 +66,6 @@ export function ListingCard({ item, photos }: { item: PortalListing; photos: boo
         >
           Ver imóvel
         </Link>
-        <AdCartToggle id={item.numero} />
       </div>
     </article>
   )

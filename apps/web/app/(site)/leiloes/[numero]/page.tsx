@@ -2,7 +2,8 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 
-import { AdCartToggle } from "@/components/portal/ad-cart"
+import { AssessoriaForm } from "@/components/portal/assessoria-form"
+import { CorretorAcoes } from "@/components/portal/corretor-acoes"
 import { ListingGallery } from "@/components/portal/listing-gallery"
 import { areCaixaPhotosEnabled } from "@/lib/caixa/photos"
 import { brl, dataHora, getPortalListing, tipoLabel, usaFotoCaixa } from "@/lib/portal/imoveis"
@@ -153,23 +154,17 @@ export default async function ImovelPage({ params }: Props) {
           {item.valorAvaliacao ? (
             <span className="text-sm text-slate-500">Avaliação: {brl(item.valorAvaliacao)}</span>
           ) : null}
-          <a
-            href={whatsappHref(msg)}
-            className="mt-2 rounded-xl bg-[var(--brand)] py-3.5 text-center font-bold text-white"
-          >
-            Quero um corretor para me acompanhar
-          </a>
+          <div className="mt-2 flex flex-col gap-3">
+            <AssessoriaForm
+              imovelId={item.numero}
+              titulo={`${tipoLabel(item.tipo)} em ${item.cidade}/${item.uf}`}
+            />
+          </div>
           <Link
             href={`/leiloes/${item.numero}/viabilidade`}
             className="rounded-xl border-[1.5px] border-[var(--brand)] py-3 text-center font-bold text-[var(--brand)]"
           >
             Calcular viabilidade
-          </Link>
-          <Link
-            href={`/corretores/anunciar/${item.numero}`}
-            className="rounded-xl border-[1.5px] border-slate-300 py-3 text-center font-bold text-slate-800"
-          >
-            Sou corretor: gerar anúncio
           </Link>
           {item.editalUrl ? (
             <a
@@ -181,10 +176,13 @@ export default async function ImovelPage({ params }: Props) {
               Ver edital
             </a>
           ) : null}
-          <AdCartToggle
-            id={item.numero}
+          <a
+            href={whatsappHref(msg)}
             className="rounded-xl border-[1.5px] border-slate-300 py-3 text-center font-bold text-slate-800"
-          />
+          >
+            Falar com um corretor
+          </a>
+          <CorretorAcoes id={item.numero} />
           <Link href="/credito" className="py-2 text-center text-sm font-semibold text-slate-700">
             Avaliar meu crédito antes
           </Link>

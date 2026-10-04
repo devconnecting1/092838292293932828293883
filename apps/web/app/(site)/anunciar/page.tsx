@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import { createClient } from "@supabase/supabase-js"
 
 import { AdOrderForm, type PortalOpcao } from "@/components/portal/ad-order-form"
+import { SoCorretor } from "@/components/portal/corretor-acoes"
 import { PORTAL } from "@/lib/portal/config"
 import { getSupabaseEnv } from "@/lib/supabase/env"
 
@@ -150,7 +151,9 @@ export default async function AnunciarPage() {
 
       <div id="pedido" className="mx-auto max-w-[1240px] scroll-mt-20 px-4 py-12 sm:px-6">
         {portais.length ? (
-          <AdOrderForm portais={portais} empresa={PORTAL.legalName} pagamento={pagamento} />
+          <SoCorretor>
+            <AdOrderForm portais={portais} empresa={PORTAL.legalName} pagamento={pagamento} />
+          </SoCorretor>
         ) : (
           <p className="rounded-2xl border border-dashed border-slate-300 p-8 text-center text-slate-600">
             A venda de anúncios abre em breve. Fale com a gente pelo {PORTAL.whatsappLabel}.

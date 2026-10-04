@@ -28,7 +28,7 @@ export const PORTAL = {
   whatsapp: (env("NEXT_PUBLIC_SUPPORT_WHATSAPP") || "08005431000").replace(/\D/g, ""),
   whatsappLabel: env("NEXT_PUBLIC_SUPPORT_WHATSAPP_LABEL") || "0800 543 1000",
   email: env("NEXT_PUBLIC_SUPPORT_EMAIL") || "",
-  primary: pickHex(env("NEXT_PUBLIC_BRAND_PRIMARY"), "#1F4FD1"),
+  primary: pickHex(env("NEXT_PUBLIC_BRAND_PRIMARY"), "#0B35C9"),
   logoUrl: env("NEXT_PUBLIC_BRAND_LOGO_URL"),
   gtmId: GTM.test(env("NEXT_PUBLIC_GTM_ID") || "GTM-T7K5RDWW")
     ? env("NEXT_PUBLIC_GTM_ID") || "GTM-T7K5RDWW"

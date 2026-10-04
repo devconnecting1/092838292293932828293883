@@ -3,6 +3,7 @@ import Link from "next/link"
 import { notFound } from "next/navigation"
 
 import { AdKit } from "@/components/portal/ad-kit"
+import { SoCorretor } from "@/components/portal/corretor-acoes"
 import { PORTAL } from "@/lib/portal/config"
 import { brl, getPortalListing, tipoLabel } from "@/lib/portal/imoveis"
 import { siteUrl } from "@/lib/portal/site-url"
@@ -47,22 +48,24 @@ export default async function AnunciarPage({ params }: Props) {
           o seu nome, CRECI e WhatsApp, e o link leva para a página do imóvel.
         </p>
       </div>
-      <AdKit
-        cor={PORTAL.primary}
-        marca={PORTAL.name}
-        imovel={{
-          titulo,
-          local: [item.bairro, `${item.cidade}/${item.uf}`].filter(Boolean).join(", "),
-          preco: brl(item.preco),
-          avaliacao: item.valorAvaliacao ? brl(item.valorAvaliacao) : null,
-          desconto: item.desconto,
-          origem: item.origemNome,
-          modalidade: item.modalidade,
-          codigo: item.codigoBanco ?? item.numero,
-          url: `${siteUrl()}/leiloes/${item.numero}`,
-          financiamento: item.aceitaFinanciamento,
-        }}
-      />
+      <SoCorretor>
+        <AdKit
+          cor={PORTAL.primary}
+          marca={PORTAL.name}
+          imovel={{
+            titulo,
+            local: [item.bairro, `${item.cidade}/${item.uf}`].filter(Boolean).join(", "),
+            preco: brl(item.preco),
+            avaliacao: item.valorAvaliacao ? brl(item.valorAvaliacao) : null,
+            desconto: item.desconto,
+            origem: item.origemNome,
+            modalidade: item.modalidade,
+            codigo: item.codigoBanco ?? item.numero,
+            url: `${siteUrl()}/leiloes/${item.numero}`,
+            financiamento: item.aceitaFinanciamento,
+          }}
+        />
+      </SoCorretor>
     </div>
   )
 }
