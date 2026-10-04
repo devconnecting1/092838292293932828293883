@@ -116,6 +116,10 @@ export const PORTAL_PREFIXES = [
   "/corretor",
   "/cotas",
   "/simulador",
+  "/processos",
+  "/assinar",
+  "/parceiros",
+  "/api/portal",
 ] as const
 
 /** Caminhos exatos públicos. Também atendidos no domínio raiz (ROOT_HOST_PREFIXES). */

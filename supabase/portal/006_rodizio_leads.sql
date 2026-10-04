@@ -52,6 +52,10 @@ drop policy if exists lead_ofertas_le on public.lead_ofertas;
 create policy lead_ofertas_le on public.lead_ofertas for select to authenticated
   using (corretor_id = auth.uid() or public.sou_admin());
 
+-- Prioridade por plano (007_planos... substitui esta versão; aqui todos empatam).
+create or replace function public.rank_plano(p_user uuid) returns int
+language sql stable as $$ select 0 $$;
+
 -- Prazo de resposta respeitando o horário comercial de Brasília.
 create or replace function public.prazo_lead(p_minutos int default 30) returns timestamptz
 language plpgsql stable as $$
@@ -127,6 +131,7 @@ begin
           when m0.latitude is null or m.latitude is null then 1e9
           else (m.latitude - m0.latitude) ^ 2 + ((m.longitude - m0.longitude) * cos(radians(m0.latitude))) ^ 2
      end,
+     public.rank_plano(p.user_id) desc,
      p.ultimo_lead_em asc nulls first,
      random()
    limit 1;

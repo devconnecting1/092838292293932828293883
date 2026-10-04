@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation"
 import { BRAZILIAN_STATES } from "@workspace/core/br/states"
 
 import { AreaAtendimento, LeadsRodizio } from "@/components/portal/leads-rodizio"
+import { PlanoAtual } from "@/components/portal/plano-atual"
 import { DOCS, portalBrowserClient, slugDe, type Perfil } from "@/lib/portal/browser-client"
 
 const campo = "h-11 rounded-lg border border-slate-300 px-3"
@@ -191,6 +192,8 @@ export function CorretorPainel() {
       </div>
 
       <p className={`rounded-2xl border p-4 font-semibold ${selo.cor}`}>{selo.t}</p>
+
+      <PlanoAtual plano={perfil?.plano ?? null} ate={perfil?.plano_ate ?? null} />
 
       {status === "aprovado" && uid && (perfil?.perfil === "corretor" || admin) ? (
         <>

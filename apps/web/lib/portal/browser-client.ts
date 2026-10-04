@@ -53,6 +53,8 @@ export type Perfil = {
   enviado_em: string | null
   bairros_atuacao?: string[] | null
   recebe_leads?: boolean | null
+  plano?: string | null
+  plano_ate?: string | null
 }
 
 export function slugDe(nome: string) {
