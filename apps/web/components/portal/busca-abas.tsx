@@ -5,18 +5,17 @@ import Link from "next/link"
 
 import { BRAZILIAN_STATES } from "@workspace/core/br/states"
 
-type Aba = "arrematar" | "comprar" | "alugar"
+type Aba = "arrematar" | "comprar"
 
 const ABAS: [Aba, string, string][] = [
   ["arrematar", "Arrematar", "/leiloes"],
   ["comprar", "Comprar", "/imoveis-a-venda"],
-  ["alugar", "Alugar", "/imoveis-para-alugar"],
 ]
 
 const sel = "h-12 rounded-lg border border-slate-300 bg-white px-2 text-base text-slate-900"
 const lab = "flex flex-col gap-1 text-xs font-bold text-slate-600"
 
-/** Busca da página inicial com abas: leilão, compra direta com o dono e aluguel. */
+/** Busca da página inicial com abas: leilão e compra direta com o dono. */
 export function BuscaAbas({ tipos }: { tipos: { value: string; label: string }[] }) {
   const [aba, setAba] = React.useState<Aba>("arrematar")
   const acao = ABAS.find(([a]) => a === aba)?.[2] ?? "/leiloes"
@@ -104,11 +103,8 @@ export function BuscaAbas({ tipos }: { tipos: { value: string; label: string }[]
         <Link href="/quanto-vale-meu-imovel" className="text-[var(--brand-deep)] underline">
           Quanto vale meu imóvel?
         </Link>
-        <Link href="/quanto-cobrar-de-aluguel" className="text-[var(--brand-deep)] underline">
-          Quanto cobrar de aluguel?
-        </Link>
         <Link href="/anuncie-gratis" className="text-[var(--brand-deep)] underline">
-          Quero vender ou alugar
+          Quero vender meu imóvel
         </Link>
       </div>
     </div>

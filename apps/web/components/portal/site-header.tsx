@@ -69,7 +69,6 @@ export const PORTAL_MENU: MenuItem[] = [
           { label: "Para morar ou para investir", href: "/como-funciona#perfis" },
           { label: "Arremate em cotas", href: "/cotas" },
           { label: "Imóveis à venda (direto com o dono)", href: "/imoveis-a-venda" },
-          { label: "Imóveis para alugar", href: "/imoveis-para-alugar" },
           { label: "Anuncie seu imóvel grátis", href: "/anuncie-gratis" },
         ],
       },
@@ -78,7 +77,6 @@ export const PORTAL_MENU: MenuItem[] = [
         links: [
           { label: "Avalie seu crédito", href: "/credito" },
           { label: "Quanto vale meu imóvel", href: "/quanto-vale-meu-imovel" },
-          { label: "Quanto cobrar de aluguel", href: "/quanto-cobrar-de-aluguel" },
         ],
       },
     ],

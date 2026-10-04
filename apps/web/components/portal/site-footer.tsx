@@ -26,7 +26,6 @@ export function SiteFooter() {
             ["Como funciona", "/como-funciona"],
             ["Avalie seu crédito", "/credito"],
             ["Imóveis à venda", "/imoveis-a-venda"],
-            ["Imóveis para alugar", "/imoveis-para-alugar"],
             ["Quanto vale meu imóvel", "/quanto-vale-meu-imovel"],
             ["Anuncie seu imóvel", "/anuncie-gratis"],
           ]}

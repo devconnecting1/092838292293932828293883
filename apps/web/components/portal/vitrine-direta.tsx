@@ -47,12 +47,6 @@ export async function VitrineDireta({
           >
             Comprar
           </Link>
-          <Link
-            href="/imoveis-para-alugar"
-            className={`rounded-full px-4 py-2 ${aluguel ? "bg-[var(--brand)] text-white" : "border border-slate-300 bg-white"}`}
-          >
-            Alugar
-          </Link>
         </div>
         <form className="flex flex-wrap gap-2" action={rota}>
           <select name="uf" defaultValue={uf ?? ""} className={campo}>
@@ -146,12 +140,11 @@ export async function VitrineDireta({
             ))}
           </div>
         )}
-        <div className="grid gap-3 sm:grid-cols-3">
+        <div className="grid gap-3 sm:grid-cols-2">
           {(
             [
               ["/quanto-vale-meu-imovel", "Quanto vale meu imóvel?"],
-              ["/quanto-cobrar-de-aluguel", "Quanto cobrar de aluguel?"],
-              ["/anuncie-gratis", "Anunciar para vender ou alugar"],
+              ["/anuncie-gratis", "Anunciar meu imóvel para venda"],
             ] as [string, string][]
           ).map(([h, t]) => (
             <Link

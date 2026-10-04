@@ -42,8 +42,8 @@ export default async function PortalHome() {
               Imóvel de leilão abaixo da avaliação, para morar ou para investir.
             </h1>
             <p className="max-w-xl text-lg leading-relaxed text-slate-700">
-              Leilões da Caixa, de outros bancos e da Justiça em todos os estados, com a conta dos
-              custos antes do lance e assessoria até a chave na mão.
+              Imóveis de leilão com a conta dos custos antes do lance e assessoria até a chave na
+              mão. Outros bancos e leilões judiciais, sob consulta com a nossa equipe.
             </p>
             <BuscaAbas tipos={TIPOS_FILTRO.map((t) => ({ value: t.value, label: t.label }))} />
             {facets.total > 0 ? (

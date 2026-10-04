@@ -180,7 +180,8 @@ export function CalculadoraPreco({ modo }: { modo: "venda" | "aluguel" }) {
                   Faixa provável: {brl(venda.min)} a {brl(venda.max)}.
                 </p>
                 <p className="text-sm text-slate-600">
-                  Para aluguel, algo entre {brl(aluguel.min)} e {brl(aluguel.max)} por mês.
+                  Para quem compra para investir: renda de aluguel estimada entre {brl(aluguel.min)}{" "}
+                  e {brl(aluguel.max)} por mês.
                 </p>
               </>
             ) : (
@@ -209,7 +210,7 @@ export function CalculadoraPreco({ modo }: { modo: "venda" | "aluguel" }) {
                 href="/anuncie-gratis"
                 className="rounded-full bg-[var(--brand)] px-5 py-2.5 font-bold text-white"
               >
-                Anunciar para {modo === "venda" ? "vender" : "alugar"}
+                Anunciar para vender
               </Link>
               <a
                 href={whatsappHref(

@@ -71,5 +71,5 @@ export function precoAnuncio(a: Pick<AvulsoPublico, "preco" | "finalidade">) {
 
 export const ROTA_FINALIDADE = {
   venda: "/imoveis-a-venda",
-  aluguel: "/imoveis-para-alugar",
+  aluguel: "/imoveis-a-venda",
 } as const

@@ -265,7 +265,7 @@ export function AnuncioProprietario() {
   const [status, setStatus] = React.useState<"" | "enviando" | "ok" | "erro">("")
   const [erro, setErro] = React.useState("")
   const [aceitaCorretor, setAceitaCorretor] = React.useState(true)
-  const [finalidade, setFinalidade] = React.useState<"venda" | "aluguel">("venda")
+  const finalidade = "venda" as "venda" | "aluguel"
   const [dados, setDados] = React.useState({
     tipo: "Apartamento",
     bairro: "",
@@ -408,23 +408,6 @@ export function AnuncioProprietario() {
           action={enviar}
           className="flex flex-col gap-5 rounded-2xl border border-slate-200 p-6"
         >
-          <div className="flex gap-1 self-start rounded-full border border-slate-300 p-1">
-            {(
-              [
-                ["venda", "Quero vender"],
-                ["aluguel", "Quero alugar"],
-              ] as const
-            ).map(([v, l]) => (
-              <button
-                key={v}
-                type="button"
-                onClick={() => setFinalidade(v)}
-                className={`rounded-full px-5 py-2 text-sm font-bold ${finalidade === v ? "bg-[var(--brand)] text-white" : "text-slate-700"}`}
-              >
-                {l}
-              </button>
-            ))}
-          </div>
           <fieldset className="grid gap-3 sm:grid-cols-2">
             <legend className="mb-2 font-extrabold">O imóvel</legend>
             <select
