@@ -1,8 +1,7 @@
 import type { Metadata } from "next"
 
 import { PageHero, Section, Steps } from "@/components/portal/content"
-import { CreditSimulator } from "@/components/portal/credit-simulator"
-import { whatsappHref } from "@/lib/portal/config"
+import { FinancingSimulator } from "@/components/portal/financing-simulator"
 
 export const metadata: Metadata = {
   title: "Avalie seu crédito antes do leilão",
@@ -17,15 +16,10 @@ export default function CreditoPage() {
         kicker="Primeiro o crédito, depois o lance"
         title="Avalie seu crédito primeiro. Depois compre com segurança."
         text="Saber quanto o banco pode financiar antes do leilão evita o pior cenário: arrematar e não conseguir pagar."
-      >
-        <div className="mt-4 max-w-xl">
-          <CreditSimulator
-            ctaHref={whatsappHref(
-              "Olá! Quero fazer a análise de crédito antes de comprar um imóvel de leilão."
-            )}
-          />
-        </div>
-      </PageHero>
+      />
+      <div className="mx-auto -mt-6 max-w-[1240px] px-4 sm:px-6">
+        <FinancingSimulator />
+      </div>
       <Section title="Comprar com segurança em 4 passos">
         <Steps
           items={[

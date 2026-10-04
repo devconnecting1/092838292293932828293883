@@ -73,8 +73,9 @@ export default async function CorretorPage({ params }: Props) {
           </span>
           <h1 className="mt-2 text-3xl font-extrabold tracking-tight">{c.nome}</h1>
           <p className="text-slate-700">
-            Corretor de imóveis, CRECI {c.creci}
-            {c.creci_uf ? `/${c.creci_uf}` : ""}
+            {c.creci
+              ? `Corretor de imóveis, CRECI ${c.creci}${c.creci_uf ? `/${c.creci_uf}` : ""}`
+              : "Investidor imobiliário"}
             {c.cidade ? ` · ${c.cidade}/${c.uf}` : ""}
           </p>
         </div>

@@ -23,7 +23,7 @@ export function CorretorAprovacao() {
     const { data } = await sb
       .from("perfis")
       .select("*")
-      .eq("perfil", "corretor")
+      .in("perfil", ["corretor", "investidor"])
       .eq("status", filtro)
       .order("enviado_em", { ascending: true, nullsFirst: false })
     const rows = (data ?? []) as Perfil[]
@@ -125,7 +125,12 @@ export function CorretorAprovacao() {
                   <div className="size-24 rounded-xl bg-slate-100" />
                 )}
                 <div className="min-w-0 text-sm">
-                  <p className="text-lg font-extrabold">{p.nome}</p>
+                  <p className="text-lg font-extrabold">
+                    {p.nome}{" "}
+                    <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-bold text-slate-600 capitalize">
+                      {p.perfil}
+                    </span>
+                  </p>
                   <p>
                     CRECI {p.creci}/{p.creci_uf} · WhatsApp {p.whatsapp} · {p.email}
                   </p>

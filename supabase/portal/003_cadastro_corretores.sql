@@ -79,7 +79,7 @@ create or replace function public.corretor_publico(p_slug text)
 returns table (slug text, nome text, creci text, creci_uf text, whatsapp text, cidade text, uf text, foto_path text)
 language sql stable security definer set search_path = public as $$
   select slug, nome, creci, creci_uf, whatsapp, cidade, uf, foto_path
-  from perfis where slug = p_slug and status = 'aprovado' and creci_ok and perfil = 'corretor'
+  from perfis where slug = p_slug and status = 'aprovado' and creci_ok and perfil in ('corretor', 'investidor')
 $$;
 revoke all on function public.corretor_publico(text) from public;
 grant execute on function public.corretor_publico(text) to anon, authenticated;

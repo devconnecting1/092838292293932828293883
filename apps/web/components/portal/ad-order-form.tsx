@@ -219,14 +219,24 @@ export function AdOrderForm({
           />
         ) : null}
         <input name="site" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden="true" />
-        <label className="flex items-start gap-2 text-xs leading-relaxed text-slate-700">
-          <input type="checkbox" name="termo" required className="mt-0.5 size-4" />
+        <label className="block text-xs leading-relaxed text-slate-700">
+          <input
+            type="checkbox"
+            name="termo"
+            required
+            className="mr-2 inline size-4 align-[-3px]"
+          />
           Declaro que tenho autorização para anunciar estes imóveis e que respondo pelo atendimento
           dos interessados. A publicação nos portais é feita pela {empresa}, depois do pagamento e
           da aprovação.
         </label>
-        <label className="flex items-start gap-2 text-xs leading-relaxed text-slate-700">
-          <input type="checkbox" name="consentimento" required className="mt-0.5 size-4" />
+        <label className="block text-xs leading-relaxed text-slate-700">
+          <input
+            type="checkbox"
+            name="consentimento"
+            required
+            className="mr-2 inline size-4 align-[-3px]"
+          />
           Autorizo o uso dos meus dados para tratar este pedido, conforme a{" "}
           <Link href="/privacidade" className="font-bold underline">
             Política de Privacidade

@@ -5,6 +5,7 @@ import Link from "next/link"
 import { ChevronDownIcon, MenuIcon, XIcon } from "lucide-react"
 
 import { HeaderPhone } from "@/components/portal/contact-button"
+import { Logo } from "@/components/portal/logo"
 
 type MenuLink = { label: string; href: string }
 type MenuGroup = { title: string; links: MenuLink[] }
@@ -147,9 +148,7 @@ export function SiteHeader({
             // eslint-disable-next-line @next/next/no-img-element -- logomarca configurável por URL
             <img src={logoUrl} alt={name} className="h-11 w-auto" />
           ) : (
-            <span className="text-xl font-extrabold tracking-tight text-[var(--brand-deep)]">
-              {name}
-            </span>
+            <Logo nome={name} />
           )}
         </Link>
 

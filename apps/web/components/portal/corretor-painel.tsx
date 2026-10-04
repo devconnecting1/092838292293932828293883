@@ -19,6 +19,7 @@ export function CorretorPainel() {
   const router = useRouter()
   const [perfil, setPerfil] = React.useState<Perfil | null>(null)
   const [uid, setUid] = React.useState<string | null>(null)
+  const [tipoMeta, setTipoMeta] = React.useState<string | null>(null)
   const [admin, setAdmin] = React.useState(false)
   const [carregando, setCarregando] = React.useState(true)
   const [erro, setErro] = React.useState("")
@@ -34,6 +35,7 @@ export function CorretorPainel() {
       return
     }
     setUid(u.user.id)
+    setTipoMeta(typeof u.user.user_metadata?.tipo === "string" ? u.user.user_metadata.tipo : null)
     const [{ data: p }, { data: a }] = await Promise.all([
       sb.from("perfis").select("*").eq("user_id", u.user.id).maybeSingle(),
       sb.rpc("sou_admin"),
@@ -48,6 +50,11 @@ export function CorretorPainel() {
     return () => clearTimeout(t)
   }, [carregar])
 
+  const tipo: "corretor" | "investidor" =
+    perfil?.perfil === "investidor" || (!perfil && tipoMeta === "investidor")
+      ? "investidor"
+      : "corretor"
+
   async function salvar(fd: FormData) {
     const sb = portalBrowserClient()
     if (!sb || !uid) return
@@ -58,7 +65,7 @@ export function CorretorPainel() {
       const nome = String(fd.get("nome") ?? "").trim()
       const linha: Record<string, unknown> = {
         user_id: uid,
-        ...(admin ? {} : { perfil: "corretor", creci_ok: false }),
+        ...(admin ? {} : { perfil: tipo, creci_ok: false }),
         nome,
         creci: String(fd.get("creci") ?? "").trim(),
         creci_uf: String(fd.get("creci_uf") ?? ""),
@@ -94,7 +101,9 @@ export function CorretorPainel() {
         if (error) throw new Error(`Não foi possível enviar ${f.name}.`)
         linha[col] = path
       }
-      const faltando = DOCS.filter((d) => !linha[d.campo] && !perfil?.[d.campo])
+      const faltando = (
+        tipo === "corretor" ? DOCS : DOCS.filter((d) => d.campo === "doc_residencia_path")
+      ).filter((d) => !linha[d.campo] && !perfil?.[d.campo])
       if (faltando.length)
         throw new Error(`Falta enviar: ${faltando.map((d) => d.rotulo).join(", ")}.`)
       const { error } = await sb.from("perfis").upsert(linha)
@@ -206,7 +215,9 @@ export function CorretorPainel() {
           className="flex flex-col gap-5 rounded-2xl border border-slate-200 p-6"
         >
           <fieldset className="grid gap-3 sm:grid-cols-2">
-            <legend className="mb-2 font-extrabold">Dados profissionais</legend>
+            <legend className="mb-2 font-extrabold">
+              {tipo === "corretor" ? "Dados profissionais" : "Dados do investidor"}
+            </legend>
             <input
               name="nome"
               required
@@ -214,25 +225,29 @@ export function CorretorPainel() {
               placeholder="Nome completo"
               className={`${campo} sm:col-span-2`}
             />
-            <input
-              name="creci"
-              required
-              defaultValue={perfil?.creci ?? ""}
-              placeholder="Número do CRECI"
-              className={campo}
-            />
-            <select
-              name="creci_uf"
-              required
-              defaultValue={perfil?.creci_uf ?? "RJ"}
-              className={`${campo} bg-white`}
-            >
-              {BRAZILIAN_STATES.map((s) => (
-                <option key={s.code} value={s.code}>
-                  CRECI de {s.name}
-                </option>
-              ))}
-            </select>
+            {tipo === "corretor" ? (
+              <>
+                <input
+                  name="creci"
+                  required
+                  defaultValue={perfil?.creci ?? ""}
+                  placeholder="Número do CRECI"
+                  className={campo}
+                />
+                <select
+                  name="creci_uf"
+                  required
+                  defaultValue={perfil?.creci_uf ?? "RJ"}
+                  className={`${campo} bg-white`}
+                >
+                  {BRAZILIAN_STATES.map((s) => (
+                    <option key={s.code} value={s.code}>
+                      CRECI de {s.name}
+                    </option>
+                  ))}
+                </select>
+              </>
+            ) : null}
             <input
               name="whatsapp"
               required
@@ -283,7 +298,11 @@ export function CorretorPainel() {
             </select>
           </fieldset>
           <fieldset className="flex flex-col gap-3">
-            <legend className="mb-2 font-extrabold">Foto ou logo e documentos do Selo Verde</legend>
+            <legend className="mb-2 font-extrabold">
+              {tipo === "corretor"
+                ? "Foto ou logo e documentos do Selo Verde"
+                : "Foto ou logo e comprovante de residência"}
+            </legend>
             <label className="flex flex-col gap-1 text-sm font-semibold text-slate-700">
               Sua foto ou logo (aparece na sua página e nos anúncios)
               <input
@@ -293,7 +312,10 @@ export function CorretorPainel() {
                 className="text-sm"
               />
             </label>
-            {DOCS.map((d) => (
+            {(tipo === "corretor"
+              ? DOCS
+              : DOCS.filter((d) => d.campo === "doc_residencia_path")
+            ).map((d) => (
               <label
                 key={d.campo}
                 className="flex flex-col gap-1 text-sm font-semibold text-slate-700"
@@ -317,8 +339,8 @@ export function CorretorPainel() {
               conferir o Selo Verde, conforme a Política de Privacidade.
             </p>
           </fieldset>
-          <label className="flex items-start gap-2 text-xs leading-relaxed text-slate-700">
-            <input type="checkbox" required className="mt-0.5 size-4" />
+          <label className="block text-xs leading-relaxed text-slate-700">
+            <input type="checkbox" required className="mr-2 inline size-4 align-[-3px]" />
             Declaro que as informações são verdadeiras e que sou o único responsável técnico pelas
             intermediações que eu fizer pelo portal, salvo parceria formal com a empresa.
           </label>

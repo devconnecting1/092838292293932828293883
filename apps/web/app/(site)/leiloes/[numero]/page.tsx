@@ -4,6 +4,7 @@ import { notFound } from "next/navigation"
 
 import { AssessoriaForm } from "@/components/portal/assessoria-form"
 import { CorretorAcoes } from "@/components/portal/corretor-acoes"
+import { FinancingSimulator } from "@/components/portal/financing-simulator"
 import { ListingGallery } from "@/components/portal/listing-gallery"
 import { areCaixaPhotosEnabled } from "@/lib/caixa/photos"
 import { brl, dataHora, getPortalListing, tipoLabel, usaFotoCaixa } from "@/lib/portal/imoveis"
@@ -132,6 +133,15 @@ export default async function ImovelPage({ params }: Props) {
                 ))}
             </dl>
           </div>
+          {item.aceitaFinanciamento ? (
+            <div className="mt-6" id="financiamento">
+              <FinancingSimulator
+                valorImovel={item.preco}
+                imovelId={item.numero}
+                imovelTitulo={`${tipoLabel(item.tipo)} em ${item.cidade}/${item.uf}`}
+              />
+            </div>
+          ) : null}
           {item.descricao ? (
             <div className="mt-6">
               <h2 className="text-lg font-extrabold">Descrição</h2>

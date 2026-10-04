@@ -80,8 +80,13 @@ export function AssessoriaForm({ imovelId, titulo }: { imovelId: string; titulo:
         placeholder="Conte o que você precisa (opcional)"
         className="rounded-lg border border-slate-300 p-3 text-sm"
       />
-      <label className="flex items-start gap-2 text-xs leading-relaxed text-slate-700">
-        <input type="checkbox" name="consentimento" required className="mt-0.5 size-4" />
+      <label className="block text-xs leading-relaxed text-slate-700">
+        <input
+          type="checkbox"
+          name="consentimento"
+          required
+          className="mr-2 inline size-4 align-[-3px]"
+        />
         Autorizo o contato e o uso dos meus dados para este pedido, conforme a{" "}
         <Link href="/privacidade" className="font-bold underline">
           Política de Privacidade

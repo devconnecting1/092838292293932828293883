@@ -15,6 +15,7 @@ export function CorretorCadastro({ modo }: { modo: "cadastro" | "entrar" }) {
   const [erro, setErro] = React.useState("")
   const [aviso, setAviso] = React.useState("")
   const [enviando, setEnviando] = React.useState(false)
+  const [tipo, setTipo] = React.useState<"corretor" | "investidor">("corretor")
 
   async function enviar(fd: FormData) {
     setErro("")
@@ -39,7 +40,7 @@ export function CorretorCadastro({ modo }: { modo: "cadastro" | "entrar" }) {
         email,
         password: senha,
         options: {
-          data: { nome },
+          data: { nome, tipo },
           emailRedirectTo: `${window.location.origin}/corretores/entrar`,
         },
       })
@@ -49,9 +50,9 @@ export function CorretorCadastro({ modo }: { modo: "cadastro" | "entrar" }) {
           user_id: data.user.id,
           nome,
           email,
-          perfil: "corretor",
-          creci: String(fd.get("creci") ?? "").trim(),
-          creci_uf: String(fd.get("creci_uf") ?? ""),
+          perfil: tipo,
+          creci: tipo === "corretor" ? String(fd.get("creci") ?? "").trim() : null,
+          creci_uf: tipo === "corretor" ? String(fd.get("creci_uf") ?? "") : null,
           whatsapp: String(fd.get("whatsapp") ?? "").trim(),
           creci_ok: false,
         })
@@ -73,7 +74,7 @@ export function CorretorCadastro({ modo }: { modo: "cadastro" | "entrar" }) {
           Área do corretor
         </span>
         <h1 className="mt-1 text-3xl font-extrabold tracking-tight">
-          {modo === "cadastro" ? "Cadastre-se com o seu CRECI" : "Entrar"}
+          {modo === "cadastro" ? "Crie sua conta grátis" : "Entrar"}
         </h1>
         {modo === "cadastro" ? (
           <p className="mt-2 leading-relaxed text-slate-600">
@@ -85,6 +86,23 @@ export function CorretorCadastro({ modo }: { modo: "cadastro" | "entrar" }) {
       <form action={enviar} className="flex flex-col gap-3 rounded-2xl border border-slate-200 p-6">
         {modo === "cadastro" ? (
           <>
+            <div className="grid grid-cols-2 gap-2">
+              {(
+                [
+                  ["corretor", "Sou corretor (CRECI)"],
+                  ["investidor", "Sou investidor"],
+                ] as const
+              ).map(([v, l]) => (
+                <button
+                  key={v}
+                  type="button"
+                  onClick={() => setTipo(v)}
+                  className={`rounded-lg border px-3 py-2.5 text-sm font-bold ${tipo === v ? "border-[var(--brand)] bg-[var(--brand-soft)]" : "border-slate-300"}`}
+                >
+                  {l}
+                </button>
+              ))}
+            </div>
             <input
               name="nome"
               required
@@ -92,16 +110,18 @@ export function CorretorCadastro({ modo }: { modo: "cadastro" | "entrar" }) {
               placeholder="Nome completo"
               className={campo}
             />
-            <div className="grid grid-cols-[1fr_110px] gap-2">
-              <input name="creci" required placeholder="Número do CRECI" className={campo} />
-              <select name="creci_uf" required defaultValue="RJ" className={`${campo} bg-white`}>
-                {BRAZILIAN_STATES.map((s) => (
-                  <option key={s.code} value={s.code}>
-                    {s.code}
-                  </option>
-                ))}
-              </select>
-            </div>
+            {tipo === "corretor" ? (
+              <div className="grid grid-cols-[1fr_110px] gap-2">
+                <input name="creci" required placeholder="Número do CRECI" className={campo} />
+                <select name="creci_uf" required defaultValue="RJ" className={`${campo} bg-white`}>
+                  {BRAZILIAN_STATES.map((s) => (
+                    <option key={s.code} value={s.code}>
+                      {s.code}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            ) : null}
             <input
               name="whatsapp"
               required
@@ -122,14 +142,22 @@ export function CorretorCadastro({ modo }: { modo: "cadastro" | "entrar" }) {
           className={campo}
         />
         {modo === "cadastro" ? (
-          <label className="flex items-start gap-2 text-xs leading-relaxed text-slate-700">
-            <input type="checkbox" required className="mt-0.5 size-4" />
+          <label className="block text-xs leading-relaxed text-slate-700">
+            <input type="checkbox" required className="mr-2 inline size-4 align-[-3px]" />
             Li e aceito a{" "}
             <Link href="/privacidade" className="font-bold underline">
               Política de Privacidade
             </Link>
             . Sei que meus documentos serão usados só para conferir o Selo Verde.
           </label>
+        ) : null}
+        {modo === "entrar" ? (
+          <Link
+            href="/corretores/recuperar"
+            className="self-end text-sm font-bold text-[var(--brand)]"
+          >
+            Esqueci minha senha
+          </Link>
         ) : null}
         {erro ? <p className="text-sm font-bold text-red-700">{erro}</p> : null}
         {aviso ? (
