@@ -8,7 +8,7 @@ import { brandCssVars, PORTAL, whatsappHref } from "@/lib/portal/config"
 export const metadata: Metadata = {
   title: {
     template: `%s · ${PORTAL.name}`,
-    default: `Leilão de imóveis em todo o Brasil · ${PORTAL.name}`,
+    absolute: `Leilão de imóveis em todo o Brasil · ${PORTAL.name}`,
   },
   description:
     "Imóveis de leilão da Caixa em todo o Brasil, com desconto sobre a avaliação, cálculo de custos e assessoria do edital à chave.",

@@ -2,7 +2,7 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 
-import { CaixaPhoto } from "@/components/caixa/caixa-photo"
+import { ListingGallery } from "@/components/portal/listing-gallery"
 import { areCaixaPhotosEnabled } from "@/lib/caixa/photos"
 import { brl, getPortalListing, tipoLabel } from "@/lib/portal/caixa"
 import { PORTAL, whatsappHref } from "@/lib/portal/config"
@@ -54,31 +54,7 @@ export default async function ImovelPage({ params }: Props) {
         · {item.cidade}
       </nav>
 
-      <div className="grid gap-3 md:grid-cols-[2fr_1fr]">
-        <CaixaPhoto
-          numero={item.numero}
-          index={0}
-          enabled={photos}
-          alt="Foto principal do imóvel"
-          className="h-72 w-full rounded-2xl md:h-[420px]"
-        />
-        <div className="grid gap-3">
-          <CaixaPhoto
-            numero={item.numero}
-            index={1}
-            enabled={photos}
-            alt="Foto do imóvel"
-            className="h-40 w-full rounded-2xl md:h-[204px]"
-          />
-          <CaixaPhoto
-            numero={item.numero}
-            index={2}
-            enabled={photos}
-            alt="Foto do imóvel"
-            className="h-40 w-full rounded-2xl md:h-[204px]"
-          />
-        </div>
-      </div>
+      <ListingGallery numero={item.numero} enabled={photos} />
 
       <div className="flex flex-wrap items-start gap-7">
         <div className="min-w-0 flex-[999_1_560px]">

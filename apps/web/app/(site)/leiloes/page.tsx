@@ -37,7 +37,10 @@ export default async function LeiloesPage({ searchParams }: Props) {
 
   return (
     <div className="mx-auto flex max-w-[1240px] flex-wrap items-start gap-7 px-4 py-8 sm:px-6">
-      <aside className="w-full rounded-2xl border border-slate-200 p-5 lg:sticky lg:top-24 lg:w-72">
+      <aside
+        id="filtros"
+        className="order-2 w-full scroll-mt-20 rounded-2xl border border-slate-200 p-5 lg:sticky lg:top-24 lg:order-1 lg:w-72"
+      >
         <form action="/leiloes" className="flex flex-col gap-4">
           <span className="text-lg font-extrabold">Filtros</span>
           <Field label="Busca">
@@ -146,10 +149,18 @@ export default async function LeiloesPage({ searchParams }: Props) {
         </form>
       </aside>
 
-      <section className="min-w-0 flex-1">
-        <h1 className="text-2xl font-extrabold tracking-tight sm:text-3xl">
-          Leilões da Caixa em {lugar}
-        </h1>
+      <section className="order-1 min-w-0 flex-1 lg:order-2">
+        <div className="flex items-start justify-between gap-3">
+          <h1 className="text-2xl font-extrabold tracking-tight sm:text-3xl">
+            Leilões da Caixa em {lugar}
+          </h1>
+          <a
+            href="#filtros"
+            className="shrink-0 rounded-xl border border-slate-300 px-4 py-2 text-sm font-bold lg:hidden"
+          >
+            Filtrar
+          </a>
+        </div>
         <p className="mt-1 text-slate-600">
           {result.total.toLocaleString("pt-BR")} imóve{result.total === 1 ? "l" : "is"} encontrado
           {result.total === 1 ? "" : "s"}

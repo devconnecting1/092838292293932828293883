@@ -3,25 +3,42 @@ import "server-only"
 import { createClient } from "@supabase/supabase-js"
 
 import { isStateCode } from "@workspace/core/br/states"
-import {
-  PROPERTY_TYPE_LABELS,
-  PROPERTY_TYPE_VALUES,
-  type PropertyType,
-} from "@workspace/core/properties/enums"
-import type { Database } from "@workspace/database/types"
 
 import { getSupabaseEnv } from "@/lib/supabase/env"
+
+/**
+ * Leitura do catálogo de imóveis da Caixa para o portal público.
+ *
+ * Fonte: tabela `public.imoveis` do projeto Supabase do portal (importação da
+ * lista oficial da Caixa por estado). A tabela tem RLS com leitura pública
+ * (política `imoveis_publico`), então o portal lê só com a chave pública, sem
+ * sessão e sem chave de serviço.
+ */
 
 export const PORTAL_PAGE_SIZE = 24
 
 const SORTS = ["desconto", "novidades", "preco_asc", "preco_desc"] as const
 export type PortalSort = (typeof SORTS)[number]
 
+export const TIPOS_FILTRO = [
+  "Apartamento",
+  "Casa",
+  "Sobrado",
+  "Terreno",
+  "Sala",
+  "Loja",
+  "Comercial",
+  "Galpão",
+  "Prédio",
+  "Gleba",
+  "Imóvel rural",
+].map((t) => ({ value: t, label: t }))
+
 export type PortalFilters = {
   q: string
   uf: string
   cidade: string
-  tipo: PropertyType | ""
+  tipo: string
   financiamento: boolean | null
   minDesconto: number | null
   maxPreco: number | null
@@ -42,7 +59,7 @@ export type PortalListing = {
   descricao: string | null
   modalidade: string | null
   link: string
-  tipo: PropertyType
+  tipo: string
   areaPrivativa: number | null
   areaTotal: number | null
   areaTerreno: number | null
@@ -77,10 +94,10 @@ export function parsePortalFilters(params: Params): PortalFilters {
   const tipo = first(params.tipo)
   const sort = first(params.ordem)
   return {
-    q: first(params.q).slice(0, 100),
+    q: first(params.q).slice(0, 80),
     uf: isStateCode(uf) ? uf : "",
     cidade: first(params.cidade).slice(0, 120),
-    tipo: (PROPERTY_TYPE_VALUES as readonly string[]).includes(tipo) ? (tipo as PropertyType) : "",
+    tipo: TIPOS_FILTRO.some((t) => t.value === tipo) ? tipo : "",
     financiamento: fin === "sim" ? true : fin === "nao" ? false : null,
     minDesconto: int(first(params.desconto), 99),
     maxPreco: int(first(params.ate), 999_999_999),
@@ -105,90 +122,116 @@ export function filtersToParams(f: PortalFilters) {
 function client() {
   const env = getSupabaseEnv()
   if (!env) return null
-  return createClient<Database>(env.url, env.publishableKey, {
+  return createClient(env.url, env.publishableKey, {
     auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
   })
 }
 
-function num(v: unknown) {
-  return v === null || v === undefined ? null : Number(v)
-}
+const COLUMNS =
+  "id,uf,cidade,bairro,endereco,preco,avaliacao,desconto,financiamento,descricao,tipo,area_total,area_privativa,area_terreno,quartos,vagas,modalidade,link,atualizado"
 
 type Row = {
-  numero: string
+  id: string
   uf: string
   cidade: string
   bairro: string | null
-  endereco: string
+  endereco: string | null
   preco: number | string
-  valor_avaliacao: number | string | null
+  avaliacao: number | string | null
   desconto: number | string | null
-  aceita_financiamento: boolean | null
+  financiamento: boolean | null
   descricao: string | null
-  modalidade: string | null
-  link: string
-  tipo: PropertyType
+  tipo: string | null
   area_total: number | string | null
   area_privativa: number | string | null
   area_terreno: number | string | null
   quartos: number | null
   vagas: number | null
-  lista_gerada_em: string | null
-  total_count?: number | string
+  modalidade: string | null
+  link: string | null
+  atualizado: string | null
+}
+
+function num(v: unknown) {
+  if (v === null || v === undefined || v === "") return null
+  const n = Number(v)
+  return Number.isFinite(n) && n > 0 ? n : null
 }
 
 function toListing(r: Row): PortalListing {
   return {
-    numero: r.numero,
+    numero: r.id,
     uf: r.uf,
     cidade: r.cidade,
     bairro: r.bairro,
-    endereco: r.endereco,
+    endereco: r.endereco ?? "",
     preco: Number(r.preco),
-    valorAvaliacao: num(r.valor_avaliacao),
+    valorAvaliacao: num(r.avaliacao),
     desconto: num(r.desconto),
-    aceitaFinanciamento: r.aceita_financiamento,
+    aceitaFinanciamento: r.financiamento,
     descricao: r.descricao,
     modalidade: r.modalidade,
-    link: r.link,
-    tipo: r.tipo,
+    link:
+      r.link && r.link.startsWith("https://venda-imoveis.caixa.gov.br/")
+        ? r.link
+        : `https://venda-imoveis.caixa.gov.br/sistema/detalhe-imovel.asp?hdnimovel=${r.id}`,
+    tipo: r.tipo ?? "Imóvel",
     areaTotal: num(r.area_total),
     areaPrivativa: num(r.area_privativa),
     areaTerreno: num(r.area_terreno),
     quartos: r.quartos,
     vagas: r.vagas,
-    listaGeradaEm: r.lista_gerada_em,
+    listaGeradaEm: r.atualizado,
   }
 }
 
+/** Remove o que tem significado na sintaxe de filtros do PostgREST. */
+function safeTerm(value: string) {
+  return value
+    .replace(/[%,().*:"'\\]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+}
+
 export async function searchPortalListings(f: PortalFilters, limit = PORTAL_PAGE_SIZE) {
+  const empty = { items: [] as PortalListing[], total: 0, pageCount: 0 }
   const supabase = client()
-  if (!supabase) return { items: [] as PortalListing[], total: 0, pageCount: 0, configured: false }
+  if (!supabase) return empty
 
-  const { data, error } = await supabase.rpc("public_search_caixa_listings", {
-    p_term: f.q || undefined,
-    p_uf: f.uf || undefined,
-    p_cidade: f.cidade || undefined,
-    p_tipo: f.tipo || undefined,
-    p_financiamento: f.financiamento ?? undefined,
-    p_min_desconto: f.minDesconto ?? undefined,
-    p_max_price: f.maxPreco ?? undefined,
-    p_sort: f.sort,
-    p_limit: limit,
-    p_offset: (f.page - 1) * limit,
-  })
+  let query = supabase.from("imoveis").select(COLUMNS, { count: "exact" }).eq("ativo", true)
 
-  if (error || !data) {
-    return { items: [] as PortalListing[], total: 0, pageCount: 0, configured: true }
+  if (f.uf) query = query.eq("uf", f.uf)
+  if (f.cidade) query = query.ilike("cidade", safeTerm(f.cidade))
+  if (f.tipo) query = query.eq("tipo", f.tipo)
+  if (f.financiamento != null) query = query.eq("financiamento", f.financiamento)
+  if (f.minDesconto != null) query = query.gte("desconto", f.minDesconto)
+  if (f.maxPreco != null) query = query.lte("preco", f.maxPreco)
+
+  const term = safeTerm(f.q)
+  if (term) {
+    if (/^\d{6,13}$/.test(term)) {
+      query = query.eq("id", term)
+    } else {
+      const like = `%${term}%`
+      query = query.or(`cidade.ilike.${like},bairro.ilike.${like},endereco.ilike.${like}`)
+    }
   }
 
-  const rows = data as unknown as Row[]
-  const total = rows.length ? Number(rows[0]!.total_count ?? rows.length) : 0
+  if (f.sort === "preco_asc") query = query.order("preco", { ascending: true })
+  else if (f.sort === "preco_desc") query = query.order("preco", { ascending: false })
+  else if (f.sort === "novidades") query = query.order("criado", { ascending: false })
+  else query = query.order("desconto", { ascending: false, nullsFirst: false })
+  query = query.order("id", { ascending: true })
+
+  const from = (f.page - 1) * limit
+  const { data, error, count } = await query.range(from, from + limit - 1)
+  if (error || !data) return empty
+
+  const total = count ?? data.length
   return {
-    items: rows.map(toListing),
+    items: (data as unknown as Row[]).map(toListing),
     total,
     pageCount: Math.ceil(total / limit),
-    configured: true,
   }
 }
 
@@ -196,46 +239,46 @@ export async function getPortalListing(numero: string) {
   if (!/^[0-9]{1,13}$/.test(numero)) return null
   const supabase = client()
   if (!supabase) return null
-  const { data, error } = await supabase.rpc("public_get_caixa_listing", { p_numero: numero })
+  const { data, error } = await supabase
+    .from("imoveis")
+    .select(COLUMNS)
+    .eq("id", numero)
+    .eq("ativo", true)
+    .maybeSingle()
   if (error || !data) return null
-  const rows = data as unknown as Row[]
-  return rows[0] ? toListing(rows[0]) : null
+  return toListing(data as unknown as Row)
 }
 
 export async function getPortalFacets(uf?: string): Promise<PortalFacets> {
   const empty: PortalFacets = { total: 0, atualizadoEm: null, ufs: [], cidades: [] }
   const supabase = client()
   if (!supabase) return empty
-  const { data, error } = await supabase.rpc("public_caixa_catalog_facets", {
-    p_uf: uf || undefined,
-  })
-  if (error || !data || typeof data !== "object") return empty
-  const d = data as Record<string, unknown>
+
+  const [resumo, cidades] = await Promise.all([
+    supabase.rpc("resumo_vitrine"),
+    uf ? supabase.rpc("cidades", { p_uf: uf }) : Promise.resolve({ data: [], error: null }),
+  ])
+
+  const r = (resumo.data ?? {}) as {
+    total?: number
+    atualizado?: string | null
+    ufs?: { uf: string; n: number }[] | null
+  }
+  const c = (cidades.data ?? []) as { cidade: string; n: number }[]
+
   return {
-    total: Number(d.total ?? 0),
-    atualizadoEm: (d.atualizado_em as string | null) ?? null,
-    ufs: (d.ufs as PortalFacets["ufs"]) ?? [],
-    cidades: (d.cidades as PortalFacets["cidades"]) ?? [],
+    total: Number(r.total ?? 0),
+    atualizadoEm: r.atualizado ?? null,
+    ufs: (r.ufs ?? []).map((x) => ({ uf: x.uf, count: Number(x.n) })),
+    cidades: c
+      .map((x) => ({ cidade: x.cidade, count: Number(x.n) }))
+      .sort((a, b) => a.cidade.localeCompare(b.cidade, "pt-BR")),
   }
 }
 
 export function tipoLabel(tipo: string) {
-  return PROPERTY_TYPE_LABELS[tipo as PropertyType] ?? "Imóvel"
+  return tipo || "Imóvel"
 }
-
-export const TIPOS_FILTRO: { value: PropertyType; label: string }[] = (
-  [
-    "apartment",
-    "house",
-    "condo_house",
-    "land",
-    "commercial_room",
-    "store",
-    "warehouse",
-    "building",
-    "farm",
-  ] as PropertyType[]
-).map((value) => ({ value, label: PROPERTY_TYPE_LABELS[value] }))
 
 export const brl = (v: number | null) =>
   v == null

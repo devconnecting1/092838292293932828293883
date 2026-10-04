@@ -93,7 +93,7 @@ export default async function PortalHome() {
               <span className="text-sm text-slate-600">
                 {facets.total.toLocaleString("pt-BR")} imóveis da Caixa disponíveis agora
                 {facets.atualizadoEm
-                  ? `, lista de ${new Date(facets.atualizadoEm + "T12:00:00").toLocaleDateString("pt-BR")}`
+                  ? `, lista de ${new Date(facets.atualizadoEm).toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" })}`
                   : ""}
                 .
               </span>
