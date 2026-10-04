@@ -23,6 +23,7 @@ export function SiteFooter() {
           links={[
             ["Todos os leilões", "/leiloes"],
             ["Veículos, agro e animais", "/outros-leiloes"],
+            ["Calculadora de veículos", "/calculadora-leilao-veiculos"],
             ["Como funciona", "/como-funciona"],
             ["Avalie seu crédito", "/credito"],
             ["Imóveis à venda", "/imoveis-a-venda"],

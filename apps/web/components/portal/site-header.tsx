@@ -39,10 +39,11 @@ export const PORTAL_MENU: MenuItem[] = [
       {
         title: "Outros bens",
         links: [
-          { label: "Veículos", href: "/outros-leiloes#veiculos" },
-          { label: "Agro e máquinas", href: "/outros-leiloes#agro" },
-          { label: "Animais", href: "/outros-leiloes#animais" },
-          { label: "Outros bens", href: "/outros-leiloes#diversos" },
+          { label: "Veículos", href: "/leilao-de-veiculos" },
+          { label: "Agro e máquinas", href: "/leilao-agro" },
+          { label: "Animais", href: "/leilao-de-animais" },
+          { label: "Outros bens", href: "/leilao-de-outros-bens" },
+          { label: "Calculadora de veículos", href: "/calculadora-leilao-veiculos" },
         ],
       },
       {

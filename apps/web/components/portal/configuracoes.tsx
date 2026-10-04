@@ -411,7 +411,7 @@ export function ConfiguracoesGestao() {
 
       <Bloco
         titulo="Assessoria em leilão de bens"
-        texto="Valor 'a partir de' mostrado em Outros leilões. Deixe em branco para mostrar só 'valor no orçamento'."
+        texto="Valor 'a partir de' mostrado nos guias de veículos, agro, animais e outros bens. Em branco, aparece 'valor no orçamento'. O percentual do corretor aparece na seção para corretores; em branco, 'definido no contrato'."
       >
         <div className="grid gap-4 sm:grid-cols-4">
           {(
@@ -431,6 +431,13 @@ export function ConfiguracoesGestao() {
               onChange={(v) => mudar("assessoria_bens", { [k]: v })}
             />
           ))}
+          <Numero
+            label="Corretor que indica a assessoria recebe"
+            sufixo="%"
+            vazio
+            valor={cfg.assessoria_bens.indicacao_pct ?? null}
+            onChange={(v) => mudar("assessoria_bens", { indicacao_pct: v })}
+          />
         </div>
       </Bloco>
 
