@@ -21,6 +21,17 @@ type Corretor = {
   cidade: string | null
   uf: string | null
   foto_path: string | null
+  redes?: Record<string, string> | null
+}
+
+const NOMES_REDES: Record<string, string> = {
+  instagram: "Instagram",
+  facebook: "Facebook",
+  linkedin: "LinkedIn",
+  youtube: "YouTube",
+  tiktok: "TikTok",
+  site: "Site",
+  outra: "Outra rede",
 }
 
 async function carregar(slug: string) {
@@ -85,6 +96,23 @@ export default async function CorretorPage({ params }: Props) {
           </a>
         ) : null}
       </section>
+      {c.redes && Object.keys(c.redes).length ? (
+        <nav className="flex flex-wrap gap-2" aria-label="Redes sociais">
+          {Object.entries(c.redes)
+            .filter(([, u]) => /^https:\/\//.test(u))
+            .map(([k, u]) => (
+              <a
+                key={k}
+                href={u}
+                target="_blank"
+                rel="noopener noreferrer nofollow"
+                className="rounded-full border border-slate-300 px-4 py-2 text-sm font-bold hover:border-[var(--brand)]"
+              >
+                {NOMES_REDES[k] ?? k}
+              </a>
+            ))}
+        </nav>
+      ) : null}
       <section>
         <div className="mb-4 flex items-end justify-between gap-3">
           <h2 className="text-2xl font-extrabold tracking-tight">
@@ -100,6 +128,31 @@ export default async function CorretorPage({ params }: Props) {
           ))}
         </div>
       </section>
+      {wa ? (
+        <a
+          href={wa}
+          className="fixed bottom-24 left-4 z-40 flex items-center gap-3 rounded-full bg-white py-2 pr-5 pl-2 shadow-xl ring-2 ring-[#15803D] print:hidden"
+          aria-label={`Falar com ${c.nome} no WhatsApp`}
+        >
+          {c.foto ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={c.foto} alt="" className="size-12 rounded-full object-cover" />
+          ) : (
+            <span className="grid size-12 place-items-center rounded-full bg-[#15803D] text-lg font-extrabold text-white">
+              {c.nome.slice(0, 1)}
+            </span>
+          )}
+          <span className="flex flex-col leading-tight">
+            <span className="text-sm font-extrabold">
+              {c.nome.split(" ").slice(0, 2).join(" ")}
+            </span>
+            <span className="text-xs text-slate-600">
+              {c.creci ? `CRECI ${c.creci}${c.creci_uf ? `/${c.creci_uf}` : ""}` : "WhatsApp"}
+            </span>
+            <span className="text-xs font-bold text-[#15803D]">Chamar no WhatsApp</span>
+          </span>
+        </a>
+      ) : null}
       <p className="text-xs leading-relaxed text-slate-500">
         Página do corretor {c.nome}. O atendimento e a intermediação são de responsabilidade do
         corretor, sob o seu CRECI.

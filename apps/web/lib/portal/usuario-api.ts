@@ -20,15 +20,27 @@ export async function usuarioDoPedido(request: Request) {
   if (!data.user) return null
   const { data: perfil } = await sb
     .from("perfis")
-    .select("perfil, plano, plano_ate")
+    .select("*")
     .eq("user_id", data.user.id)
     .maybeSingle()
-  const p = (perfil ?? {}) as { perfil?: string; plano?: string | null; plano_ate?: string | null }
+  const p = (perfil ?? {}) as {
+    perfil?: string
+    plano?: string | null
+    plano_ate?: string | null
+    status?: string | null
+    creci_ok?: boolean | null
+    parceria_aceite_em?: string | null
+  }
   const planoAtivo =
     p.perfil === "admin"
       ? "premium"
-      : p.plano && p.plano_ate && new Date(p.plano_ate).getTime() > Date.now()
+      : p.plano &&
+          p.plano !== "gratis" &&
+          p.plano_ate &&
+          new Date(p.plano_ate).getTime() > Date.now()
         ? p.plano
-        : "gratis"
+        : p.perfil === "corretor" && p.status === "aprovado" && p.creci_ok && p.parceria_aceite_em
+          ? "profissional"
+          : "gratis"
   return { id: data.user.id, perfil: p.perfil ?? null, plano: planoAtivo, sb }
 }

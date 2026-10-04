@@ -8,7 +8,14 @@ import { BRAZILIAN_STATES } from "@workspace/core/br/states"
 
 import { AreaAtendimento, LeadsRodizio } from "@/components/portal/leads-rodizio"
 import { PlanoAtual } from "@/components/portal/plano-atual"
-import { DOCS, portalBrowserClient, slugDe, type Perfil } from "@/lib/portal/browser-client"
+import {
+  DOCS,
+  PARCERIA_VERSAO,
+  portalBrowserClient,
+  REDES,
+  slugDe,
+  type Perfil,
+} from "@/lib/portal/browser-client"
 
 const campo = "h-11 rounded-lg border border-slate-300 px-3"
 const TIPOS = ["image/jpeg", "image/png", "image/webp", "application/pdf"]
@@ -27,6 +34,7 @@ export function CorretorPainel() {
   const [erro, setErro] = React.useState("")
   const [ok, setOk] = React.useState("")
   const [salvando, setSalvando] = React.useState(false)
+  const [editando, setEditando] = React.useState(false)
 
   const carregar = React.useCallback(async () => {
     const sb = portalBrowserClient()
@@ -78,6 +86,23 @@ export function CorretorPainel() {
         slug: slugDe(String(fd.get("slug") ?? "") || nome),
         aceite_termos: new Date().toISOString(),
         enviado_em: new Date().toISOString(),
+        recado_1: String(fd.get("recado_1") ?? "").trim() || null,
+        recado_2: String(fd.get("recado_2") ?? "").trim() || null,
+        pix_chave: String(fd.get("pix_chave") ?? "").trim() || null,
+        banco: {
+          banco: String(fd.get("banco_nome") ?? "").trim(),
+          agencia: String(fd.get("banco_agencia") ?? "").trim(),
+          conta: String(fd.get("banco_conta") ?? "").trim(),
+        },
+        redes: Object.fromEntries(
+          REDES.map(([k]): [string, string] => [
+            k,
+            String(fd.get(`rede_${k}`) ?? "").trim(),
+          ]).filter(([, v]) => /^https:\/\/\S+$/.test(v))
+        ),
+        ...(fd.get("parceria") === "on" && !perfil?.parceria_aceite_em
+          ? { parceria_versao: PARCERIA_VERSAO, parceria_aceite_em: new Date().toISOString() }
+          : {}),
       }
       const envios: [string, string, File][] = []
       const foto = fd.get("foto")
@@ -161,7 +186,7 @@ export function CorretorPainel() {
             {perfil?.nome || "Seu cadastro"}
           </h1>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           {admin ? (
             <Link
               href="/corretores/aprovar"
@@ -176,6 +201,14 @@ export function CorretorPainel() {
               className="rounded-lg border border-[var(--brand)] px-4 py-2.5 text-sm font-bold text-[var(--brand)]"
             >
               Atualizar imóveis
+            </Link>
+          ) : null}
+          {admin ? (
+            <Link
+              href="/corretores/aprovar-anuncios"
+              className="rounded-lg border border-[var(--brand)] px-4 py-2.5 text-sm font-bold text-[var(--brand)]"
+            >
+              Aprovar anúncios
             </Link>
           ) : null}
           <button
@@ -215,6 +248,8 @@ export function CorretorPainel() {
               ["Buscar imóveis", "/leiloes"],
               ["Anunciar nos portais", "/anunciar"],
               ["Kit de anúncio para redes", "/corretores/kit"],
+              ["Imóveis avulsos", "/corretores/imoveis-avulsos"],
+              ["Processos, CPF e certidões", "/processos"],
               ["Minha página", perfil?.slug ? `/corretor/${perfil.slug}` : "/corretores/painel"],
             ] as [string, string][]
           ).map(([t, h]) => (
@@ -226,8 +261,16 @@ export function CorretorPainel() {
               {t}
             </Link>
           ))}
+          <button
+            type="button"
+            onClick={() => setEditando((v) => !v)}
+            className="rounded-2xl border border-dashed border-slate-300 p-5 text-left font-extrabold"
+          >
+            {editando ? "Fechar edição" : "Editar meus dados, redes e PIX"}
+          </button>
         </div>
-      ) : (
+      ) : null}
+      {status !== "aprovado" || editando ? (
         <form
           action={salvar}
           className="flex flex-col gap-5 rounded-2xl border border-slate-200 p-6"
@@ -315,6 +358,67 @@ export function CorretorPainel() {
               ))}
             </select>
           </fieldset>
+          <fieldset className="grid gap-3 sm:grid-cols-2">
+            <legend className="mb-2 font-extrabold">Contatos para recado e pagamento</legend>
+            <input
+              name="recado_1"
+              required
+              defaultValue={perfil?.recado_1 ?? ""}
+              placeholder="Telefone para recado 1"
+              className={campo}
+            />
+            <input
+              name="recado_2"
+              required
+              defaultValue={perfil?.recado_2 ?? ""}
+              placeholder="Telefone para recado 2"
+              className={campo}
+            />
+            <input
+              name="pix_chave"
+              required={tipo === "corretor"}
+              defaultValue={perfil?.pix_chave ?? ""}
+              placeholder="Chave PIX (para receber comissões)"
+              className={`${campo} sm:col-span-2`}
+            />
+            <input
+              name="banco_nome"
+              defaultValue={perfil?.banco?.banco ?? ""}
+              placeholder="Banco"
+              className={campo}
+            />
+            <div className="grid grid-cols-2 gap-2">
+              <input
+                name="banco_agencia"
+                defaultValue={perfil?.banco?.agencia ?? ""}
+                placeholder="Agência"
+                className={campo}
+              />
+              <input
+                name="banco_conta"
+                defaultValue={perfil?.banco?.conta ?? ""}
+                placeholder="Conta"
+                className={campo}
+              />
+            </div>
+          </fieldset>
+          <fieldset className="grid gap-3 sm:grid-cols-2">
+            <legend className="mb-2 font-extrabold">Redes sociais profissionais</legend>
+            <p className="text-xs text-slate-500 sm:col-span-2">
+              Só perfis profissionais, com link completo começando com https://. Perfil pessoal não
+              é aceito.
+            </p>
+            {REDES.map(([k, l]) => (
+              <input
+                key={k}
+                name={`rede_${k}`}
+                type="url"
+                defaultValue={perfil?.redes?.[k] ?? ""}
+                placeholder={l}
+                className={campo}
+              />
+            ))}
+          </fieldset>
           <fieldset className="flex flex-col gap-3">
             <legend className="mb-2 font-extrabold">
               {tipo === "corretor"
@@ -357,6 +461,24 @@ export function CorretorPainel() {
               conferir o Selo Verde, conforme a Política de Privacidade.
             </p>
           </fieldset>
+          {tipo === "corretor" ? (
+            <label className="block rounded-xl border border-[var(--brand)] bg-[var(--brand-soft)] p-4 text-sm leading-relaxed">
+              <input
+                type="checkbox"
+                name="parceria"
+                defaultChecked={!!perfil?.parceria_aceite_em}
+                disabled={!!perfil?.parceria_aceite_em}
+                className="mr-2 inline size-4 align-[-3px]"
+              />
+              {perfil?.parceria_aceite_em
+                ? `Contrato de parceria aceito em ${new Date(perfil.parceria_aceite_em).toLocaleDateString("pt-BR")}. `
+                : "Li e aceito o "}
+              <Link href="/parceria-corretor" target="_blank" className="font-bold underline">
+                Contrato de Parceria do Corretor
+              </Link>
+              . Corretor parceiro aprovado não paga mensalidade.
+            </label>
+          ) : null}
           <label className="block text-xs leading-relaxed text-slate-700">
             <input type="checkbox" required className="mr-2 inline size-4 align-[-3px]" />
             Declaro que as informações são verdadeiras e que sou o único responsável técnico pelas
@@ -373,7 +495,7 @@ export function CorretorPainel() {
             {salvando ? "Enviando..." : "Enviar para aprovação"}
           </button>
         </form>
-      )}
+      ) : null}
     </div>
   )
 }

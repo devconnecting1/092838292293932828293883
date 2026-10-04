@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 
 import { PageHero, Section } from "@/components/portal/content"
-import { ConsultaProcesso } from "@/components/portal/consulta-processo"
+import { FerramentasPagas } from "@/components/portal/ferramentas-pagas"
 
 export const metadata: Metadata = {
   title: "Consulta processual para leilão de imóveis",
@@ -20,11 +20,11 @@ export default async function ProcessosPage({
     <>
       <PageHero
         kicker="Consulta processual"
-        title="O processo do imóvel, antes do lance."
+        title="Processo, CPF e certidões: tudo conferido antes do lance."
         text="Digite o número do processo que está no edital e veja a vara, a classe e as últimas movimentações. Ajuda a saber se há recurso, embargos ou suspensão antes de arrematar."
       />
-      <Section title="Consultar">
-        <ConsultaProcesso numeroInicial={n} />
+      <Section title="Ferramentas de análise">
+        <FerramentasPagas numeroInicial={n} />
       </Section>
     </>
   )

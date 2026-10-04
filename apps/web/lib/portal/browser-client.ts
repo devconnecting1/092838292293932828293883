@@ -22,7 +22,10 @@ export function portalBrowserClient() {
 }
 
 export const DOCS = [
-  { campo: "doc_creci_path", rotulo: "Carteira do CRECI (frente e verso)" },
+  { campo: "doc_creci_frente_path", rotulo: "Carteira do CRECI (frente)" },
+  { campo: "doc_creci_verso_path", rotulo: "Carteira do CRECI (verso)" },
+  { campo: "doc_print_creci_path", rotulo: "Print do seu cadastro ativo no site do CRECI" },
+  { campo: "doc_certidao_creci_path", rotulo: "Certidão de regularidade do CRECI" },
   { campo: "doc_residencia_path", rotulo: "Comprovante de residência" },
   { campo: "doc_certidao_estadual_path", rotulo: "Certidão criminal estadual" },
   { campo: "doc_certidao_federal_path", rotulo: "Certidão criminal federal" },
@@ -44,6 +47,16 @@ export type Perfil = {
   slug: string | null
   foto_path: string | null
   doc_creci_path: string | null
+  doc_creci_frente_path?: string | null
+  doc_creci_verso_path?: string | null
+  doc_print_creci_path?: string | null
+  doc_certidao_creci_path?: string | null
+  redes?: Record<string, string> | null
+  recado_1?: string | null
+  recado_2?: string | null
+  pix_chave?: string | null
+  banco?: Record<string, string> | null
+  parceria_aceite_em?: string | null
   doc_residencia_path: string | null
   doc_certidao_estadual_path: string | null
   doc_certidao_federal_path: string | null
@@ -65,3 +78,16 @@ export function slugDe(nome: string) {
     .replace(/[^a-z0-9]+/g, "")
     .slice(0, 30)
 }
+
+/** Redes sociais profissionais aceitas no cadastro (mais um campo livre para rede nova). */
+export const REDES = [
+  ["instagram", "Instagram profissional"],
+  ["facebook", "Página do Facebook"],
+  ["linkedin", "LinkedIn"],
+  ["youtube", "YouTube"],
+  ["tiktok", "TikTok"],
+  ["site", "Site"],
+  ["outra", "Outra rede (link)"],
+] as const
+
+export const PARCERIA_VERSAO = "2026-10-v1"

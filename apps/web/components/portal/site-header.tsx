@@ -57,6 +57,7 @@ export const PORTAL_MENU: MenuItem[] = [
           { label: "Consulta processual", href: "/processos" },
           { label: "Para morar ou para investir", href: "/como-funciona#perfis" },
           { label: "Arremate em cotas", href: "/cotas" },
+          { label: "Anuncie seu imóvel grátis", href: "/anuncie-gratis" },
         ],
       },
       {
@@ -107,6 +108,7 @@ export const PORTAL_MENU: MenuItem[] = [
           { label: "Calculadora de viabilidade", href: "/leiloes" },
           { label: "Kit de anúncio para redes", href: "/corretores/kit" },
           { label: "Seja parceiro", href: "/parceiros" },
+          { label: "Imóveis avulsos", href: "/corretores/imoveis-avulsos" },
         ],
       },
     ],
