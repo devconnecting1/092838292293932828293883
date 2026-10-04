@@ -1,0 +1,17 @@
+# Supabase LOCAL (CLI). Usado pelo CI do banco (.github/workflows/banco.yml) e por quem
+# rodar `supabase db start` na própria máquina. Nada aqui vale para o projeto na nuvem.
+# Campos omitidos ficam no padrão do CLI:
+# https://supabase.com/docs/guides/local-development/cli/config
+project_id = "plataforma-imobiliaria"
+
+[db]
+# Mesma versão principal do projeto na nuvem (PostgreSQL 17.6, conferido em 17/09/2026).
+major_version = 17
+
+[db.migrations]
+# `supabase db start` aplica todas as migrações de supabase/migrations do zero.
+enabled = true
+
+[db.seed]
+# Sem seed: os testes de supabase/tests criam os próprios dados e desfazem tudo.
+enabled = false

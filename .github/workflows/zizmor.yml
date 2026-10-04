@@ -1,0 +1,41 @@
+name: zizmor
+
+# Auditoria de segurança dos workflows e do dependabot.yml com o zizmor (licença MIT).
+# Os achados vão para Security > Code scanning (SARIF). No modo com code scanning o job
+# não falha por achado; para barrar merge, ative "Require code scanning results" no
+# ruleset da main. Action oficial: https://github.com/zizmorcore/zizmor-action
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/**"
+  pull_request:
+    paths:
+      - ".github/**"
+  schedule:
+    # Auditorias online (actions com vulnerabilidade conhecida, commits impostores)
+    # podem achar problema novo sem mudança no repositório.
+    - cron: "17 8 * * 1" # segunda-feira, 05:17 em Brasília
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: zizmor-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  zizmor:
+    name: Auditoria dos workflows
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read # ler os workflows
+      security-events: write # enviar o SARIF para o code scanning
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: zizmorcore/zizmor-action@cc914d7f3750a2d13d75c7f184a1060aa0e9d482 # v0.6.4

@@ -1,0 +1,69 @@
+{
+  "$schema": "https://turborepo.dev/schema.json",
+  "ui": "tui",
+  "globalEnv": ["NODE_ENV"],
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "inputs": ["$TURBO_DEFAULT$", ".env*"],
+      "env": [
+        "NEXT_PUBLIC_SUPABASE_URL",
+        "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+        "NEXT_PUBLIC_SITE_URL",
+        "NEXT_PUBLIC_SUPPORT_WHATSAPP",
+        "NEXT_PUBLIC_SUPPORT_EMAIL",
+        "NEXT_PUBLIC_ROOT_DOMAIN",
+        "NEXT_PUBLIC_TENANCY_MODE",
+        "NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL",
+        "VERCEL_PROJECT_PRODUCTION_URL",
+        "CAPTURE_FORM_SECRET",
+        "CAPTURE_SERVER_KEY",
+        "LEAD_SERVER_KEY",
+        "NEXT_SERVER_ACTIONS_ENCRYPTION_KEY",
+        "STRIPE_SECRET_KEY",
+        "STRIPE_WEBHOOK_SECRET",
+        "BILLING_SERVER_KEY",
+        "NOTIFICATION_SERVER_KEY",
+        "CAIXA_SERVER_KEY",
+        "CAIXA_PHOTOS_ENABLED",
+        "PLATFORM_ADMIN_EMAILS",
+        "PLATFORM_SERVER_KEY",
+        "LEAD_INGEST_SERVER_KEY",
+        "META_APP_SECRET",
+        "META_WEBHOOK_VERIFY_TOKEN",
+        "NEXT_PUBLIC_META_APP_ID",
+        "NEXT_PUBLIC_META_WHATSAPP_CONFIG_ID",
+        "CONNECTIONS_SERVER_KEY",
+        "ORGANIZATION_DELETION_SERVER_KEY",
+        "CRON_SECRET",
+        "BREVO_API_KEY",
+        "EMAIL_FROM_ADDRESS",
+        "EMAIL_FROM_NAME",
+        "EMAIL_DAILY_LIMIT",
+        "EMAIL_REPLY_TO",
+        "NEXT_PUBLIC_VAPID_PUBLIC_KEY",
+        "VAPID_PRIVATE_KEY",
+        "VAPID_SUBJECT"
+      ],
+      "outputs": [".next/**", "!.next/cache/**"]
+    },
+    "lint": {
+      "dependsOn": ["^lint"]
+    },
+    "format": {
+      "dependsOn": ["^format"]
+    },
+    "typecheck": {
+      "dependsOn": ["^typecheck"]
+    },
+    "test": {
+      "dependsOn": ["^typecheck"],
+      "outputs": []
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    }
+  }
+}

@@ -1,0 +1,116 @@
+version: 2
+
+updates:
+  # Dependências npm de todo o monorepo (workspaces na raiz).
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: America/Sao_Paulo
+    open-pull-requests-limit: 15
+    # Espera 7 dias após cada lançamento antes de propor a versão nova (pacote
+    # comprometido costuma ser descoberto e retirado nesse prazo). Não atrasa
+    # atualizações de SEGURANÇA, que o Dependabot abre na hora.
+    cooldown:
+      default-days: 7
+    labels:
+      - dependencias
+    commit-message:
+      # Com `include: scope`, o Dependabot já acrescenta "(deps)" ou "(deps-dev)".
+      prefix: "chore"
+      include: scope
+    groups:
+      # Atualizações menores e correções agrupadas em um PR por família.
+      next-react:
+        patterns:
+          - "next"
+          - "react"
+          - "react-dom"
+          - "@types/react"
+          - "@types/react-dom"
+          - "eslint-config-next"
+          - "@next/*"
+        update-types: [minor, patch]
+      supabase:
+        patterns:
+          - "@supabase/*"
+        update-types: [minor, patch]
+      shadcn-ui:
+        patterns:
+          - "shadcn"
+          - "@shadcn/*"
+          - "@base-ui/*"
+          - "lucide-react"
+          - "class-variance-authority"
+          - "tw-animate-css"
+        update-types: [minor, patch]
+      tailwind:
+        patterns:
+          - "tailwindcss"
+          - "@tailwindcss/*"
+          - "prettier-plugin-tailwindcss"
+        update-types: [minor, patch]
+      lint-format-types:
+        patterns:
+          - "eslint"
+          - "eslint-*"
+          - "@eslint/*"
+          - "typescript-eslint"
+          - "@typescript-eslint/*"
+          - "prettier"
+          - "typescript"
+          - "@types/*"
+        update-types: [minor, patch]
+      testes:
+        patterns:
+          - "vitest"
+          - "@vitest/*"
+        update-types: [minor, patch]
+      # Geração de PDF (proposta e ficha): pdf-lib e o fontkit que embute a Geist
+      # sobem juntos para não quebrar o embutimento da fonte.
+      pdf:
+        patterns:
+          - "pdf-lib"
+          - "@pdf-lib/*"
+          - "geist"
+        update-types: [minor, patch]
+      demais-menores:
+        patterns:
+          - "*"
+        update-types: [minor, patch]
+    # Versões principais (major) chegam em PRs separados, um por pacote,
+    # para cada quebra ser revisada com typecheck, lint, testes e build.
+    ignore:
+      # TypeScript >= 6.1 (e o 7 nativo) ainda quebra o typescript-eslint
+      # (peer typescript < 6.1). Remover quando o typescript-eslint aceitar versões novas.
+      - dependency-name: typescript
+        versions: [">=6.1.0"]
+      # Os tipos do Node acompanham o runtime de produção (Node 24 na Vercel,
+      # .node-version e CI). Tipos de uma major mais nova deixariam o código usar
+      # API que não existe em produção. Subir junto com o runtime.
+      - dependency-name: "@types/node"
+        versions: [">=25.0.0"]
+
+  # Versões das GitHub Actions usadas nos workflows.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: America/Sao_Paulo
+    # Mesmo prazo de 7 dias para versões novas de actions (ver npm acima).
+    cooldown:
+      default-days: 7
+    labels:
+      - dependencias
+      - ci
+    commit-message:
+      prefix: "chore"
+      include: scope
+    groups:
+      actions:
+        patterns:
+          - "*"

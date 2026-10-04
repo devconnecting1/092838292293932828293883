@@ -1,0 +1,4 @@
+# Hooks do husky são scripts sh: com CRLF (core.autocrlf=true do Git para
+# Windows) eles quebram. O .node-version é lido pelo fnm.
+.husky/** text eol=lf
+.node-version text eol=lf

@@ -1,0 +1,281 @@
+@import "tailwindcss";
+@import "./typeset.css";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+@source "../../../../apps/**/*.{ts,tsx}";
+@source "../**/*.{ts,tsx}";
+
+@theme inline {
+  --font-heading: var(--font-sans);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+  /* Geist oficial (pacote `geist`, next/font/local em app/layout.tsx): o tema do tweakcn usa Geist. */
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --radius: 0.25rem;
+  --tracking-tighter: calc(var(--tracking-normal) - 0.05em);
+  --tracking-tight: calc(var(--tracking-normal) - 0.025em);
+  --tracking-wide: calc(var(--tracking-normal) + 0.025em);
+  --tracking-wider: calc(var(--tracking-normal) + 0.05em);
+  --tracking-widest: calc(var(--tracking-normal) + 0.1em);
+  --tracking-normal: var(--tracking-normal);
+  --shadow-2xl: var(--shadow-2xl);
+  --shadow-xl: var(--shadow-xl);
+  --shadow-lg: var(--shadow-lg);
+  --shadow-md: var(--shadow-md);
+  --shadow: var(--shadow);
+  --shadow-sm: var(--shadow-sm);
+  --shadow-xs: var(--shadow-xs);
+  --shadow-2xs: var(--shadow-2xs);
+  --spacing: var(--spacing);
+  --letter-spacing: var(--letter-spacing);
+  --shadow-offset-y: var(--shadow-offset-y);
+  --shadow-offset-x: var(--shadow-offset-x);
+  --shadow-spread: var(--shadow-spread);
+  --shadow-blur: var(--shadow-blur);
+  --shadow-opacity: var(--shadow-opacity);
+  --color-shadow-color: var(--shadow-color);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-notice-maintenance: var(--notice-maintenance);
+  --color-notice-maintenance-foreground: var(--notice-maintenance-foreground);
+  --color-notice-warning: var(--notice-warning);
+  --color-notice-warning-foreground: var(--notice-warning-foreground);
+  --color-notice-destructive: var(--notice-destructive);
+  --color-notice-destructive-foreground: var(--notice-destructive-foreground);
+  --color-notice-critical: var(--notice-critical);
+  --color-notice-critical-foreground: var(--notice-critical-foreground);
+  --color-notice-success: var(--notice-success);
+  --color-notice-success-foreground: var(--notice-success-foreground);
+  --font-serif: var(--font-geist-sans);
+}
+
+:root {
+  --background: oklch(0.9702 0 0);
+  --foreground: oklch(0.2178 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.2178 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.2178 0 0);
+  --primary: oklch(0.2178 0 0);
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.9067 0 0);
+  --secondary-foreground: oklch(0.2178 0 0);
+  --muted: oklch(0.9067 0 0);
+  --muted-foreground: oklch(0.4983 0 0);
+  --accent: oklch(0.934 0 0);
+  --accent-foreground: oklch(0.2178 0 0);
+  --destructive: oklch(0.5868 0.2078 25.3313);
+  --border: oklch(0.8452 0 0);
+  --input: oklch(0.63 0 0);
+  --ring: oklch(0.2178 0 0);
+  --chart-1: oklch(0.5685 0.1187 154.9491);
+  --chart-2: oklch(0.588 0.0993 245.7394);
+  --chart-3: oklch(0.6344 0.155 50.2665);
+  --chart-4: oklch(0.5338 0.2503 301.375);
+  --chart-5: oklch(0.5265 0.1151 44.6044);
+  --radius: 0.25rem;
+  --sidebar: oklch(1 0 0);
+  --sidebar-foreground: oklch(0.2178 0 0);
+  --sidebar-primary: oklch(0.2178 0 0);
+  --sidebar-primary-foreground: oklch(1 0 0);
+  --sidebar-accent: oklch(0.934 0 0);
+  --sidebar-accent-foreground: oklch(0.2178 0 0);
+  --sidebar-border: oklch(0.8452 0 0);
+  --sidebar-ring: oklch(0.2178 0 0);
+  --destructive-foreground: oklch(1 0 0);
+  --shadow-color: #000000;
+  --shadow-opacity: 0;
+  --shadow-blur: 0px;
+  --shadow-spread: 0px;
+  --shadow-offset-x: 0px;
+  --shadow-offset-y: 0.125rem;
+  --letter-spacing: 0em;
+  --spacing: 0.25rem;
+  --shadow-2xs: 0px 0.125rem 0px 0px hsl(0 0% 0% / 0);
+  --shadow-xs: 0px 0.125rem 0px 0px hsl(0 0% 0% / 0);
+  --shadow-sm: 0px 0.125rem 0px 0px hsl(0 0% 0% / 0), 0px 1px 2px -1px hsl(0 0% 0% / 0);
+  --shadow: 0px 0.125rem 0px 0px hsl(0 0% 0% / 0), 0px 1px 2px -1px hsl(0 0% 0% / 0);
+  --shadow-md: 0px 0.125rem 0px 0px hsl(0 0% 0% / 0), 0px 2px 4px -1px hsl(0 0% 0% / 0);
+  --shadow-lg: 0px 0.125rem 0px 0px hsl(0 0% 0% / 0), 0px 4px 6px -1px hsl(0 0% 0% / 0);
+  --shadow-xl: 0px 0.125rem 0px 0px hsl(0 0% 0% / 0), 0px 8px 10px -1px hsl(0 0% 0% / 0);
+  --shadow-2xl: 0px 0.125rem 0px 0px hsl(0 0% 0% / 0);
+  --tracking-normal: 0em;
+
+  /*
+   * Gravidade dos avisos (componente Alert), do mais fraco ao mais forte:
+   *
+   *   1. informação/recado comum  -> fundo neutro (variante `default`, sem token)
+   *   2. manutenção programada    -> --notice-maintenance (azul)
+   *   3. atenção, prazo ou cota   -> --notice-warning (âmbar)
+   *   4. problema em andamento    -> --notice-destructive (vermelho suave)
+   *   5. crítico, exige ação já   -> --notice-critical (vermelho cheio, invertido)
+   *
+   * Fora da escala, para confirmação: --notice-success (verde).
+   *
+   * O tema é neutro (cinzas + --destructive) e não tinha como diferenciar um
+   * recado de um problema: tudo saía com o mesmo fundo, e o "erro" era texto
+   * vermelho sobre branco (4,1:1 na descrição, abaixo do mínimo). Cada par segue
+   * o padrão --<nome>/--<nome>-foreground já usado por card, muted e accent: o
+   * token é a superfície e o -foreground é o texto que vai em cima dela.
+   *
+   * Dos níveis 2 a 4 a cor fica no fundo e o texto é escuro e quase neutro (só um
+   * traço da matiz), nunca texto colorido sobre branco. Só o nível 5 inverte.
+   * Contraste do texto sobre a superfície (valor calculado, WCAG 1.4.3): 10,3 a
+   * 10,6:1 no claro e 11,8 a 11,9:1 no escuro nos níveis 2 a 4; 6,1:1 (claro) e
+   * 5,8:1 (escuro) no nível 5. A descrição, a 90% de opacidade, fica em 7,8 a
+   * 8,0:1 (claro) e 5,2:1 no nível 5. Tudo dentro do gamut sRGB.
+   *
+   * A cor nunca é o único sinal: a faixa mantém o ícone e o texto que já dizem
+   * de que tipo ela é.
+   */
+  --notice-maintenance: oklch(0.945 0.028 250);
+  --notice-maintenance-foreground: oklch(0.33 0.06 250);
+  --notice-warning: oklch(0.945 0.048 80);
+  --notice-warning-foreground: oklch(0.33 0.06 80);
+  --notice-destructive: oklch(0.945 0.028 27);
+  --notice-destructive-foreground: oklch(0.33 0.06 27);
+  --notice-critical: oklch(0.52 0.2 27);
+  --notice-critical-foreground: oklch(1 0 0);
+  --notice-success: oklch(0.945 0.038 152);
+  --notice-success-foreground: oklch(0.33 0.06 152);
+}
+
+/*
+ * Mesma escala no tema escuro: superfície escura da matiz e texto claro. O app
+ * ainda só tem tema claro (ver `color-scheme` abaixo); o bloco fica pronto para
+ * a variante `dark` declarada no topo, como já faz
+ * apps/web/components/status/status-colors.css.
+ */
+.dark {
+  --notice-maintenance: oklch(0.27 0.06 250);
+  --notice-maintenance-foreground: oklch(0.92 0.04 250);
+  --notice-warning: oklch(0.27 0.05 80);
+  --notice-warning-foreground: oklch(0.92 0.06 80);
+  --notice-destructive: oklch(0.27 0.07 27);
+  --notice-destructive-foreground: oklch(0.92 0.04 27);
+  --notice-critical: oklch(0.68 0.18 25);
+  --notice-critical-foreground: oklch(0.2 0 0);
+  --notice-success: oklch(0.27 0.055 152);
+  --notice-success-foreground: oklch(0.92 0.06 152);
+}
+
+@layer base {
+  html {
+    /* Projeto só tem tema claro: nada de widgets nativos escuros. */
+    color-scheme: light;
+  }
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    letter-spacing: var(--tracking-normal);
+  }
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+}
+
+.typeset-docs {
+  --typeset-font-body: var(--font-geist-sans);
+  --typeset-font-heading: var(--font-geist-sans);
+  --typeset-font-mono: var(--font-geist-mono);
+  --typeset-size: 14px;
+  --typeset-leading: 1.6;
+  --typeset-flow: 1em;
+}
+
+/*
+ * Letra e botões maiores (preferência em "Meu perfil" do CRM). O layout logado
+ * põe a marca [data-ui-size="grande"] na página; como diálogos e menus abrem
+ * fora dela (portal no body), a regra olha o documento inteiro com :has().
+ * - Texto e espaços crescem juntos (rem): 18 px de base em vez de 16 px.
+ * - Controles clicáveis com pelo menos 44 × 44 px visíveis (WCAG 2.5.5).
+ * - Texto secundário mais escuro: ~7,4:1 sobre o fundo (AAA), antes ~5,5:1.
+ */
+html:has([data-ui-size="grande"]) {
+  font-size: 112.5%;
+  --muted-foreground: oklch(0.43 0 0);
+}
+
+html:has([data-ui-size="grande"])
+  :is(
+    [data-slot="button"]:not([class*="underline-offset"]),
+    [data-slot="sidebar-trigger"],
+    [data-slot="input"],
+    [data-slot="input-group"],
+    [data-slot="select-trigger"],
+    [data-slot="combobox-trigger"],
+    [data-slot="toggle"],
+    [data-slot="toggle-group-item"],
+    [data-slot="tabs-trigger"],
+    [data-slot="pagination-link"],
+    [data-slot="sidebar-menu-button"],
+    [data-slot="sidebar-menu-sub-button"],
+    [data-slot="dropdown-menu-item"],
+    [data-slot="select-item"],
+    [data-slot="combobox-item"],
+    [data-slot="command-item"]
+  ) {
+  min-height: 44px;
+}
+
+html:has([data-ui-size="grande"])
+  :is(
+    [data-slot="button"]:not([class*="underline-offset"]),
+    [data-slot="sidebar-trigger"],
+    [data-slot="pagination-link"]
+  ) {
+  min-width: 44px;
+}
+
+/* Campo dentro de grupo: quem cresce é o grupo. */
+html:has([data-ui-size="grande"])
+  [data-slot="input-group"]
+  :is([data-slot="input"], [data-slot="button"]) {
+  min-height: 0;
+}
+
+html:has([data-ui-size="grande"]) :is([data-slot="checkbox"], [data-slot="radio-group-item"]) {
+  width: 1.25rem;
+  height: 1.25rem;
+}

@@ -1,0 +1,38 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "regions": ["gru1"],
+  "crons": [
+    {
+      "path": "/api/cron/billing-reminders",
+      "schedule": "0 11 * * *"
+    },
+    {
+      "path": "/api/cron/lead-alerts",
+      "schedule": "30 11 * * *"
+    },
+    {
+      "path": "/api/cron/caixa-catalog",
+      "schedule": "7 8 * * *"
+    },
+    {
+      "path": "/api/cron/lead-ingest",
+      "schedule": "13 9 * * *"
+    },
+    {
+      "path": "/api/cron/authorization-alerts",
+      "schedule": "40 10 * * *"
+    },
+    {
+      "path": "/api/cron/daily-digest",
+      "schedule": "0 10 * * *"
+    },
+    {
+      "path": "/api/cron/weekly-report",
+      "schedule": "0 10 * * 1,2"
+    },
+    {
+      "path": "/api/cron/organization-deletion",
+      "schedule": "50 7 * * *"
+    }
+  ]
+}

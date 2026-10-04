@@ -1,0 +1,51 @@
+/*
+ * Cores de situação da página de status (/status).
+ *
+ * O tema do app é neutro (cinzas + destructive) e não tem verde, amarelo,
+ * laranja nem azul. Uma página de status precisa deles: é a convenção que o
+ * cliente reconhece de relance. Estes tokens valem só aqui (o arquivo é
+ * importado por app/status/layout.tsx) e seguem as regras:
+ *
+ * - `--status-<nível>`: preenchimento (faixa geral, traços da barra de 90 dias
+ *   e ícones). Contraste mínimo de 3:1 contra o fundo do card (elemento
+ *   gráfico, WCAG 1.4.11): 5,2 (operacional), 3,1 (lentidão), 4,7 (parcial),
+ *   6,1 (fora do ar) e 5,5 (manutenção) sobre branco. Tons afastados entre si
+ *   (verde, ocre, laranja queimado, vermelho, azul) para não confundir traços
+ *   vizinhos.
+ * - `--status-<nível>-foreground`: texto sobre o preenchimento, 4,5:1 ou mais
+ *   (4,7 a 6,1; a lentidão, clara demais para texto branco, usa texto escuro).
+ * - `--status-none`: dia sem medição, cinza claro de propósito (ausência de
+ *   dado, não um estado).
+ *
+ * A cor nunca é o único sinal: todo nível aparece com ícone e texto.
+ * Ficam em :root (e não num wrapper) porque o detalhe do dia abre num portal
+ * fora da árvore da página. `.dark` segue a variante `dark` do tema
+ * (globals.css), pronta para quando o app tiver tema escuro.
+ */
+:root {
+  --status-operational: oklch(0.52 0.13 150);
+  --status-operational-foreground: oklch(1 0 0);
+  --status-degraded: oklch(0.665 0.135 88);
+  --status-degraded-foreground: oklch(0.2178 0 0);
+  --status-partial: oklch(0.57 0.14 52);
+  --status-partial-foreground: oklch(1 0 0);
+  --status-major: oklch(0.52 0.2 27);
+  --status-major-foreground: oklch(1 0 0);
+  --status-maintenance: oklch(0.52 0.12 250);
+  --status-maintenance-foreground: oklch(1 0 0);
+  --status-none: oklch(0.87 0 0);
+}
+
+.dark {
+  --status-operational: oklch(0.72 0.14 150);
+  --status-operational-foreground: oklch(0.2 0 0);
+  --status-degraded: oklch(0.8 0.14 80);
+  --status-degraded-foreground: oklch(0.2 0 0);
+  --status-partial: oklch(0.72 0.15 50);
+  --status-partial-foreground: oklch(0.2 0 0);
+  --status-major: oklch(0.68 0.18 25);
+  --status-major-foreground: oklch(0.2 0 0);
+  --status-maintenance: oklch(0.72 0.11 250);
+  --status-maintenance-foreground: oklch(0.2 0 0);
+  --status-none: oklch(0.38 0 0);
+}

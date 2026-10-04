@@ -1,0 +1,12 @@
+dist/
+node_modules/
+.next/
+.turbo/
+coverage/
+pnpm-lock.yaml
+.pnpm-store/
+package-lock.json
+next-env.d.ts
+# Gerado a partir do schema do Supabase (supabase gen types).
+packages/database/src/types.ts
+supabase/.temp/

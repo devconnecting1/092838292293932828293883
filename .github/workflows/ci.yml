@@ -1,0 +1,75 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  qualidade:
+    name: Typecheck, lint, formatação, testes e build
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      # Valores fictícios só para o build; nada aqui é segredo.
+      NEXT_PUBLIC_SUPABASE_URL: https://exemplo.supabase.co
+      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: sb_publishable_exemplo
+      NEXT_PUBLIC_SITE_URL: https://seucrm.com.br
+      NEXT_PUBLIC_ROOT_DOMAIN: seucrm.com.br
+      NEXT_TELEMETRY_DISABLED: "1"
+      # Hooks de git (husky) são só para commits locais; o npm ci não os instala aqui.
+      HUSKY: "0"
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Formatação
+        run: npm run format:check
+
+      - name: Testes
+        run: npm run test
+
+      - name: Build
+        run: npm run build
+
+  revisao-de-dependencias:
+    name: Revisão de dependências
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read # ler o código do PR
+      pull-requests: write # comentar o resumo no PR quando falhar
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5.0.0
+        with:
+          fail-on-severity: high
+          comment-summary-in-pr: on-failure
+          # Licenças copyleft fortes que obrigariam abrir o código do produto.
+          # IDs SPDX atuais e os antigos (sem -only/-or-later), que ainda aparecem em pacotes.
+          deny-licenses: AGPL-3.0-only, AGPL-3.0-or-later, AGPL-3.0, GPL-3.0-only, GPL-3.0-or-later, GPL-3.0

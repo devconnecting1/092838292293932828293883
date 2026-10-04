@@ -1,0 +1,66 @@
+name: Backup do banco
+
+# O plano Free do Supabase não tem backup. Este workflow faz um pg_dump diário,
+# CRIPTOGRAFA com age antes de sair do runner (o repositório é público) e guarda
+# o arquivo cifrado como artefato por 30 dias. Só quem tem a chave privada abre.
+#
+# Configuração (feita pelo dono do projeto, nunca commitar valores):
+# - Secret SUPABASE_DB_URL: string de conexão do Session Pooler (porta 5432),
+#   em Supabase > Project Settings > Database > Connection string.
+# - Variable BACKUP_AGE_RECIPIENT: chave pública gerada com `age-keygen`
+#   (começa com "age1..."). A chave privada fica guardada fora do GitHub.
+# Restaurar: age -d -i chave.txt backup.dump.age > backup.dump && pg_restore ...
+
+on:
+  schedule:
+    - cron: "17 6 * * *" # 03:17 em Brasília
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: backup-banco
+  cancel-in-progress: false
+
+jobs:
+  pg-dump:
+    name: pg_dump criptografado
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    if: ${{ vars.BACKUP_AGE_RECIPIENT != '' }}
+    steps:
+      - name: Instalar cliente PostgreSQL 17 e age
+        run: |
+          sudo install -d /usr/share/postgresql-common/pgdg
+          sudo curl -fsSL -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc https://www.postgresql.org/media/keys/ACCC4CF8.asc
+          echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list > /dev/null
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq postgresql-client-17 age
+
+      - name: Gerar dump cifrado
+        id: dump
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+          BACKUP_AGE_RECIPIENT: ${{ vars.BACKUP_AGE_RECIPIENT }}
+        run: |
+          set -euo pipefail
+          if [ -z "${SUPABASE_DB_URL}" ]; then
+            echo "Secret SUPABASE_DB_URL não configurado." >&2
+            exit 1
+          fi
+          stamp="$(date -u +%Y%m%dT%H%M%SZ)"
+          echo "stamp=${stamp}" >> "$GITHUB_OUTPUT"
+          # O dump nunca é gravado em claro: vai direto do pg_dump para o age.
+          /usr/lib/postgresql/17/bin/pg_dump "${SUPABASE_DB_URL}" \
+            --format=custom --no-owner --no-privileges \
+            --schema=public --schema=private --schema=auth --schema=storage \
+            | age -r "${BACKUP_AGE_RECIPIENT}" -o "backup-${stamp}.dump.age"
+          ls -lh "backup-${stamp}.dump.age"
+
+      - name: Guardar artefato cifrado
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: backup-banco-${{ steps.dump.outputs.stamp }}
+          path: backup-*.dump.age
+          retention-days: 30
+          if-no-files-found: error

@@ -1,0 +1,9 @@
+# O lint-staged exige Node >= 22.22.1. Commits feitos de um shell com Node mais
+# antigo no PATH usam o Node do fnm, na versão fixada em .node-version.
+if command -v fnm >/dev/null 2>&1 && ! node -e 'const [a, b] = process.versions.node.split(".").map(Number); process.exit(a > 22 || (a === 22 && b >= 22) ? 0 : 1)' 2>/dev/null; then
+  eval "$(fnm env --shell bash)"
+  fnm use --install-if-missing --silent-if-unchanged >/dev/null
+fi
+
+npx lint-staged
+npm run typecheck

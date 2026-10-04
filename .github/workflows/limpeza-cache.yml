@@ -1,0 +1,41 @@
+name: Limpeza de caches de PR
+
+# Apaga os caches do Actions criados por um PR quando ele é fechado (mesclado ou não),
+# para a cota de 10 GB do repositório não ficar ocupada por PRs encerrados.
+# Exemplo oficial: https://docs.github.com/en/actions/how-tos/manage-workflow-runs/manage-caches
+# Limite conhecido: PR vindo de fork (e PR que o próprio Dependabot fecha) recebe token só
+# de leitura; esses caches não são apagados aqui e expiram sozinhos após 7 dias sem uso.
+
+on:
+  pull_request:
+    types: [closed]
+
+permissions: {}
+
+concurrency:
+  group: limpeza-cache-${{ github.event.pull_request.number }}
+  cancel-in-progress: false
+
+jobs:
+  limpar:
+    name: Apagar caches do PR
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      actions: write # listar e apagar caches do Actions
+    steps:
+      - name: Apagar caches
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          BRANCH: refs/pull/${{ github.event.pull_request.number }}/merge
+        run: |
+          echo "Buscando caches de ${BRANCH}..."
+          ids=$(gh cache list --ref "${BRANCH}" --limit 100 --json id --jq '.[].id')
+
+          # Não falha o job se um cache já tiver sido removido no meio do caminho.
+          set +e
+          for id in ${ids}; do
+            gh cache delete "${id}"
+          done
+          echo "Pronto."

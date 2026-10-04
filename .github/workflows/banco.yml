@@ -1,0 +1,61 @@
+name: Banco
+
+# Aplica TODAS as migrações de supabase/migrations do zero num Supabase LOCAL (Docker do
+# próprio runner) e roda os testes SQL de supabase/tests. Não usa segredo nem toca no
+# projeto na nuvem. Guia oficial: https://supabase.com/docs/guides/deployment/ci/testing
+#
+# - supabase/config.toml: configuração local (Postgres 17, sem seed).
+# - supabase/roles.sql: o CLI roda antes das migrações; liga o pg_net e os privilégios
+#   padrão do schema public como estão na nuvem.
+# - .github/scripts/testes-banco.mjs: roda cada teste com psql. Os testes terminam de
+#   propósito com `raise exception` (P0001) e o JSON do resultado na mensagem; o script
+#   confere esse JSON com o "Resultado esperado" do cabeçalho de cada arquivo.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "supabase/**"
+      - ".github/workflows/banco.yml"
+      - ".github/scripts/testes-banco.mjs"
+  pull_request:
+    paths:
+      - "supabase/**"
+      - ".github/workflows/banco.yml"
+      - ".github/scripts/testes-banco.mjs"
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: banco-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  migracoes-e-testes:
+    name: Migrações do zero e testes SQL
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read # checkout do código
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: supabase/setup-cli@46f7f98c7f948ad727d22c1e67fab04c223a0520 # v3.0.0
+        with:
+          version: latest
+
+      - name: Desligar a telemetria do CLI
+        run: supabase telemetry disable || echo "Comando de telemetria indisponível nesta versão do CLI."
+
+      - name: Subir o Postgres local e aplicar todas as migrações
+        run: supabase db start
+
+      - name: Rodar os testes SQL
+        run: node .github/scripts/testes-banco.mjs
+
+      - name: Parar o Supabase local
+        if: always()
+        run: supabase stop --no-backup

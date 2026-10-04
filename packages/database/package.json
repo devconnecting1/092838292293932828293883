@@ -1,0 +1,16 @@
+{
+  "name": "@workspace/database",
+  "version": "0.0.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@workspace/typescript-config": "*",
+    "typescript": "~6.0.3"
+  },
+  "exports": {
+    "./types": "./src/types.ts"
+  }
+}
