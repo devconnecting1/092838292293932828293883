@@ -1,7 +1,6 @@
 import type { Metadata } from "next"
 
 import { CtaBand, PageHero, Section } from "@/components/portal/content"
-import { whatsappHref } from "@/lib/portal/config"
 
 export const metadata: Metadata = {
   title: "Corretor: sua página grátis com todos os leilões",
@@ -9,7 +8,7 @@ export const metadata: Metadata = {
     "Corretor com CRECI ganha página grátis com o próprio nome, todos os leilões, Selo Verde e parceria 50/50.",
 }
 
-const CTA = whatsappHref("Olá! Sou corretor e quero a minha página grátis no portal.")
+const CTA = "/corretores/cadastro"
 
 export default function CorretoresPage() {
   return (
@@ -104,7 +103,7 @@ export default function CorretoresPage() {
       </Section>
       <CtaBand
         title="Comece hoje, de graça"
-        text="Envie seus dados e documentos pelo WhatsApp e receba o acesso após a aprovação."
+        text="Cadastre-se, envie os documentos do Selo Verde pelo site e receba o acesso após a aprovação."
         href={CTA}
         label="Quero minha página"
       />

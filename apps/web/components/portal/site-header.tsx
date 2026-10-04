@@ -90,7 +90,8 @@ export const PORTAL_MENU: MenuItem[] = [
           { label: "Página grátis com CRECI", href: "/corretores" },
           { label: "Selo Verde", href: "/corretores#selo-verde" },
           { label: "Parceria 50/50", href: "/corretores#parceria" },
-          { label: "Entrar no painel", href: "/entrar" },
+          { label: "Cadastre-se grátis", href: "/corretores/cadastro" },
+          { label: "Entrar no painel", href: "/corretores/entrar" },
         ],
       },
       {
@@ -182,7 +183,7 @@ export function SiteHeader({
             Sou corretor
           </Link>
           <Link
-            href="/entrar"
+            href="/corretores/entrar"
             className="rounded-lg bg-[var(--brand)] px-4 py-2.5 text-sm font-bold text-white hover:opacity-90"
           >
             Entrar

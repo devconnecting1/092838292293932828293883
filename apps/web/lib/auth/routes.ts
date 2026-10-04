@@ -113,6 +113,7 @@ export const PORTAL_PREFIXES = [
   "/corretores",
   "/privacidade",
   "/anunciar",
+  "/corretor",
 ] as const
 
 /** Caminhos exatos públicos. Também atendidos no domínio raiz (ROOT_HOST_PREFIXES). */

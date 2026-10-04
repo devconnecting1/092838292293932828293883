@@ -37,7 +37,7 @@ export function SiteFooter() {
           title="Corretores"
           links={[
             ["Página grátis", "/corretores"],
-            ["Entrar", "/entrar"],
+            ["Entrar", "/corretores/entrar"],
             ["Política de privacidade", "/privacidade"],
           ]}
         />
