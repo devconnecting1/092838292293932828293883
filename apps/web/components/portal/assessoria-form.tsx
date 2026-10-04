@@ -14,11 +14,14 @@ export function AssessoriaForm({
   titulo,
   aberto: abertoInicial = false,
   rotulo = "Quero assessoria para este imóvel",
+  categoria,
 }: {
   imovelId?: string
   titulo?: string
   aberto?: boolean
   rotulo?: string
+  /** Leilão que não é de imóvel (veículos, agro, animais...): vai na observação do pedido. */
+  categoria?: string
 }) {
   const [aberto, setAberto] = React.useState(abertoInicial)
   const [status, setStatus] = React.useState<"" | "enviando" | "ok" | "erro">("")
@@ -34,7 +37,10 @@ export function AssessoriaForm({
       nome: String(fd.get("nome") ?? "").trim(),
       telefone: String(fd.get("telefone") ?? "").trim(),
       email: String(fd.get("email") ?? "").trim() || null,
-      observacao: String(fd.get("observacao") ?? "").trim() || null,
+      observacao:
+        [categoria ? `[${categoria}]` : "", String(fd.get("observacao") ?? "").trim()]
+          .filter(Boolean)
+          .join(" ") || null,
       consentimento: fd.get("consentimento") === "on",
       status: "novo",
     })
@@ -56,8 +62,8 @@ export function AssessoriaForm({
   if (status === "ok") {
     return (
       <p className="rounded-xl bg-emerald-50 p-4 text-sm leading-relaxed text-emerald-900">
-        Pedido recebido. A nossa equipe analisa o imóvel e envia o orçamento e o link de pagamento
-        pelo WhatsApp.
+        Pedido recebido. A nossa equipe analisa {categoria ? "o lote" : "o imóvel"} e envia o
+        orçamento e o link de pagamento pelo WhatsApp.
       </p>
     )
   }
@@ -70,7 +76,11 @@ export function AssessoriaForm({
       {imovelId ? null : (
         <input
           name="codigo"
-          placeholder="Código ou endereço do imóvel (se já escolheu)"
+          placeholder={
+            categoria
+              ? "Link do lote ou nome do leiloeiro (se já escolheu)"
+              : "Código ou endereço do imóvel (se já escolheu)"
+          }
           className="h-11 rounded-lg border border-slate-300 px-3"
         />
       )}

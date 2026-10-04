@@ -4,6 +4,7 @@ import * as React from "react"
 import Link from "next/link"
 import { ChevronDownIcon, MenuIcon, XIcon } from "lucide-react"
 
+import { AlertasSino } from "@/components/portal/alertas-sino"
 import { HeaderPhone } from "@/components/portal/contact-button"
 import { Logo } from "@/components/portal/logo"
 import { BotaoTema, SeletorIdioma } from "@/components/portal/tema-idioma"
@@ -33,6 +34,15 @@ export const PORTAL_MENU: MenuItem[] = [
         links: [
           { label: "Maiores descontos", href: "/leiloes?desconto=50" },
           { label: "Aceitam financiamento", href: "/leiloes?financiamento=sim" },
+        ],
+      },
+      {
+        title: "Outros bens",
+        links: [
+          { label: "Veículos", href: "/outros-leiloes#veiculos" },
+          { label: "Agro e máquinas", href: "/outros-leiloes#agro" },
+          { label: "Animais", href: "/outros-leiloes#animais" },
+          { label: "Outros bens", href: "/outros-leiloes#diversos" },
         ],
       },
       {
@@ -195,6 +205,7 @@ export function SiteHeader({
             <BotaoTema />
           </div>
           {phone ? <HeaderPhone href={phone.href} label={phone.label} /> : null}
+          <AlertasSino />
           <Link
             href="/corretores"
             className="hidden rounded-lg border border-slate-300 px-3.5 py-2.5 text-sm font-semibold text-slate-900 hover:bg-slate-50 sm:inline-flex"

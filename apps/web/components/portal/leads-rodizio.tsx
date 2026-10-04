@@ -35,6 +35,7 @@ const ETAPAS: [string, string][] = [
 function ClienteComFeedback({ lead }: { lead: Lead }) {
   const [etapa, setEtapa] = React.useState("contato")
   const [texto, setTexto] = React.useState("")
+  const [retorno, setRetorno] = React.useState("")
   const [hist, setHist] = React.useState<{ etapa: string; texto: string; criado: string }[]>([])
   const [ok, setOk] = React.useState("")
   const carregar = React.useCallback(async () => {
@@ -55,11 +56,23 @@ function ClienteComFeedback({ lead }: { lead: Lead }) {
     e.preventDefault()
     const sb = portalBrowserClient()
     if (!sb) return
-    const { error } = await sb
-      .from("lead_feedbacks")
-      .insert({ lead_id: lead.id, etapa, texto: texto.trim() })
-    setOk(error ? "Não foi possível salvar." : "Retorno registrado.")
-    if (!error) setTexto("")
+    const { error } = await sb.from("lead_feedbacks").insert({
+      lead_id: lead.id,
+      etapa,
+      texto: texto.trim(),
+      proximo_contato_em: retorno ? new Date(retorno).toISOString() : null,
+    })
+    setOk(
+      error
+        ? "Não foi possível salvar."
+        : retorno
+          ? `Retorno registrado. Você será avisado em ${new Date(retorno).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" })}.`
+          : "Retorno registrado. Sem data marcada, o sistema cobra um novo contato no prazo padrão."
+    )
+    if (!error) {
+      setTexto("")
+      setRetorno("")
+    }
     await carregar()
   }
   return (
@@ -104,6 +117,17 @@ function ClienteComFeedback({ lead }: { lead: Lead }) {
             placeholder="O que aconteceu? (obrigatório)"
             className="rounded-lg border border-slate-300 p-2"
           />
+          {etapa !== "vendido" && etapa !== "perdido" ? (
+            <label className="flex flex-col gap-1 text-xs font-bold text-slate-600">
+              Próximo contato com o cliente (o sistema te avisa)
+              <input
+                type="datetime-local"
+                value={retorno}
+                onChange={(e) => setRetorno(e.target.value)}
+                className="h-10 rounded-lg border border-slate-300 px-2 text-sm font-normal"
+              />
+            </label>
+          ) : null}
           <button className="self-start rounded-lg bg-[var(--brand)] px-4 py-2 font-bold text-white">
             Registrar retorno
           </button>

@@ -9,6 +9,7 @@ import { portalBrowserClient } from "@/lib/portal/browser-client"
 type Tarefa = {
   id: string
   titulo: string
+  prioridade?: "normal" | "alta" | "urgente"
   detalhe: string | null
   coluna: "a_fazer" | "fazendo" | "feito"
   etiqueta: string | null
@@ -78,6 +79,7 @@ function KanbanTarefas() {
       detalhe: String(fd.get("detalhe") ?? "").trim() || null,
       etiqueta: String(fd.get("etiqueta") ?? "") || null,
       prazo: prazo ? new Date(prazo).toISOString() : null,
+      prioridade: String(fd.get("prioridade") ?? "normal"),
     })
     await carregar()
   }
@@ -107,7 +109,7 @@ function KanbanTarefas() {
     <div className="flex flex-col gap-4">
       <form
         action={criar}
-        className="grid gap-2 rounded-2xl border border-slate-200 p-4 sm:grid-cols-[1fr_150px_200px_auto]"
+        className="grid gap-2 rounded-2xl border border-slate-200 p-4 sm:grid-cols-[1fr_140px_130px_200px_auto]"
       >
         <input
           name="titulo"
@@ -125,9 +127,19 @@ function KanbanTarefas() {
             <option key={e}>{e}</option>
           ))}
         </select>
+        <select
+          name="prioridade"
+          defaultValue="normal"
+          className="h-10 rounded-lg border border-slate-300 bg-white px-2 text-sm"
+        >
+          <option value="normal">Normal</option>
+          <option value="alta">Alta</option>
+          <option value="urgente">Urgente</option>
+        </select>
         <input
           name="prazo"
           type="datetime-local"
+          title="Prazo: o sistema avisa antes de vencer e quando atrasar"
           className="h-10 rounded-lg border border-slate-300 px-2 text-sm"
         />
         <button className="h-10 rounded-lg bg-[var(--brand)] px-4 text-sm font-bold text-white">
@@ -136,7 +148,7 @@ function KanbanTarefas() {
         <input
           name="detalhe"
           placeholder="Detalhe (opcional)"
-          className="h-10 rounded-lg border border-slate-300 px-3 text-sm sm:col-span-4"
+          className="h-10 rounded-lg border border-slate-300 px-3 text-sm sm:col-span-5"
         />
       </form>
       <input
@@ -174,7 +186,18 @@ function KanbanTarefas() {
                       {t.etiqueta}
                     </span>
                   ) : null}
-                  <b>{t.titulo}</b>
+                  <b>
+                    {t.prioridade === "urgente" ? (
+                      <span className="mr-1 rounded bg-red-600 px-1.5 text-[11px] text-white">
+                        URGENTE
+                      </span>
+                    ) : t.prioridade === "alta" ? (
+                      <span className="mr-1 rounded bg-amber-500 px-1.5 text-[11px] text-white">
+                        ALTA
+                      </span>
+                    ) : null}
+                    {t.titulo}
+                  </b>
                   {t.detalhe ? <span className="text-slate-600">{t.detalhe}</span> : null}
                   {t.prazo ? (
                     <span

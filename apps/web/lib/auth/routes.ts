@@ -121,6 +121,7 @@ export const PORTAL_PREFIXES = [
   "/parceiros",
   "/anuncie-gratis",
   "/imoveis-a-venda",
+  "/outros-leiloes",
   "/imoveis-para-alugar",
   "/quanto-vale-meu-imovel",
   "/quanto-cobrar-de-aluguel",

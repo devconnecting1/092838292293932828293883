@@ -22,6 +22,7 @@ export function SiteFooter() {
           title="Leilões"
           links={[
             ["Todos os leilões", "/leiloes"],
+            ["Veículos, agro e animais", "/outros-leiloes"],
             ["Como funciona", "/como-funciona"],
             ["Avalie seu crédito", "/credito"],
             ["Imóveis à venda", "/imoveis-a-venda"],

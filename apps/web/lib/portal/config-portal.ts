@@ -25,6 +25,15 @@ export type ConfigPortal = {
   rodizio: { modo: "manual" | "automatico"; prazo_minutos: number }
   termo_indicacao: { versao: string; nao_aliciamento_meses?: number }
   calculadora: { aluguel_min_pct: number; aluguel_max_pct: number; minimo_amostras: number }
+  assessoria_bens: Record<"veiculos" | "agro" | "animais" | "diversos", number | null>
+  crm_alertas: {
+    central_minutos: number
+    primeiro_contato_horas: number
+    retorno_horas: number
+    escalar_horas: number
+    chamado_horas: number
+    lembrete_tarefa_minutos: number
+  }
 }
 
 export const CONFIG_PADRAO: ConfigPortal = {
@@ -46,6 +55,15 @@ export const CONFIG_PADRAO: ConfigPortal = {
   rodizio: { modo: "manual", prazo_minutos: 30 },
   termo_indicacao: { versao: "2026-10-v1", nao_aliciamento_meses: 12 },
   calculadora: { aluguel_min_pct: 0.4, aluguel_max_pct: 0.6, minimo_amostras: 5 },
+  assessoria_bens: { veiculos: null, agro: null, animais: null, diversos: null },
+  crm_alertas: {
+    central_minutos: 30,
+    primeiro_contato_horas: 2,
+    retorno_horas: 48,
+    escalar_horas: 24,
+    chamado_horas: 4,
+    lembrete_tarefa_minutos: 60,
+  },
 }
 
 /** Junta o que veio do banco com os padrões, chave a chave. */

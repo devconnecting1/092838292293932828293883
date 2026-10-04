@@ -171,6 +171,8 @@ export function ConfiguracoesGestao() {
       { chave: "rodizio", valor: cfg.rodizio },
       { chave: "termo_indicacao", valor: cfg.termo_indicacao },
       { chave: "calculadora", valor: cfg.calculadora },
+      { chave: "crm_alertas", valor: cfg.crm_alertas },
+      { chave: "assessoria_bens", valor: cfg.assessoria_bens },
     ].map((l) => ({ ...l, atualizado: agora }))
     const { error } = await sb.from("config_portal").upsert(linhas, { onConflict: "chave" })
     setSalvando(false)
@@ -405,6 +407,75 @@ export function ConfiguracoesGestao() {
           contrato publicado passa a mostrar a nova versão, o parceiro precisa aceitar o termo novo
           antes do próximo lead e cada aceite fica ligado à versão que valia naquele dia.
         </p>
+      </Bloco>
+
+      <Bloco
+        titulo="Assessoria em leilão de bens"
+        texto="Valor 'a partir de' mostrado em Outros leilões. Deixe em branco para mostrar só 'valor no orçamento'."
+      >
+        <div className="grid gap-4 sm:grid-cols-4">
+          {(
+            [
+              ["veiculos", "Veículos"],
+              ["agro", "Agro e máquinas"],
+              ["animais", "Animais"],
+              ["diversos", "Outros bens"],
+            ] as const
+          ).map(([k, l]) => (
+            <Numero
+              key={k}
+              label={`${l} (R$)`}
+              passo={1}
+              vazio
+              valor={cfg.assessoria_bens[k]}
+              onChange={(v) => mudar("assessoria_bens", { [k]: v })}
+            />
+          ))}
+        </div>
+      </Bloco>
+
+      <Bloco
+        titulo="Alertas do CRM"
+        texto="Quanto tempo o cliente pode esperar antes de o sistema cobrar o parceiro e, depois, avisar você."
+      >
+        <div className="grid gap-4 sm:grid-cols-3">
+          <Numero
+            label="Cliente na central sem encaminhar"
+            sufixo="min"
+            valor={cfg.crm_alertas.central_minutos}
+            onChange={(v) => mudar("crm_alertas", { central_minutos: v ?? 30 })}
+          />
+          <Numero
+            label="Primeiro contato do parceiro"
+            sufixo="horas"
+            valor={cfg.crm_alertas.primeiro_contato_horas}
+            onChange={(v) => mudar("crm_alertas", { primeiro_contato_horas: v ?? 2 })}
+          />
+          <Numero
+            label="Retorno padrão ao cliente"
+            sufixo="horas"
+            valor={cfg.crm_alertas.retorno_horas}
+            onChange={(v) => mudar("crm_alertas", { retorno_horas: v ?? 48 })}
+          />
+          <Numero
+            label="Sem resposta, avisar o CEO depois de"
+            sufixo="horas"
+            valor={cfg.crm_alertas.escalar_horas}
+            onChange={(v) => mudar("crm_alertas", { escalar_horas: v ?? 24 })}
+          />
+          <Numero
+            label="Chamado sem resposta"
+            sufixo="horas"
+            valor={cfg.crm_alertas.chamado_horas}
+            onChange={(v) => mudar("crm_alertas", { chamado_horas: v ?? 4 })}
+          />
+          <Numero
+            label="Lembrete antes do prazo da tarefa"
+            sufixo="min"
+            valor={cfg.crm_alertas.lembrete_tarefa_minutos}
+            onChange={(v) => mudar("crm_alertas", { lembrete_tarefa_minutos: v ?? 60 })}
+          />
+        </div>
       </Bloco>
 
       <Bloco
