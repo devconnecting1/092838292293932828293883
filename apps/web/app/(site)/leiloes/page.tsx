@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 
+import { PlanilhaDownload } from "@/components/portal/planilha-download"
 import { ListingCard } from "@/components/portal/listing-card"
 import { areCaixaPhotosEnabled } from "@/lib/caixa/photos"
 import {
@@ -200,10 +201,24 @@ export default async function LeiloesPage({ searchParams }: Props) {
             Filtrar
           </a>
         </div>
-        <p className="mt-1 text-slate-600">
-          {result.total.toLocaleString("pt-BR")} imóve{result.total === 1 ? "l" : "is"} encontrado
-          {result.total === 1 ? "" : "s"}
-        </p>
+        <div className="mt-1 flex flex-wrap items-start justify-between gap-3">
+          <p className="text-slate-600">
+            {result.total.toLocaleString("pt-BR")} imóve{result.total === 1 ? "l" : "is"} encontrado
+            {result.total === 1 ? "" : "s"}
+          </p>
+          <PlanilhaDownload
+            filtros={{
+              uf: filters.uf,
+              cidade: filters.cidade,
+              tipo: filters.tipo,
+              origem: filters.origem,
+              leiloeiro: filters.leiloeiro,
+              financiamento: filters.financiamento,
+              minDesconto: filters.minDesconto,
+              maxPreco: filters.maxPreco,
+            }}
+          />
+        </div>
         {result.items.length ? (
           <div className="mt-6 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
             {result.items.map((item) => (

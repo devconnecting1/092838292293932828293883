@@ -31,7 +31,8 @@ export function CorretorCadastro({ modo }: { modo: "cadastro" | "entrar" }) {
       if (modo === "entrar") {
         const { error } = await sb.auth.signInWithPassword({ email, password: senha })
         if (error) return setErro("E-mail ou senha incorretos, ou e-mail ainda não confirmado.")
-        router.push("/corretores/painel")
+        const volta = new URLSearchParams(window.location.search).get("volta") ?? ""
+        router.push(/^\/(?!\/)[\w\-/?=&%.]*$/.test(volta) ? volta : "/corretores/painel")
         return
       }
       if (senha.length < 8) return setErro("A senha precisa ter pelo menos 8 caracteres.")
@@ -90,7 +91,7 @@ export function CorretorCadastro({ modo }: { modo: "cadastro" | "entrar" }) {
               {(
                 [
                   ["corretor", "Sou corretor (CRECI)"],
-                  ["investidor", "Sou investidor"],
+                  ["investidor", "Sou investidor ou comprador"],
                 ] as const
               ).map(([v, l]) => (
                 <button

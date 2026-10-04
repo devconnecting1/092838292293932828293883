@@ -66,6 +66,12 @@ export function ListingCard({ item, photos }: { item: PortalListing; photos: boo
         >
           Ver imóvel
         </Link>
+        <Link
+          href={`/leiloes/${item.numero}#assessoria`}
+          className="rounded-lg bg-[var(--brand)] py-2.5 text-center text-sm font-bold text-white hover:opacity-90"
+        >
+          Receber pré-análise
+        </Link>
       </div>
     </article>
   )

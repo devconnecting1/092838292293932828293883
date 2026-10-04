@@ -9,8 +9,18 @@ import { portalBrowserClient } from "@/lib/portal/browser-client"
  * Pedido de assessoria para um imóvel do portal: entra como pedido do serviço
  * "assessoria-leilao" e a equipe envia o orçamento e o link de pagamento.
  */
-export function AssessoriaForm({ imovelId, titulo }: { imovelId: string; titulo: string }) {
-  const [aberto, setAberto] = React.useState(false)
+export function AssessoriaForm({
+  imovelId,
+  titulo,
+  aberto: abertoInicial = false,
+  rotulo = "Quero assessoria para este imóvel",
+}: {
+  imovelId?: string
+  titulo?: string
+  aberto?: boolean
+  rotulo?: string
+}) {
+  const [aberto, setAberto] = React.useState(abertoInicial)
   const [status, setStatus] = React.useState<"" | "enviando" | "ok" | "erro">("")
 
   async function enviar(fd: FormData) {
@@ -19,7 +29,8 @@ export function AssessoriaForm({ imovelId, titulo }: { imovelId: string; titulo:
     setStatus("enviando")
     const { error } = await sb.from("pedidos").insert({
       servico_id: "assessoria-leilao",
-      imovel_id: imovelId,
+      imovel_id: imovelId ?? null,
+      endereco_imovel: imovelId ? null : String(fd.get("codigo") ?? "").trim() || null,
       nome: String(fd.get("nome") ?? "").trim(),
       telefone: String(fd.get("telefone") ?? "").trim(),
       email: String(fd.get("email") ?? "").trim() || null,
@@ -37,7 +48,7 @@ export function AssessoriaForm({ imovelId, titulo }: { imovelId: string; titulo:
         onClick={() => setAberto(true)}
         className="rounded-xl bg-[var(--brand)] py-3.5 text-center font-bold text-white"
       >
-        Quero assessoria para este imóvel
+        {rotulo}
       </button>
     )
   }
@@ -53,7 +64,16 @@ export function AssessoriaForm({ imovelId, titulo }: { imovelId: string; titulo:
 
   return (
     <form action={enviar} className="flex flex-col gap-2 rounded-xl border border-slate-200 p-4">
-      <span className="text-sm font-extrabold">Assessoria para: {titulo}</span>
+      <span className="text-sm font-extrabold">
+        {titulo ? `Assessoria para: ${titulo}` : "Peça sua assessoria"}
+      </span>
+      {imovelId ? null : (
+        <input
+          name="codigo"
+          placeholder="Código ou endereço do imóvel (se já escolheu)"
+          className="h-11 rounded-lg border border-slate-300 px-3"
+        />
+      )}
       <input
         name="nome"
         required

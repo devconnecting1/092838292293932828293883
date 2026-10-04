@@ -164,11 +164,17 @@ export default async function ImovelPage({ params }: Props) {
           {item.valorAvaliacao ? (
             <span className="text-sm text-slate-500">Avaliação: {brl(item.valorAvaliacao)}</span>
           ) : null}
-          <div className="mt-2 flex flex-col gap-3">
+          <div id="assessoria" className="mt-2 flex scroll-mt-24 flex-col gap-3">
             <AssessoriaForm
               imovelId={item.numero}
               titulo={`${tipoLabel(item.tipo)} em ${item.cidade}/${item.uf}`}
             />
+            <Link
+              href={`/cotas/${item.numero}`}
+              className="rounded-xl border-[1.5px] border-[var(--brand)] py-3 text-center font-bold text-[var(--brand)]"
+            >
+              Arrematar em cotas (a partir de 10%)
+            </Link>
           </div>
           <Link
             href={`/leiloes/${item.numero}/viabilidade`}

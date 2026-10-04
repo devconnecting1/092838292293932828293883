@@ -2,12 +2,14 @@ import type { Metadata } from "next"
 import Link from "next/link"
 
 import { CtaBand, PageHero, Section } from "@/components/portal/content"
-import { whatsappHref } from "@/lib/portal/config"
+import { AssessoriaForm } from "@/components/portal/assessoria-form"
+import { FinancingSimulator } from "@/components/portal/financing-simulator"
+import { PORTAL, whatsappHref } from "@/lib/portal/config"
 
 export const metadata: Metadata = {
   title: "Como funciona o leilão da Caixa: 1º e 2º leilão, licitação aberta e venda direta",
   description:
-    "Entenda cada modalidade de venda da Caixa, a comissão do leiloeiro, quem paga condomínio e IPTU e o que verificar antes de comprar.",
+    "Entenda cada modalidade de venda da Caixa, a comissão do leiloeiro, quem paga condomínio e IPTU, simule o financiamento e conte com assessoria até a entrega da chave.",
 }
 
 const MODALIDADES = [
@@ -41,17 +43,35 @@ const MODALIDADES = [
 export default function LeilaoCaixaPage() {
   return (
     <>
+      <div className="h-1.5 bg-[linear-gradient(90deg,#005CA9_70%,#F39200_70%)]" />
       <PageHero
         kicker="Leilão da Caixa explicado"
         title="Do 1º leilão à venda direta: entenda cada etapa antes de comprar."
         text="A Caixa vende imóveis retomados em várias modalidades. Cada uma tem regras próprias de preço, de pagamento e de custos. Explicamos de um jeito simples."
-      />
+      >
+        <div className="flex flex-wrap gap-3">
+          <Link
+            href="/simulador"
+            className="rounded-xl bg-[#005CA9] px-6 py-3.5 font-bold text-white"
+          >
+            Ver o simulador de proposta
+          </Link>
+          <Link
+            href="/leiloes?origem=caixa"
+            className="rounded-xl border-[1.5px] border-[#F39200] bg-white px-6 py-3.5 font-bold text-[#B45309]"
+          >
+            Imóveis da Caixa
+          </Link>
+        </div>
+      </PageHero>
 
       <Section title="As modalidades de venda">
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {MODALIDADES.map((m, i) => (
             <div key={m.t} className="flex flex-col gap-2 rounded-2xl border border-slate-200 p-5">
-              <span className="text-sm font-extrabold text-[var(--brand)]">{i + 1}</span>
+              <span className="grid size-7 place-items-center rounded-full bg-[#F39200] text-sm font-extrabold text-white">
+                {i + 1}
+              </span>
               <h3 className="text-lg font-extrabold">{m.t}</h3>
               <p className="leading-relaxed text-slate-700">{m.d}</p>
               <span
@@ -68,21 +88,53 @@ export default function LeilaoCaixaPage() {
         </p>
       </Section>
 
-      <Section title="Quem cobra o quê" muted>
-        <div className="grid gap-4 md:grid-cols-2">
-          <div className="rounded-2xl bg-white p-5">
-            <h3 className="font-extrabold">Compra pela Caixa</h3>
-            <p className="mt-2 leading-relaxed text-slate-700">
-              Os correspondentes credenciados da Caixa não cobram do comprador pela intermediação da
-              compra, porque são remunerados pela própria Caixa.
+      <Section id="assessoria" title="Podemos te ajudar melhor" muted>
+        <div className="grid gap-6 lg:grid-cols-[1.2fr_1fr] lg:items-start">
+          <div className="flex flex-col gap-4">
+            <p className="max-w-2xl text-lg leading-relaxed text-slate-700">
+              Comprar sozinho parece economia, mas costuma sair caro: edital mal lido, dívida que
+              aparece depois, ocupante que não sai, cartório que devolve a escritura. A assessoria
+              custa pouco perto do que está em jogo, e o valor dela não paga o seu estresse.
+            </p>
+            <p className="max-w-2xl text-lg leading-relaxed font-bold text-slate-900">
+              Você paga a assessoria e recebe a chave na mão.
+            </p>
+            <ul className="grid gap-3 sm:grid-cols-2">
+              {[
+                [
+                  "Análise antes do lance",
+                  "Leitura do edital e da matrícula, conta de custos e o lance máximo que ainda dá lucro.",
+                ],
+                [
+                  "Dívidas levantadas",
+                  "IPTU, condomínio e processos ligados ao imóvel, com o que fica por sua conta e o que fica com o banco.",
+                ],
+                [
+                  "Negociação extrajudicial incluída",
+                  "Conversamos com o ocupante para a saída amigável, sem esperar uma imissão na posse pela Justiça.",
+                ],
+                [
+                  "Documentação até o registro",
+                  "Acompanhamos pagamento, ITBI, escritura e registro até o imóvel estar no seu nome.",
+                ],
+              ].map(([t, d]) => (
+                <li key={t} className="rounded-2xl bg-white p-5">
+                  <span className="font-extrabold">{t}</span>
+                  <p className="mt-1 leading-relaxed text-slate-700">{d}</p>
+                </li>
+              ))}
+            </ul>
+            <p className="max-w-2xl leading-relaxed text-slate-700">
+              A negociação amigável também ajuda quando o caso precisa ir para a Justiça: a
+              tentativa de acordo fica registrada e muitas vezes encurta o caminho.
+            </p>
+            <p className="text-sm text-slate-500">
+              Serviço prestado por {PORTAL.legalName}, {PORTAL.creci}.
             </p>
           </div>
-          <div className="rounded-2xl bg-white p-5">
-            <h3 className="font-extrabold">O que é contratado à parte</h3>
-            <p className="mt-2 leading-relaxed text-slate-700">
-              Diligência no local, levantamento e regularização de documentos, negociação com o
-              ocupante e imissão na posse são serviços separados, contratados por fora.
-            </p>
+          <div className="rounded-2xl bg-white p-5 shadow-sm">
+            <h3 className="mb-3 text-lg font-extrabold">Peça sua assessoria</h3>
+            <AssessoriaForm aberto />
           </div>
         </div>
       </Section>
@@ -114,7 +166,7 @@ export default function LeilaoCaixaPage() {
           ))}
         </ul>
         <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-5">
-          <h3 className="font-extrabold text-emerald-900">Grátis com a gente</h3>
+          <h3 className="font-extrabold text-emerald-900">Pré-análise grátis</h3>
           <p className="mt-1 leading-relaxed text-emerald-900">
             Verificamos sem custo se existe processo judicial ativo ligado ao imóvel, contra a Caixa
             ou de execução da dívida. Quando há execução, informamos o valor em discussão.
@@ -142,11 +194,23 @@ export default function LeilaoCaixaPage() {
         </Link>
       </Section>
 
+      <Section title="Simule o financiamento">
+        <p className="max-w-3xl leading-relaxed text-slate-700">
+          Boa parte dos imóveis da Caixa aceita financiamento. Coloque o valor do imóvel e a sua
+          renda: a simulação usa as referências da Caixa e, se quiser, você envia o resultado para a
+          nossa equipe.
+        </p>
+        <FinancingSimulator />
+        <Link href="/simulador" className="self-start font-bold text-[#005CA9]">
+          Quer ver uma proposta completa, passo a passo? Abra o simulador de proposta.
+        </Link>
+      </Section>
+
       <CtaBand
-        title="Quer que a gente verifique um imóvel?"
+        title="Receba a pré-análise de um imóvel"
         text="Mande o código do imóvel e checamos se há processo judicial ativo, sem custo."
         href={whatsappHref("Olá! Quero verificar se um imóvel da Caixa tem processo judicial.")}
-        label="Verificar um imóvel"
+        label="Receber pré-análise"
       />
     </>
   )
