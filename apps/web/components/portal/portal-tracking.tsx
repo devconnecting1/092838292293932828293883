@@ -34,11 +34,13 @@ export function PortalTracking({ gtmId }: { gtmId: string }) {
         </Script>
       ) : null}
       {consent === "unset" ? (
-        <CookieConsentBanner
-          privacyHref="/privacidade"
-          onAccept={() => saveLandingConsent("granted")}
-          onDecline={() => saveLandingConsent("denied")}
-        />
+        <div className="print:hidden">
+          <CookieConsentBanner
+            privacyHref="/privacidade"
+            onAccept={() => saveLandingConsent("granted")}
+            onDecline={() => saveLandingConsent("denied")}
+          />
+        </div>
       ) : null}
     </>
   )

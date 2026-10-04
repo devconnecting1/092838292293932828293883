@@ -138,17 +138,7 @@ function Resultado({ c }: { c: Cenario }) {
   )
 }
 
-export function ViabilityCalculator({
-  inicial,
-  referencia,
-  titulo,
-  empresa,
-}: {
-  inicial: Entradas
-  referencia: string
-  titulo: string
-  empresa: string
-}) {
+export function ViabilityCalculator({ inicial, empresa }: { inicial: Entradas; empresa: string }) {
   const [e, setE] = React.useState<Entradas>(inicial)
   const [corretor, setCorretor] = React.useState<Corretor>({
     nome: "",
@@ -160,17 +150,9 @@ export function ViabilityCalculator({
   const set = <K extends keyof Entradas>(k: K, v: Entradas[K]) =>
     setE((old) => ajustarAutomaticos({ ...old, [k]: v }, k))
   const r = React.useMemo(() => calcular(e), [e])
-  const hoje = new Date().toLocaleDateString("pt-BR")
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="hidden print:block">
-        <h1 className="text-2xl font-extrabold">Dossiê de viabilidade</h1>
-        <p className="text-sm">
-          {titulo} · Ref. {referencia} · {hoje}
-        </p>
-      </div>
-
       <div className="grid gap-6 lg:grid-cols-[1.1fr_1fr]">
         <div className="flex flex-col gap-4">
           <Bloco titulo="Corretor e cliente">

@@ -4,6 +4,8 @@ import * as React from "react"
 import Link from "next/link"
 import { ChevronDownIcon, MenuIcon, XIcon } from "lucide-react"
 
+import { HeaderPhone } from "@/components/portal/contact-button"
+
 type MenuLink = { label: string; href: string }
 type MenuGroup = { title: string; links: MenuLink[] }
 type MenuItem = { label: string; groups: MenuGroup[] }
@@ -103,7 +105,15 @@ export const PORTAL_MENU: MenuItem[] = [
   },
 ]
 
-export function SiteHeader({ name, logoUrl }: { name: string; logoUrl?: string }) {
+export function SiteHeader({
+  name,
+  logoUrl,
+  phone,
+}: {
+  name: string
+  logoUrl?: string
+  phone?: { href: string; label: string }
+}) {
   const [open, setOpen] = React.useState<number | null>(null)
   const [mobile, setMobile] = React.useState(false)
 
@@ -124,7 +134,7 @@ export function SiteHeader({ name, logoUrl }: { name: string; logoUrl?: string }
   }
 
   return (
-    <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur">
+    <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur print:hidden">
       <div className="mx-auto flex max-w-[1240px] items-center gap-6 px-4 py-3 sm:px-6">
         <Link
           href="/"
@@ -164,6 +174,7 @@ export function SiteHeader({ name, logoUrl }: { name: string; logoUrl?: string }
         </nav>
 
         <div className="ml-auto flex items-center gap-2">
+          {phone ? <HeaderPhone href={phone.href} label={phone.label} /> : null}
           <Link
             href="/corretores"
             className="hidden rounded-lg border border-slate-300 px-3.5 py-2.5 text-sm font-semibold text-slate-900 hover:bg-slate-50 sm:inline-flex"

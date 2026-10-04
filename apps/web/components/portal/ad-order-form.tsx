@@ -131,7 +131,7 @@ export function AdOrderForm({
         </section>
 
         <section className="rounded-2xl border border-slate-200 p-5">
-          <h2 className="text-lg font-extrabold">2. Portais</h2>
+          <h2 className="text-lg font-extrabold">2. Onde anunciar</h2>
           <div className="mt-3 flex flex-col gap-2">
             {portais.map((p) => (
               <label

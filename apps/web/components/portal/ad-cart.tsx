@@ -68,7 +68,7 @@ export function AdCartBar() {
   return (
     <a
       href="/anunciar"
-      className="fixed bottom-4 left-4 z-30 rounded-full bg-[var(--brand-deep)] px-5 py-3.5 text-sm font-bold text-white shadow-lg"
+      className="fixed bottom-4 left-4 z-30 rounded-full bg-[var(--brand-deep)] px-5 py-3.5 text-sm font-bold text-white shadow-lg print:hidden"
     >
       Anunciar {ids.length} imóve{ids.length === 1 ? "l" : "is"} nos portais
     </a>

@@ -2,7 +2,9 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 
+import { ListingSheet } from "@/components/portal/listing-sheet"
 import { ViabilityCalculator } from "@/components/portal/viability-calculator"
+import { areCaixaPhotosEnabled } from "@/lib/caixa/photos"
 import { PORTAL } from "@/lib/portal/config"
 import { getPortalListing, tipoLabel } from "@/lib/portal/imoveis"
 import { entradasPadrao, modalidadeDe } from "@/lib/portal/viabilidade"
@@ -48,14 +50,20 @@ export default async function ViabilidadePage({ params }: Props) {
           resto como está.
         </p>
       </div>
+      <div className="hidden print:block">
+        <h1 className="text-2xl font-extrabold">Dossiê de viabilidade</h1>
+        <p className="text-sm">
+          {titulo} · Ref. {referencia} ·{" "}
+          {new Date().toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" })}
+        </p>
+      </div>
+      <ListingSheet item={item} photos={areCaixaPhotosEnabled()} />
       <ViabilityCalculator
         inicial={entradasPadrao({
           avaliacao: item.valorAvaliacao,
           preco: item.preco,
           modalidade: modalidadeDe(item.modalidade, item.origem),
         })}
-        referencia={referencia}
-        titulo={titulo}
         empresa={PORTAL.legalName}
       />
     </div>

@@ -1,4 +1,5 @@
--- Venda de anúncios nos portais imobiliários (ZAP, Viva Real, OLX, Imovelweb...).
+-- Venda de anúncios nos portais imobiliários parceiros e nas redes sociais.
+-- No site os canais aparecem sem nome de terceiro; o slug técnico só identifica o feed.
 -- Quem publica nos portais é só a empresa (dona da conta em cada portal).
 -- Corretor ou cliente escolhe os imóveis e os portais, o sistema calcula o valor,
 -- a pessoa paga, o dono aprova e os imóveis entram no feed do portal.
@@ -6,7 +7,7 @@
 create table if not exists public.portais (
   slug text primary key check (slug ~ '^[a-z0-9-]{2,40}$'),
   nome text not null,
-  formato text not null default 'vrsync' check (formato in ('vrsync')),
+  formato text not null default 'vrsync' check (formato in ('vrsync', 'social')),
   preco_por_imovel numeric check (preco_por_imovel is null or preco_por_imovel >= 0),
   dias int not null default 30 check (dias between 1 and 365),
   ativo boolean not null default true,
@@ -20,9 +21,10 @@ create policy portais_admin on public.portais for all to authenticated using (pu
 
 -- Preço fica em branco até o dono definir (painel). Sem preço, o pedido sai "sob consulta".
 insert into public.portais (slug, nome, formato, ordem) values
-  ('grupo-olx', 'ZAP Imóveis, Viva Real e OLX (Grupo OLX)', 'vrsync', 1),
-  ('imovelweb', 'Imovelweb', 'vrsync', 2),
-  ('chaves-na-mao', 'Chaves na Mão', 'vrsync', 3)
+  ('grupo-olx', 'Maiores portais imobiliários do Brasil', 'vrsync', 1),
+  ('imovelweb', 'Portais imobiliários parceiros', 'vrsync', 2),
+  ('chaves-na-mao', 'Portais regionais parceiros', 'vrsync', 3),
+  ('redes-sociais', 'Redes sociais da plataforma', 'social', 4)
 on conflict (slug) do nothing;
 
 create table if not exists public.anuncio_pedidos (

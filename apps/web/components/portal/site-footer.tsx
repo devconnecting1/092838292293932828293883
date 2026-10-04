@@ -5,7 +5,7 @@ import { PORTAL, whatsappHref } from "@/lib/portal/config"
 export function SiteFooter() {
   const year = new Date().getFullYear()
   return (
-    <footer className="bg-slate-900 text-slate-300">
+    <footer className="bg-slate-900 text-slate-300 print:hidden">
       <div className="mx-auto grid max-w-[1240px] gap-10 px-4 py-14 sm:px-6 md:grid-cols-4">
         <div className="flex flex-col gap-3 md:col-span-1">
           <span className="text-lg font-extrabold text-white">{PORTAL.name}</span>
