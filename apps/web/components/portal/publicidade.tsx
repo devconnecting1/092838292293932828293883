@@ -581,6 +581,157 @@ export function PublicidadeGestao() {
           ))}
         </ul>
       </section>
+      <PlanosProprietarioGestao />
     </div>
+  )
+}
+
+type PlanoProp = {
+  id: string
+  codigo: string
+  valor: number
+  dias: number
+  status: string
+  pago_em: string | null
+  pagamento_ref: string | null
+  inicio: string | null
+  fim: string | null
+  criado: string
+  imoveis_avulsos: {
+    id: string
+    titulo: string
+    status: string
+    contato_nome: string
+    contato_telefone: string
+  } | null
+}
+
+const STATUS_PLANO: Record<string, string> = {
+  aguardando_pagamento: "Aguardando pagamento",
+  pago: "Pago, esperando aprovação do anúncio",
+  ativo: "No site",
+  expirado: "Encerrado",
+  cancelado: "Cancelado",
+}
+
+/** CEO: planos de anúncio dos proprietários (venda direta em /imoveis-a-venda). */
+function PlanosProprietarioGestao() {
+  const [lista, setLista] = React.useState<PlanoProp[] | null>(null)
+  const [filtro, setFiltro] = React.useState("aguardando_pagamento")
+  const [msg, setMsg] = React.useState("")
+
+  const carregar = React.useCallback(async () => {
+    const sb = portalBrowserClient()
+    if (!sb) return
+    let q = sb
+      .from("avulsos_planos")
+      .select("*, imoveis_avulsos(id, titulo, status, contato_nome, contato_telefone)")
+      .order("criado", { ascending: false })
+      .limit(200)
+    if (filtro !== "todos") q = q.eq("status", filtro)
+    const { data, error } = await q
+    if (error) setMsg("Planos indisponíveis: o banco precisa da atualização 017.")
+    setLista((data as PlanoProp[] | null) ?? [])
+  }, [filtro])
+  React.useEffect(() => {
+    const t = setTimeout(carregar, 0)
+    return () => clearTimeout(t)
+  }, [carregar])
+
+  async function marcarPago(p: PlanoProp) {
+    const sb = portalBrowserClient()
+    if (!sb) return
+    const { data: ok, error } = await sb.rpc("ceo_plano_avulso_pago", {
+      p_plano: p.id,
+      p_ref: "pix/manual",
+    })
+    setMsg(
+      error || !ok
+        ? "Não foi possível marcar como pago."
+        : `${p.codigo} marcado como pago.${p.imoveis_avulsos?.status === "aprovado" ? " Já está no site." : " Entra no site quando o anúncio for aprovado."}`
+    )
+    await carregar()
+  }
+
+  async function cancelar(p: PlanoProp) {
+    const sb = portalBrowserClient()
+    if (!sb) return
+    const { error } = await sb.from("avulsos_planos").update({ status: "cancelado" }).eq("id", p.id)
+    setMsg(error ? "Não foi possível cancelar." : `${p.codigo} cancelado.`)
+    await carregar()
+  }
+
+  return (
+    <section className="flex flex-col gap-3">
+      <div>
+        <h2 className="text-xl font-extrabold">Planos de anúncio dos proprietários</h2>
+        <p className="text-sm text-slate-600">
+          Venda direta, sem corretor, publicada em{" "}
+          <Link href="/imoveis-a-venda" className="font-bold text-[var(--brand)]">
+            /imoveis-a-venda
+          </Link>
+          . O preço e os dias vêm de Configurações. Recebeu por PIX? Marque como pago aqui. A
+          aprovação do anúncio continua em Aprovar anúncios.
+        </p>
+      </div>
+      <div className="flex flex-wrap gap-2">
+        {["aguardando_pagamento", "pago", "ativo", "expirado", "todos"].map((f) => (
+          <button
+            key={f}
+            type="button"
+            onClick={() => setFiltro(f)}
+            className={`rounded-full px-4 py-1.5 text-sm font-bold ${filtro === f ? "bg-slate-900 text-white" : "border border-slate-300"}`}
+          >
+            {f === "todos" ? "Todos" : STATUS_PLANO[f]}
+          </button>
+        ))}
+      </div>
+      {msg ? <p className="rounded-lg bg-slate-50 p-3 text-sm font-bold">{msg}</p> : null}
+      {lista === null ? <p className="text-slate-600">Carregando...</p> : null}
+      {lista && !lista.length ? <p className="text-sm text-slate-500">Nenhum plano aqui.</p> : null}
+      <ul className="flex flex-col gap-2">
+        {(lista ?? []).map((p) => (
+          <li
+            key={p.id}
+            className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-slate-200 p-3 text-sm"
+          >
+            <span>
+              <b>{p.codigo}</b> · {p.imoveis_avulsos?.titulo ?? "(anúncio removido)"}
+              <span className="block text-xs text-slate-500">
+                {p.imoveis_avulsos?.contato_nome} · {p.imoveis_avulsos?.contato_telefone} ·{" "}
+                {brl(Number(p.valor))} por {p.dias} dias · {STATUS_PLANO[p.status] ?? p.status}
+                {p.fim ? ` até ${data(p.fim)}` : ""} · anúncio {p.imoveis_avulsos?.status}
+              </span>
+            </span>
+            {p.status === "aguardando_pagamento" ? (
+              <span className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => marcarPago(p)}
+                  className="rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-bold text-white"
+                >
+                  Marcar como pago
+                </button>
+                <button
+                  type="button"
+                  onClick={() => cancelar(p)}
+                  className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-bold"
+                >
+                  Cancelar
+                </button>
+              </span>
+            ) : p.status === "ativo" ? (
+              <button
+                type="button"
+                onClick={() => cancelar(p)}
+                className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-bold"
+              >
+                Tirar do site
+              </button>
+            ) : null}
+          </li>
+        ))}
+      </ul>
+    </section>
   )
 }

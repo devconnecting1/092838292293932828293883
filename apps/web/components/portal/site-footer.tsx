@@ -24,6 +24,8 @@ export function SiteFooter() {
             ["Todos os leilões", "/leiloes"],
             ["Como funciona", "/como-funciona"],
             ["Avalie seu crédito", "/credito"],
+            ["Direto com o proprietário", "/imoveis-a-venda"],
+            ["Anuncie seu imóvel", "/anuncie-gratis"],
           ]}
         />
         <FooterCol

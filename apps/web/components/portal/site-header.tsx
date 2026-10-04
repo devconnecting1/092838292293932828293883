@@ -58,6 +58,7 @@ export const PORTAL_MENU: MenuItem[] = [
           { label: "Como preencher a proposta da Caixa", href: "/simulador" },
           { label: "Para morar ou para investir", href: "/como-funciona#perfis" },
           { label: "Arremate em cotas", href: "/cotas" },
+          { label: "Imóveis direto com o proprietário", href: "/imoveis-a-venda" },
           { label: "Anuncie seu imóvel grátis", href: "/anuncie-gratis" },
         ],
       },

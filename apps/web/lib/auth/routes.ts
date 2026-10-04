@@ -120,6 +120,7 @@ export const PORTAL_PREFIXES = [
   "/assinar",
   "/parceiros",
   "/anuncie-gratis",
+  "/imoveis-a-venda",
   "/autorizacao-de-venda",
   "/parceria-corretor",
   "/gestao",

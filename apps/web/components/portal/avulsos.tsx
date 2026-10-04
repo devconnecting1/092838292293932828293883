@@ -95,11 +95,168 @@ function ContaRapida() {
   )
 }
 
+type PlanoAvulso = {
+  id: string
+  codigo: string
+  avulso_id: string
+  valor: number
+  dias: number
+  status: "aguardando_pagamento" | "pago" | "ativo" | "expirado" | "cancelado"
+  inicio: string | null
+  fim: string | null
+  renovar: boolean | null
+  renovacao_de: string | null
+}
+
+const dataBr = (v: string | null) => (v ? new Date(v).toLocaleDateString("pt-BR") : "-")
+
+/** Plano pago que publica o anúncio do proprietário em /imoveis-a-venda. */
+function PlanoDoAnuncio({
+  avulso,
+  planos,
+  aoMudar,
+}: {
+  avulso: Avulso
+  planos: PlanoAvulso[]
+  aoMudar: () => Promise<void>
+}) {
+  const cfg = useConfigPortal()
+  const [aceite, setAceite] = React.useState(false)
+  const [enviando, setEnviando] = React.useState(false)
+  const [msg, setMsg] = React.useState("")
+  const [agora] = React.useState(() => Date.now())
+  const ativo = planos
+    .filter((p) => p.status === "ativo" && p.fim && new Date(p.fim).getTime() > agora)
+    .sort((a, b) => String(b.fim).localeCompare(String(a.fim)))[0]
+  const aberto = planos.find((p) => p.status === "aguardando_pagamento")
+  const pago = planos.find((p) => p.status === "pago")
+  const renovado = ativo
+    ? planos.some((p) => p.renovacao_de === ativo.id && p.status !== "cancelado")
+    : false
+  const diasRestantes = ativo?.fim
+    ? Math.ceil((new Date(ativo.fim).getTime() - agora) / 86400000)
+    : null
+
+  async function pagar() {
+    setMsg("")
+    const sb = portalBrowserClient()
+    const s = sb ? (await sb.auth.getSession()).data.session : null
+    if (!s) return
+    setEnviando(true)
+    try {
+      const r = await fetch("/api/portal/anuncios/plano-proprietario", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${s.access_token}` },
+        body: JSON.stringify({ avulsoId: avulso.id }),
+      })
+      const j = (await r.json()) as { url?: string; aviso?: string; erro?: string }
+      if (j.url) window.location.href = j.url
+      else setMsg(j.aviso ?? j.erro ?? "Não foi possível abrir o pagamento.")
+      await aoMudar()
+    } catch {
+      setMsg("Sem conexão agora. Tente de novo.")
+    } finally {
+      setEnviando(false)
+    }
+  }
+
+  async function naoRenovar(id: string) {
+    const sb = portalBrowserClient()
+    if (!sb) return
+    await sb.rpc("responder_renovacao_avulso", { p_plano: id, p_renovar: false })
+    setMsg("Combinado. O anúncio sai do site 2 dias depois do fim do plano.")
+    await aoMudar()
+  }
+
+  const caixa = "rounded-lg bg-slate-50 p-3"
+  if (ativo)
+    return (
+      <div className={caixa}>
+        <p>
+          <b className="text-emerald-800">No site para compradores</b> até {dataBr(ativo.fim)} (
+          {ativo.codigo}).{" "}
+          <Link href="/imoveis-a-venda" className="font-bold text-[var(--brand)]">
+            Ver no site
+          </Link>
+        </p>
+        {renovado ? (
+          <p className="mt-1 text-slate-600">
+            Renovação contratada: o novo período começa no fim deste.
+          </p>
+        ) : diasRestantes !== null && diasRestantes <= 10 && ativo.renovar === null ? (
+          <div className="mt-2 flex flex-wrap items-center gap-2">
+            <span>
+              Faltam {diasRestantes} dias. Renovar por mais {cfg.plano_anuncio_proprietario.dias}{" "}
+              dias?
+            </span>
+            <button
+              type="button"
+              disabled={enviando}
+              onClick={pagar}
+              className="rounded-full bg-[var(--brand)] px-4 py-1.5 font-bold text-white"
+            >
+              Sim, renovar ({reais(cfg.plano_anuncio_proprietario.preco)})
+            </button>
+            <button
+              type="button"
+              onClick={() => naoRenovar(ativo.id)}
+              className="rounded-full border border-slate-300 px-4 py-1.5 font-bold"
+            >
+              Não renovar
+            </button>
+          </div>
+        ) : ativo.renovar === false ? (
+          <p className="mt-1 text-slate-600">Você escolheu não renovar.</p>
+        ) : null}
+        {msg ? <p className="mt-1 font-bold">{msg}</p> : null}
+      </div>
+    )
+  if (pago)
+    return (
+      <div className={caixa}>
+        <b>Plano pago ({pago.codigo}).</b> O anúncio entra no site assim que for aprovado pela
+        equipe, e os {pago.dias} dias começam a contar a partir daí.
+      </div>
+    )
+  return (
+    <div className={`${caixa} flex flex-col gap-2`}>
+      <p>
+        <b>Quer vender sem corretor?</b> Publique este imóvel no site para compradores por{" "}
+        {reais(aberto?.valor ?? cfg.plano_anuncio_proprietario.preco)} durante{" "}
+        {aberto?.dias ?? cfg.plano_anuncio_proprietario.dias} dias. Os dias só começam a contar com
+        o anúncio aprovado.
+      </p>
+      <label className="flex items-start gap-2">
+        <input
+          type="checkbox"
+          checked={aceite}
+          onChange={(e) => setAceite(e.target.checked)}
+          className="mt-1"
+        />
+        <span>
+          Autorizo mostrar no anúncio público o nome e o telefone de contato que informei (
+          {avulso.contato_nome}, {avulso.contato_telefone}). O endereço completo não aparece.
+        </span>
+      </label>
+      <button
+        type="button"
+        disabled={!aceite || enviando}
+        onClick={pagar}
+        className="self-start rounded-full bg-[var(--brand)] px-5 py-2 font-bold text-white disabled:opacity-50"
+      >
+        {enviando ? "Abrindo..." : aberto ? `Pagar pedido ${aberto.codigo}` : "Contratar e pagar"}
+      </button>
+      {msg ? <p className="font-bold">{msg}</p> : null}
+    </div>
+  )
+}
+
 /** Cadastro do anúncio grátis pelo proprietário. */
 export function AnuncioProprietario() {
   const cfg = useConfigPortal()
   const uid = useSessao()
   const [meus, setMeus] = React.useState<Avulso[]>([])
+  const [planos, setPlanos] = React.useState<PlanoAvulso[]>([])
   const [status, setStatus] = React.useState<"" | "enviando" | "ok" | "erro">("")
   const [erro, setErro] = React.useState("")
   const [aceitaCorretor, setAceitaCorretor] = React.useState(true)
@@ -120,6 +277,12 @@ export function AnuncioProprietario() {
       .eq("dono_id", uid)
       .order("criado", { ascending: false })
     setMeus((data as Avulso[] | null) ?? [])
+    const { data: pl } = await sb
+      .from("avulsos_planos")
+      .select("id, codigo, avulso_id, valor, dias, status, inicio, fim, renovar, renovacao_de")
+      .eq("user_id", uid)
+      .order("criado", { ascending: false })
+    setPlanos((pl as PlanoAvulso[] | null) ?? [])
   }, [uid])
   React.useEffect(() => {
     const t = setTimeout(carregar, 0)
@@ -193,26 +356,35 @@ export function AnuncioProprietario() {
   return (
     <div className="flex flex-col gap-6">
       {meus.length ? (
-        <section className="flex flex-col gap-2">
+        <section id="meus-anuncios" className="flex scroll-mt-24 flex-col gap-2">
           <h2 className="text-xl font-extrabold">Meus anúncios</h2>
           {meus.map((a) => (
             <div
               key={a.id}
-              className="flex flex-wrap justify-between gap-2 rounded-xl border border-slate-200 p-3 text-sm"
+              className="flex flex-col gap-2 rounded-xl border border-slate-200 p-3 text-sm"
             >
-              <b>{a.titulo}</b>
-              <span>
-                {brl(a.preco)} ·{" "}
-                {
+              <div className="flex flex-wrap justify-between gap-2">
+                <b>{a.titulo}</b>
+                <span>
+                  {brl(a.preco)} ·{" "}
                   {
-                    pendente: "aguardando aprovação",
-                    aprovado: "no ar para os corretores",
-                    recusado: `recusado${a.motivo ? `: ${a.motivo}` : ""}`,
-                    vendido: "vendido",
-                    pausado: "pausado",
-                  }[a.status]
-                }
-              </span>
+                    {
+                      pendente: "aguardando aprovação",
+                      aprovado: "no ar para os corretores",
+                      recusado: `recusado${a.motivo ? `: ${a.motivo}` : ""}`,
+                      vendido: "vendido",
+                      pausado: "pausado",
+                    }[a.status]
+                  }
+                </span>
+              </div>
+              {a.status !== "recusado" && a.status !== "vendido" ? (
+                <PlanoDoAnuncio
+                  avulso={a}
+                  planos={planos.filter((p) => p.avulso_id === a.id)}
+                  aoMudar={carregar}
+                />
+              ) : null}
             </div>
           ))}
         </section>
