@@ -345,7 +345,7 @@ export function ViabilityCalculator({
         </div>
 
         <div className="flex flex-col gap-4 lg:sticky lg:top-24 lg:self-start">
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
             <Resultado c={r.avista} />
             <Resultado c={r.financiado} />
           </div>
