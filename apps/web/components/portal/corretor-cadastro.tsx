@@ -16,7 +16,9 @@ export function CorretorCadastro({ modo }: { modo: "cadastro" | "entrar" }) {
   const [erro, setErro] = React.useState("")
   const [aviso, setAviso] = React.useState("")
   const [enviando, setEnviando] = React.useState(false)
-  const [tipo, setTipo] = React.useState<"corretor" | "imobiliaria" | "investidor">("corretor")
+  const [tipo, setTipo] = React.useState<
+    "corretor" | "imobiliaria" | "investidor" | "comprador" | "proprietario"
+  >("corretor")
 
   async function enviar(fd: FormData) {
     setErro("")
@@ -33,7 +35,7 @@ export function CorretorCadastro({ modo }: { modo: "cadastro" | "entrar" }) {
         const { error } = await sb.auth.signInWithPassword({ email, password: senha })
         if (error) return setErro("E-mail ou senha incorretos, ou e-mail ainda não confirmado.")
         const volta = new URLSearchParams(window.location.search).get("volta") ?? ""
-        router.push(/^\/(?!\/)[\w\-/?=&%.]*$/.test(volta) ? volta : "/corretores/painel")
+        router.push(/^\/(?!\/)[\w\-/?=&%.]*$/.test(volta) ? volta : "/minha-conta")
         return
       }
       if (senha.length < 8) return setErro("A senha precisa ter pelo menos 8 caracteres.")
@@ -53,13 +55,17 @@ export function CorretorCadastro({ modo }: { modo: "cadastro" | "entrar" }) {
           nome,
           email,
           perfil: tipo,
-          creci: tipo !== "investidor" ? String(fd.get("creci") ?? "").trim() : null,
-          creci_uf: tipo !== "investidor" ? String(fd.get("creci_uf") ?? "") : null,
+          creci:
+            tipo === "corretor" || tipo === "imobiliaria"
+              ? String(fd.get("creci") ?? "").trim()
+              : null,
+          creci_uf:
+            tipo === "corretor" || tipo === "imobiliaria" ? String(fd.get("creci_uf") ?? "") : null,
           ...lerTelefones(fd),
           lgpd_aceite_em: new Date().toISOString(),
           creci_ok: false,
         })
-        router.push("/corretores/painel")
+        router.push("/minha-conta")
         return
       }
       setAviso(
@@ -74,7 +80,7 @@ export function CorretorCadastro({ modo }: { modo: "cadastro" | "entrar" }) {
     <div className="flex flex-col gap-6">
       <div>
         <span className="text-sm font-bold tracking-wide text-[var(--brand)] uppercase">
-          Área do corretor
+          Vamos Arrematar
         </span>
         <h1 className="mt-1 text-3xl font-extrabold tracking-tight">
           {modo === "cadastro" ? "Crie sua conta grátis" : "Entrar"}
@@ -89,12 +95,14 @@ export function CorretorCadastro({ modo }: { modo: "cadastro" | "entrar" }) {
       <form action={enviar} className="flex flex-col gap-3 rounded-2xl border border-slate-200 p-6">
         {modo === "cadastro" ? (
           <>
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
               {(
                 [
                   ["corretor", "Sou corretor (CRECI)"],
                   ["imobiliaria", "Sou imobiliária (CRECI-J)"],
-                  ["investidor", "Sou investidor ou comprador"],
+                  ["investidor", "Sou investidor"],
+                  ["comprador", "Quero comprar para morar"],
+                  ["proprietario", "Sou proprietário"],
                 ] as const
               ).map(([v, l]) => (
                 <button
@@ -114,7 +122,7 @@ export function CorretorCadastro({ modo }: { modo: "cadastro" | "entrar" }) {
               placeholder="Nome completo"
               className={campo}
             />
-            {tipo !== "investidor" ? (
+            {tipo === "corretor" || tipo === "imobiliaria" ? (
               <div className="grid grid-cols-[1fr_110px] gap-2">
                 <input name="creci" required placeholder="Número do CRECI" className={campo} />
                 <select name="creci_uf" required defaultValue="RJ" className={`${campo} bg-white`}>

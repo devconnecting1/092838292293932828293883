@@ -196,7 +196,7 @@ export function SiteHeader({
             Sou corretor
           </Link>
           <Link
-            href="/corretores/entrar"
+            href="/minha-conta"
             className="rounded-lg bg-[var(--brand)] px-3 py-2.5 text-sm font-bold text-white hover:opacity-90 sm:px-4"
           >
             Entrar

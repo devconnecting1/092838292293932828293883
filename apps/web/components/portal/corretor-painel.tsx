@@ -15,6 +15,7 @@ import {
 import { AreaAtendimento, LeadsRodizio } from "@/components/portal/leads-rodizio"
 import { PlanoAtual } from "@/components/portal/plano-atual"
 import { MeuCrm } from "@/components/portal/meu-crm"
+import { Radar } from "@/components/portal/radar"
 import { MinhaPublicidade } from "@/components/portal/publicidade"
 import {
   docsDoTipo,
