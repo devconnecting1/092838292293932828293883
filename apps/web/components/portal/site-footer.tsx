@@ -47,8 +47,9 @@ export function SiteFooter() {
           © {year} {PORTAL.legalName} · CNPJ {PORTAL.cnpj} · {PORTAL.address}. Atendimento em todo o
           Brasil.
           <br />
-          Os imóveis da Caixa vêm da lista pública oficial da Caixa Econômica Federal; confira
-          sempre o edital no site da Caixa antes de qualquer proposta.
+          Os imóveis da Caixa vêm da lista pública oficial da Caixa Econômica Federal; os de outros
+          bancos e da Justiça, dos parceiros indicados em cada anúncio. Confira sempre o edital e a
+          matrícula antes de qualquer lance.
         </div>
       </div>
     </footer>

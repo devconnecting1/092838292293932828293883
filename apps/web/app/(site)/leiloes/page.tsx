@@ -8,13 +8,16 @@ import {
   getPortalFacets,
   parsePortalFilters,
   searchPortalListings,
+  ORIGEM_NOME,
+  origemNome,
   TIPOS_FILTRO,
-} from "@/lib/portal/caixa"
+} from "@/lib/portal/imoveis"
 import { BRAZILIAN_STATES } from "@workspace/core/br/states"
 
 export const metadata: Metadata = {
-  title: "Leilões de imóveis da Caixa em todo o Brasil",
-  description: "Busque imóveis da Caixa por estado, cidade, tipo, desconto e financiamento.",
+  title: "Leilões de imóveis em todo o Brasil",
+  description:
+    "Imóveis de leilão da Caixa, de outros bancos e da Justiça: busque por estado, cidade, banco, leiloeiro, desconto e financiamento.",
 }
 
 type Props = { searchParams: Promise<Record<string, string | string[] | undefined>> }
@@ -81,6 +84,40 @@ export default async function LeiloesPage({ searchParams }: Props) {
               </select>
             </Field>
           ) : null}
+          <Field label="Banco ou origem">
+            <select
+              name="origem"
+              defaultValue={filters.origem}
+              className="h-11 rounded-lg border border-slate-300 bg-white px-2"
+            >
+              <option value="">Todas</option>
+              {(facets.origens.length
+                ? facets.origens
+                : Object.entries(ORIGEM_NOME).map(([slug, nome]) => ({ slug, nome, count: 0 }))
+              ).map((o) => (
+                <option key={o.slug} value={o.slug}>
+                  {o.nome}
+                  {o.count ? ` (${o.count.toLocaleString("pt-BR")})` : ""}
+                </option>
+              ))}
+            </select>
+          </Field>
+          {facets.leiloeiros.length ? (
+            <Field label="Leiloeiro">
+              <select
+                name="leiloeiro"
+                defaultValue={filters.leiloeiro}
+                className="h-11 rounded-lg border border-slate-300 bg-white px-2"
+              >
+                <option value="">Todos</option>
+                {facets.leiloeiros.map((l) => (
+                  <option key={l.nome} value={l.nome}>
+                    {l.nome} ({l.count})
+                  </option>
+                ))}
+              </select>
+            </Field>
+          ) : null}
           <Field label="Tipo">
             <select
               name="tipo"
@@ -138,6 +175,7 @@ export default async function LeiloesPage({ searchParams }: Props) {
               <option value="preco_asc">Menor preço</option>
               <option value="preco_desc">Maior preço</option>
               <option value="novidades">Mais recentes</option>
+              <option value="encerra">Encerra primeiro</option>
             </select>
           </Field>
           <button className="h-12 rounded-lg bg-[var(--brand)] font-bold text-white">
@@ -152,7 +190,8 @@ export default async function LeiloesPage({ searchParams }: Props) {
       <section className="order-1 min-w-0 flex-1 lg:order-2">
         <div className="flex items-start justify-between gap-3">
           <h1 className="text-2xl font-extrabold tracking-tight sm:text-3xl">
-            Leilões da Caixa em {lugar}
+            {filters.origem ? `Leilões ${origemNome(filters.origem)}` : "Leilões de imóveis"} em{" "}
+            {lugar}
           </h1>
           <a
             href="#filtros"

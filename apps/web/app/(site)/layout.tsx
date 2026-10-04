@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 
+import { AdCartBar } from "@/components/portal/ad-cart"
 import { PortalTracking } from "@/components/portal/portal-tracking"
 import { SiteFooter } from "@/components/portal/site-footer"
 import { SiteHeader } from "@/components/portal/site-header"
@@ -26,6 +27,7 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
       >
         Fale conosco
       </a>
+      <AdCartBar />
       <PortalTracking gtmId={PORTAL.gtmId} />
     </div>
   )

@@ -1,7 +1,8 @@
 import Link from "next/link"
 
-import { CaixaPhoto } from "@/components/caixa/caixa-photo"
-import { brl, tipoLabel, type PortalListing } from "@/lib/portal/caixa"
+import { AdCartToggle } from "@/components/portal/ad-cart"
+import { ListingPhoto } from "@/components/portal/listing-photo"
+import { brl, dataHora, tipoLabel, usaFotoCaixa, type PortalListing } from "@/lib/portal/imoveis"
 
 export function ListingCard({ item, photos }: { item: PortalListing; photos: boolean }) {
   const area = item.areaPrivativa ?? item.areaTotal ?? item.areaTerreno
@@ -9,8 +10,10 @@ export function ListingCard({ item, photos }: { item: PortalListing; photos: boo
   return (
     <article className="flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white transition-shadow hover:shadow-md">
       <Link href={`/leiloes/${item.numero}`} className="relative block">
-        <CaixaPhoto
+        <ListingPhoto
           numero={item.numero}
+          fotos={item.fotos}
+          caixa={usaFotoCaixa(item)}
           enabled={photos}
           alt={`${title} em ${item.cidade}/${item.uf}`}
           className="h-44 w-full"
@@ -28,7 +31,7 @@ export function ListingCard({ item, photos }: { item: PortalListing; photos: boo
       </Link>
       <div className="flex flex-1 flex-col gap-1.5 p-4">
         <span className="text-xs font-bold tracking-wide text-slate-500 uppercase">
-          Caixa · {item.modalidade ?? "Venda"}
+          {item.origemNome} · {item.modalidade ?? "Venda"}
         </span>
         <Link
           href={`/leiloes/${item.numero}`}
@@ -46,12 +49,25 @@ export function ListingCard({ item, photos }: { item: PortalListing; photos: boo
             <span className="text-xs text-slate-500 line-through">{brl(item.valorAvaliacao)}</span>
           ) : null}
         </div>
+        {item.leiloeiro || item.dataEncerramento || item.dataLeilao1 ? (
+          <span className="text-xs text-slate-500">
+            {[
+              item.leiloeiro ? `Leiloeiro: ${item.leiloeiro}` : null,
+              dataHora(item.dataLeilao1 ?? item.dataEncerramento)
+                ? `${item.dataLeilao1 ? "1º leilão" : "Encerra"} ${dataHora(item.dataLeilao1 ?? item.dataEncerramento)}`
+                : null,
+            ]
+              .filter(Boolean)
+              .join(" · ")}
+          </span>
+        ) : null}
         <Link
           href={`/leiloes/${item.numero}`}
           className="mt-auto rounded-lg border-[1.5px] border-[var(--brand)] py-2.5 text-center text-sm font-bold text-[var(--brand)] hover:bg-[var(--brand-soft)]"
         >
           Ver imóvel
         </Link>
+        <AdCartToggle id={item.numero} />
       </div>
     </article>
   )

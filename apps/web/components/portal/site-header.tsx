@@ -13,9 +13,20 @@ export const PORTAL_MENU: MenuItem[] = [
     label: "Leilões",
     groups: [
       {
-        title: "Imóveis da Caixa",
+        title: "Por banco",
         links: [
           { label: "Todos os leilões", href: "/leiloes" },
+          { label: "Caixa", href: "/leiloes?origem=caixa" },
+          { label: "Itaú", href: "/leiloes?origem=itau" },
+          { label: "Bradesco", href: "/leiloes?origem=bradesco" },
+          { label: "Santander", href: "/leiloes?origem=santander" },
+          { label: "Banco do Brasil", href: "/leiloes?origem=banco-do-brasil" },
+          { label: "Leilões judiciais", href: "/leiloes?origem=judicial" },
+        ],
+      },
+      {
+        title: "Oportunidades",
+        links: [
           { label: "Maiores descontos", href: "/leiloes?desconto=50" },
           { label: "Aceitam financiamento", href: "/leiloes?financiamento=sim" },
         ],
@@ -78,6 +89,14 @@ export const PORTAL_MENU: MenuItem[] = [
           { label: "Selo Verde", href: "/corretores#selo-verde" },
           { label: "Parceria 50/50", href: "/corretores#parceria" },
           { label: "Entrar no painel", href: "/entrar" },
+        ],
+      },
+      {
+        title: "Ferramentas",
+        links: [
+          { label: "Anunciar nos portais", href: "/anunciar" },
+          { label: "Calculadora de viabilidade", href: "/leiloes" },
+          { label: "Kit de anúncio para redes", href: "/leiloes" },
         ],
       },
     ],

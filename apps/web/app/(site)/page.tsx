@@ -2,7 +2,7 @@ import Link from "next/link"
 
 import { ListingCard } from "@/components/portal/listing-card"
 import { areCaixaPhotosEnabled } from "@/lib/caixa/photos"
-import { getPortalFacets, searchPortalListings, TIPOS_FILTRO } from "@/lib/portal/caixa"
+import { getPortalFacets, searchPortalListings, TIPOS_FILTRO } from "@/lib/portal/imoveis"
 import { PORTAL } from "@/lib/portal/config"
 import { BRAZILIAN_STATES } from "@workspace/core/br/states"
 
@@ -16,6 +16,8 @@ export default async function PortalHome() {
         uf: "",
         cidade: "",
         tipo: "",
+        origem: "",
+        leiloeiro: "",
         financiamento: null,
         minDesconto: 40,
         maxPreco: null,
@@ -40,8 +42,8 @@ export default async function PortalHome() {
               Imóvel de leilão abaixo da avaliação, para morar ou para investir.
             </h1>
             <p className="max-w-xl text-lg leading-relaxed text-slate-700">
-              Leilões da Caixa em todos os estados, com a conta dos custos antes do lance e
-              assessoria até a chave na mão.
+              Leilões da Caixa, de outros bancos e da Justiça em todos os estados, com a conta dos
+              custos antes do lance e assessoria até a chave na mão.
             </p>
             <form
               action="/leiloes"
@@ -91,7 +93,7 @@ export default async function PortalHome() {
             </form>
             {facets.total > 0 ? (
               <span className="text-sm text-slate-600">
-                {facets.total.toLocaleString("pt-BR")} imóveis da Caixa disponíveis agora
+                {facets.total.toLocaleString("pt-BR")} imóveis de leilão disponíveis agora
                 {facets.atualizadoEm
                   ? `, lista de ${new Date(facets.atualizadoEm).toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" })}`
                   : ""}
@@ -126,9 +128,7 @@ export default async function PortalHome() {
         <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
           <div>
             <h2 className="text-3xl font-extrabold tracking-tight">Maiores descontos agora</h2>
-            <p className="mt-1 text-slate-600">
-              Imóveis da Caixa com 40% ou mais abaixo da avaliação.
-            </p>
+            <p className="mt-1 text-slate-600">Imóveis com 40% ou mais abaixo da avaliação.</p>
           </div>
           <Link href="/leiloes?desconto=40" className="font-bold text-[var(--brand)]">
             Ver todos

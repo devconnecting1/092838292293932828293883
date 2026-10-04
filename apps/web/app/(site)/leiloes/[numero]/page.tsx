@@ -2,9 +2,10 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 
+import { AdCartToggle } from "@/components/portal/ad-cart"
 import { ListingGallery } from "@/components/portal/listing-gallery"
 import { areCaixaPhotosEnabled } from "@/lib/caixa/photos"
-import { brl, getPortalListing, tipoLabel } from "@/lib/portal/caixa"
+import { brl, dataHora, getPortalListing, tipoLabel, usaFotoCaixa } from "@/lib/portal/imoveis"
 import { PORTAL, whatsappHref } from "@/lib/portal/config"
 
 export const revalidate = 600
@@ -21,7 +22,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!item) return { title: "Imóvel não encontrado", robots: { index: false } }
   return {
     title: `${tipoLabel(item.tipo)} em ${item.cidade}/${item.uf}${item.desconto ? `, ${Math.round(item.desconto)}% abaixo` : ""}`,
-    description: `${item.endereco}. Preço ${brl(item.preco)}${item.valorAvaliacao ? `, avaliação ${brl(item.valorAvaliacao)}` : ""}. Imóvel da Caixa.`,
+    description: `${item.endereco}. Preço ${brl(item.preco)}${item.valorAvaliacao ? `, avaliação ${brl(item.valorAvaliacao)}` : ""}. ${item.origemNome}.`,
   }
 }
 
@@ -30,7 +31,30 @@ export default async function ImovelPage({ params }: Props) {
   const item = await getPortalListing(numero)
   if (!item) notFound()
   const photos = areCaixaPhotosEnabled()
-  const msg = `Olá! Tenho interesse no imóvel da Caixa nº ${item.numero} (${item.cidade}/${item.uf}) e quero um corretor para me acompanhar.`
+  const codigo = item.codigoBanco ?? item.numero
+  const msg = `Olá! Tenho interesse no imóvel ${item.origemNome} nº ${codigo} (${item.cidade}/${item.uf}) e quero um corretor para me acompanhar.`
+  const leilao: [string, string | null][] = [
+    ["Origem", item.origemNome],
+    ["Modalidade", item.modalidade],
+    [
+      "Leiloeiro",
+      item.leiloeiro
+        ? `${item.leiloeiro}${item.leiloeiroRegistro ? ` (${item.leiloeiroRegistro})` : ""}`
+        : null,
+    ],
+    ["Intermediação", item.intermediador],
+    ["Código do imóvel no banco", item.codigoBanco],
+    ["Código do leilão / lote", item.codigoLeilao],
+    ["1º leilão", dataHora(item.dataLeilao1)],
+    ["2º leilão", dataHora(item.dataLeilao2)],
+    ["Lance mínimo no 2º leilão", item.lanceLeilao2 ? brl(item.lanceLeilao2) : null],
+    ["Encerramento", dataHora(item.dataEncerramento)],
+    [
+      "Matrícula",
+      item.matricula ? `${item.matricula}${item.cartorio ? `, ${item.cartorio}` : ""}` : null,
+    ],
+    ["Processo", item.processo ? `${item.processo}${item.vara ? `, ${item.vara}` : ""}` : null],
+  ]
 
   const facts: [string, string][] = [
     ["Tipo", tipoLabel(item.tipo)],
@@ -54,7 +78,12 @@ export default async function ImovelPage({ params }: Props) {
         · {item.cidade}
       </nav>
 
-      <ListingGallery numero={item.numero} enabled={photos} />
+      <ListingGallery
+        numero={item.numero}
+        fotos={item.fotos}
+        caixa={usaFotoCaixa(item)}
+        enabled={photos}
+      />
 
       <div className="flex flex-wrap items-start gap-7">
         <div className="min-w-0 flex-[999_1_560px]">
@@ -70,7 +99,7 @@ export default async function ImovelPage({ params }: Props) {
               </span>
             ) : null}
             <span className="rounded-lg bg-slate-100 px-2.5 py-1 text-sm font-bold text-slate-700">
-              Imóvel da Caixa nº {item.numero}
+              {item.origemNome} nº {codigo}
             </span>
           </div>
           <h1 className="mt-3 text-3xl font-extrabold tracking-tight">
@@ -86,23 +115,40 @@ export default async function ImovelPage({ params }: Props) {
               </div>
             ))}
           </dl>
+          <div className="mt-6">
+            <h2 className="text-lg font-extrabold">Dados do leilão</h2>
+            <dl className="mt-3 grid gap-x-6 gap-y-2 sm:grid-cols-2">
+              {leilao
+                .filter((l): l is [string, string] => !!l[1])
+                .map(([k, v]) => (
+                  <div
+                    key={k}
+                    className="flex justify-between gap-3 border-b border-slate-100 py-2"
+                  >
+                    <dt className="text-sm text-slate-500">{k}</dt>
+                    <dd className="text-right text-sm font-bold">{v}</dd>
+                  </div>
+                ))}
+            </dl>
+          </div>
           {item.descricao ? (
             <div className="mt-6">
-              <h2 className="text-lg font-extrabold">Descrição da Caixa</h2>
+              <h2 className="text-lg font-extrabold">Descrição</h2>
               <p className="mt-2 leading-relaxed whitespace-pre-line text-slate-700">
                 {item.descricao}
               </p>
             </div>
           ) : null}
           <div className="mt-6 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm leading-relaxed text-amber-900">
-            Antes de qualquer proposta, leia o edital e a matrícula no site da Caixa: eles dizem
-            quem paga as dívidas do imóvel, a forma de pagamento e se o imóvel está ocupado. A lista
-            oficial não informa ocupação nem uso do FGTS.
+            Antes de qualquer lance, leia o edital e a matrícula: eles dizem quem paga as dívidas do
+            imóvel, a forma de pagamento, a comissão do leiloeiro e se o imóvel está ocupado.
           </div>
         </div>
 
         <aside className="flex w-full flex-[1_1_300px] flex-col gap-3 rounded-2xl border border-slate-200 p-6 shadow-sm lg:sticky lg:top-24">
-          <span className="text-sm font-semibold text-slate-600">Preço de venda</span>
+          <span className="text-sm font-semibold text-slate-600">
+            {item.dataLeilao1 || item.dataLeilao2 ? "Lance mínimo" : "Preço de venda"}
+          </span>
           <span className="text-3xl font-extrabold tracking-tight">{brl(item.preco)}</span>
           {item.valorAvaliacao ? (
             <span className="text-sm text-slate-500">Avaliação: {brl(item.valorAvaliacao)}</span>
@@ -113,14 +159,32 @@ export default async function ImovelPage({ params }: Props) {
           >
             Quero um corretor para me acompanhar
           </a>
-          <a
-            href={item.link}
-            target="_blank"
-            rel="noopener noreferrer nofollow"
+          <Link
+            href={`/leiloes/${item.numero}/viabilidade`}
             className="rounded-xl border-[1.5px] border-[var(--brand)] py-3 text-center font-bold text-[var(--brand)]"
           >
-            Ver edital no site da Caixa
-          </a>
+            Calcular viabilidade
+          </Link>
+          <Link
+            href={`/corretores/anunciar/${item.numero}`}
+            className="rounded-xl border-[1.5px] border-slate-300 py-3 text-center font-bold text-slate-800"
+          >
+            Sou corretor: gerar anúncio
+          </Link>
+          {item.editalUrl ? (
+            <a
+              href={item.editalUrl}
+              target="_blank"
+              rel="noopener noreferrer nofollow"
+              className="py-1 text-center text-sm font-bold text-[var(--brand)]"
+            >
+              Ver edital
+            </a>
+          ) : null}
+          <AdCartToggle
+            id={item.numero}
+            className="rounded-xl border-[1.5px] border-slate-300 py-3 text-center font-bold text-slate-800"
+          />
           <Link href="/credito" className="py-2 text-center text-sm font-semibold text-slate-700">
             Avaliar meu crédito antes
           </Link>
