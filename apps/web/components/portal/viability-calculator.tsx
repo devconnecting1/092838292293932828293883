@@ -276,10 +276,14 @@ export function ViabilityCalculator({ inicial, empresa }: { inicial: Entradas; e
                 className="h-11 rounded-lg border border-slate-300 bg-white px-2"
               >
                 <option value="nao">Não</option>
-                <option value="sim">Sim (estimativa de 10% da avaliação)</option>
+                <option value="sim">Sim (até 10% da avaliação, não do lance)</option>
               </select>
             </label>
-            <Money label="Condomínio" value={e.condominio} onChange={(v) => set("condominio", v)} />
+            <Money
+              label="Dívida de condomínio"
+              value={e.condominio}
+              onChange={(v) => set("condominio", v)}
+            />
             <Money label="IPTU" value={e.iptu} onChange={(v) => set("iptu", v)} />
             <Money
               label="Chaveiro e limpeza"

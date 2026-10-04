@@ -6,7 +6,9 @@
  * - ITBI de 3%, sobre o lance ou sobre a avaliação;
  * - registro e escritura: 3% da avaliação (normal) ou 6% (completo);
  * - assessoria: 5% da avaliação;
- * - dívidas anteriores, quando houver: 10% da avaliação como estimativa de condomínio;
+ * - dívidas de condomínio na Caixa: o comprador paga até 10% do VALOR DE AVALIAÇÃO
+ *   (não do lance/arremate); o que passar disso fica com a Caixa. Nos leilões
+ *   judiciais e extrajudiciais de outras origens vale o que estiver no edital;
  * - corretagem na revenda: 6% do valor de venda;
  * - imposto sobre o lucro: 15%;
  * - semáforo do retorno: abaixo de 15% vermelho, até 25% amarelo, acima verde.
@@ -145,12 +147,15 @@ export function calcular(e: Entradas): { avista: Cenario; financiado: Cenario } 
   const cLeiloeiro = leilao ? (e.lance * e.pLeiloeiro) / 100 : 0
   const cITBI = ((e.baseITBI === "lance" ? e.lance : e.avaliacao) * e.pITBI) / 100
   const cCorretagem = (e.valorVenda * e.pCorretagem) / 100
+  const regraCaixa = e.modalidade !== "judicial" && e.modalidade !== "extrajudicial"
+  const tetoCondominio = round2(e.avaliacao * 0.1)
+  const condominio = regraCaixa ? Math.min(e.condominio, tetoCondominio) : e.condominio
   const custosExtras =
     cLeiloeiro +
     cITBI +
     e.cartorio +
     e.assessoria +
-    e.condominio +
+    condominio +
     e.iptu +
     e.limpeza +
     e.obra +
@@ -174,7 +179,13 @@ export function calcular(e: Entradas): { avista: Cenario; financiado: Cenario } 
       valor: e.cartorio,
     },
     { item: "Assessoria", base: "Técnica e documental", valor: e.assessoria },
-    { item: "Dívidas (condomínio e IPTU)", base: "Regularização", valor: e.condominio + e.iptu },
+    {
+      item: "Dívidas (condomínio e IPTU)",
+      base: regraCaixa
+        ? "Condomínio até 10% da avaliação; o que passar fica com a Caixa"
+        : "Conforme o edital",
+      valor: condominio + e.iptu,
+    },
     { item: "Chaveiro, limpeza e obra", base: "Manutenção", valor: e.limpeza + e.obra },
     { item: "Corretagem na revenda", base: `${e.pCorretagem}% da venda`, valor: cCorretagem },
     { item: "Outros", base: "Diversos", valor: e.outros },
