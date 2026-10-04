@@ -101,7 +101,7 @@ export const PORTAL_MENU: MenuItem[] = [
         links: [
           { label: "Anunciar nos portais", href: "/anunciar" },
           { label: "Calculadora de viabilidade", href: "/leiloes" },
-          { label: "Kit de anúncio para redes", href: "/leiloes" },
+          { label: "Kit de anúncio para redes", href: "/corretores/kit" },
         ],
       },
     ],

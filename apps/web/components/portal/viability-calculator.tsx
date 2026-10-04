@@ -346,7 +346,7 @@ export function ViabilityCalculator({ inicial, empresa }: { inicial: Entradas; e
                 step={1}
                 value={alvo}
                 onChange={(ev) => setAlvo(Number(ev.target.value) || 0)}
-                className="h-9 w-16 rounded-md border-0 px-2 text-right font-bold text-slate-900"
+                className="h-9 w-16 rounded-md border-0 bg-white px-2 text-right font-bold text-slate-900"
               />
               %
             </label>

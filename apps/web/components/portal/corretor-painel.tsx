@@ -197,6 +197,7 @@ export function CorretorPainel() {
             [
               ["Buscar imóveis", "/leiloes"],
               ["Anunciar nos portais", "/anunciar"],
+              ["Kit de anúncio para redes", "/corretores/kit"],
               ["Minha página", perfil?.slug ? `/corretor/${perfil.slug}` : "/corretores/painel"],
             ] as [string, string][]
           ).map(([t, h]) => (

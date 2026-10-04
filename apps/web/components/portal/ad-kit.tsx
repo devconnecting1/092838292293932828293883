@@ -2,6 +2,8 @@
 
 import * as React from "react"
 
+import { portalBrowserClient } from "@/lib/portal/browser-client"
+
 /**
  * Kit de anúncio do corretor: gera, no próprio navegador, a arte do feed
  * (1080x1080) e do stories (1080x1920), a legenda e os botões de compartilhar.
@@ -53,7 +55,8 @@ async function desenhar(
   im: KitImovel,
   c: Corretor,
   cor: string,
-  marca: string
+  marca: string,
+  fotoImovel: string | null
 ) {
   const { w, h } = FORMATOS[formato]
   canvas.width = w
@@ -64,13 +67,30 @@ async function desenhar(
 
   ctx.fillStyle = "#ffffff"
   ctx.fillRect(0, 0, w, h)
+  const faixa = story ? 760 : 470
   ctx.fillStyle = cor
-  ctx.fillRect(0, 0, w, story ? 760 : 470)
+  ctx.fillRect(0, 0, w, faixa)
+  if (fotoImovel) {
+    const img = new Image()
+    img.src = fotoImovel
+    await img.decode().catch(() => undefined)
+    if (img.naturalWidth) {
+      const r = Math.max(w / img.naturalWidth, faixa / img.naturalHeight)
+      const iw = img.naturalWidth * r
+      const ih = img.naturalHeight * r
+      ctx.drawImage(img, (w - iw) / 2, (faixa - ih) / 2, iw, ih)
+      const g = ctx.createLinearGradient(0, 0, 0, faixa)
+      g.addColorStop(0, "rgba(15,23,42,0.55)")
+      g.addColorStop(1, "rgba(15,23,42,0.25)")
+      ctx.fillStyle = g
+      ctx.fillRect(0, 0, w, faixa)
+    }
+  }
 
   ctx.fillStyle = "#ffffff"
   ctx.font = "800 44px system-ui, sans-serif"
   ctx.fillText(
-    `${im.origem.toUpperCase()} · ${(im.modalidade ?? "Leilão").toUpperCase()}`,
+    [im.origem, im.modalidade].filter(Boolean).join(" · ").toUpperCase(),
     pad,
     story ? 200 : 120
   )
@@ -121,6 +141,7 @@ async function desenhar(
   let tx = pad
   if (c.foto) {
     const img = new Image()
+    img.crossOrigin = "anonymous"
     img.src = c.foto
     await img.decode().catch(() => undefined)
     if (img.naturalWidth) {
@@ -149,27 +170,74 @@ async function desenhar(
   ctx.fillText([c.creci || "CRECI", c.whatsapp].filter(Boolean).join(" · "), tx, fy + 140)
   ctx.fillStyle = "#64748b"
   ctx.font = "500 26px system-ui, sans-serif"
-  ctx.fillText(`Ref. ${im.codigo} · Valores sujeitos ao edital · ${marca}`, pad, h - 40)
+  ctx.fillText(
+    im.url ? `Ref. ${im.codigo} · Valores sujeitos ao edital · ${marca}` : marca,
+    pad,
+    h - 40
+  )
 }
 
-export function AdKit({ imovel, cor, marca }: { imovel: KitImovel; cor: string; marca: string }) {
+export function AdKit({
+  imovel: inicial,
+  cor,
+  marca,
+  editavel = false,
+}: {
+  imovel: KitImovel
+  cor: string
+  marca: string
+  editavel?: boolean
+}) {
   const [c, setC] = React.useState<Corretor>({ nome: "", creci: "", whatsapp: "", foto: null })
+  const [imovel, setImovel] = React.useState<KitImovel>(inicial)
+  const [fotoImovel, setFotoImovel] = React.useState<string | null>(null)
+
+  // Dados do corretor logado entram sozinhos (nome, CRECI, WhatsApp e foto).
+  React.useEffect(() => {
+    const t = setTimeout(async () => {
+      const sb = portalBrowserClient()
+      const { data: u } = (await sb?.auth.getUser()) ?? { data: { user: null } }
+      if (!sb || !u.user) return
+      const { data: p } = await sb
+        .from("perfis")
+        .select("nome,creci,creci_uf,whatsapp,foto_path")
+        .eq("user_id", u.user.id)
+        .maybeSingle()
+      if (!p) return
+      setC((old) => ({
+        nome: old.nome || p.nome || "",
+        creci:
+          old.creci || (p.creci ? `CRECI-${p.creci_uf ?? ""} ${p.creci}`.replace("- ", " ") : ""),
+        whatsapp: old.whatsapp || p.whatsapp || "",
+        foto:
+          old.foto ||
+          (p.foto_path
+            ? sb.storage.from("corretores-fotos").getPublicUrl(p.foto_path).data.publicUrl
+            : null),
+      }))
+    }, 0)
+    return () => clearTimeout(t)
+  }, [])
   const [formato, setFormato] = React.useState<keyof typeof FORMATOS>("feed")
   const ref = React.useRef<HTMLCanvasElement>(null)
   const [copiado, setCopiado] = React.useState(false)
 
   React.useEffect(() => {
-    if (ref.current) void desenhar(ref.current, formato, imovel, c, cor, marca)
-  }, [formato, imovel, c, cor, marca])
+    if (ref.current) void desenhar(ref.current, formato, imovel, c, cor, marca, fotoImovel)
+  }, [formato, imovel, c, cor, marca, fotoImovel])
 
   const legenda = [
     `${imovel.desconto ? `${Math.round(imovel.desconto)}% abaixo da avaliação. ` : ""}${imovel.titulo}, ${imovel.local}.`,
-    `${imovel.modalidade ?? "Leilão"} ${imovel.origem}: ${imovel.preco}${imovel.avaliacao ? ` (avaliação ${imovel.avaliacao})` : ""}.`,
+    `${[imovel.modalidade, imovel.origem].filter(Boolean).join(" ")}: ${imovel.preco}${imovel.avaliacao ? ` (avaliação ${imovel.avaliacao})` : ""}.`,
     imovel.financiamento ? "Aceita financiamento." : "",
-    "Valores e condições sujeitos ao edital; confira matrícula e edital antes do lance.",
+    editavel
+      ? ""
+      : "Valores e condições sujeitos ao edital; confira matrícula e edital antes do lance.",
     `Fale comigo${c.whatsapp ? ` no WhatsApp ${c.whatsapp}` : ""}: ${c.nome || "[seu nome]"}, ${c.creci || "[seu CRECI]"}.`,
-    `Detalhes: ${imovel.url}`,
-    "#leilaodeimoveis #imovel #investimentoimobiliario",
+    imovel.url ? `Detalhes: ${imovel.url}` : "",
+    editavel
+      ? "#imoveis #imovel #corretordeimoveis"
+      : "#leilaodeimoveis #imovel #investimentoimobiliario",
   ]
     .filter(Boolean)
     .join("\n")
@@ -226,7 +294,7 @@ export function AdKit({ imovel, cor, marca }: { imovel: KitImovel; cor: string; 
             </label>
           ))}
           <label className="flex flex-col gap-1 text-sm font-semibold text-slate-700">
-            Sua foto ou logo (fica só no seu aparelho)
+            Sua foto ou logo (entra sozinha se estiver no seu cadastro)
             <input
               type="file"
               accept="image/png,image/jpeg,image/webp"
@@ -240,6 +308,46 @@ export function AdKit({ imovel, cor, marca }: { imovel: KitImovel; cor: string; 
               className="text-sm"
             />
           </label>
+        </fieldset>
+
+        <fieldset className="flex flex-col gap-3 rounded-2xl border border-slate-200 p-5">
+          <legend className="px-1 text-sm font-extrabold tracking-wide text-[var(--brand)] uppercase">
+            O imóvel no anúncio
+          </legend>
+          <label className="flex flex-col gap-1 text-sm font-semibold text-slate-700">
+            Foto do imóvel (do seu aparelho)
+            <input
+              type="file"
+              accept="image/png,image/jpeg,image/webp"
+              onChange={(e) => {
+                const f = e.target.files?.[0]
+                if (!f) return
+                const r = new FileReader()
+                r.onload = () => setFotoImovel(String(r.result))
+                r.readAsDataURL(f)
+              }}
+              className="text-sm"
+            />
+          </label>
+          {editavel
+            ? (
+                [
+                  ["origem", "Negócio (ex.: Venda, Locação)"],
+                  ["titulo", "Título (ex.: Apartamento com 2 quartos)"],
+                  ["local", "Bairro e cidade"],
+                  ["preco", "Preço (ex.: R$ 350.000)"],
+                ] as const
+              ).map(([k, label]) => (
+                <label key={k} className="flex flex-col gap-1 text-sm font-semibold text-slate-700">
+                  {label}
+                  <input
+                    value={imovel[k] ?? ""}
+                    onChange={(e) => setImovel({ ...imovel, [k]: e.target.value })}
+                    className="h-11 rounded-lg border border-slate-300 px-3"
+                  />
+                </label>
+              ))
+            : null}
         </fieldset>
 
         <div className="flex flex-col gap-2 rounded-2xl border border-slate-200 p-5">

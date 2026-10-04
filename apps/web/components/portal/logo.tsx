@@ -23,7 +23,7 @@ export function LogoSimbolo({
       <path
         d="m18.5 28 4 4 8-8.5"
         fill="none"
-        stroke={claro ? "var(--brand)" : "#ffffff"}
+        stroke={claro ? "var(--brand)" : "#FF7A45"}
         strokeWidth="3.4"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -40,10 +40,10 @@ export function Logo({ nome, claro = false }: { nome: string; claro?: boolean })
     <span className="flex items-center gap-2.5">
       <LogoSimbolo claro={claro} />
       <span
-        className={`text-[22px] leading-none font-extrabold tracking-[-0.03em] ${claro ? "text-white" : "text-slate-900"}`}
+        className={`text-[22px] leading-none font-extrabold tracking-[-0.03em] ${claro ? "text-white" : "text-[var(--brand)]"}`}
       >
         {primeira ? `${primeira} ` : ""}
-        <span className={claro ? "text-white/80" : "text-[var(--brand)]"}>{ultima}</span>
+        <span className={claro ? "text-white" : "text-[#C2410C]"}>{ultima}</span>
       </span>
     </span>
   )
