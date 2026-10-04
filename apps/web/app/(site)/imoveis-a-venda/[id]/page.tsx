@@ -2,7 +2,13 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 
-import { brlInteiro, listarAvulsosPublicos, whatsDoDono } from "@/lib/portal/avulsos-publicos"
+import {
+  brlInteiro,
+  listarAvulsosPublicos,
+  precoAnuncio,
+  ROTA_FINALIDADE,
+  whatsDoDono,
+} from "@/lib/portal/avulsos-publicos"
 import { siteUrl } from "@/lib/portal/site-url"
 
 export const revalidate = 300
@@ -28,11 +34,12 @@ export default async function AvulsoPublicoPage({ params }: Props) {
   const { id } = await params
   const a = await carregar(id)
   if (!a) notFound()
-  const url = `${siteUrl()}/imoveis-a-venda/${a.id}`
+  const rota = ROTA_FINALIDADE[a.finalidade]
+  const url = `${siteUrl()}${rota}/${a.id}`
   return (
     <div className="mx-auto flex max-w-[1080px] flex-col gap-6 px-4 py-8 sm:px-6">
-      <Link href="/imoveis-a-venda" className="text-sm font-bold text-[var(--brand)]">
-        ← Todos os imóveis direto com o proprietário
+      <Link href={rota} className="text-sm font-bold text-[var(--brand)]">
+        ← {a.finalidade === "aluguel" ? "Todos os imóveis para alugar" : "Todos os imóveis à venda"}
       </Link>
       <div className="grid gap-2 sm:grid-cols-3">
         {a.fotos.slice(0, 9).map((f, i) => (
@@ -64,7 +71,13 @@ export default async function AvulsoPublicoPage({ params }: Props) {
           <p className="leading-relaxed whitespace-pre-line text-slate-800">{a.descricao}</p>
         </div>
         <aside className="flex h-fit flex-col gap-3 rounded-2xl border border-slate-200 p-5 lg:sticky lg:top-24">
-          <p className="text-3xl font-extrabold">{brlInteiro(a.preco)}</p>
+          <p className="text-3xl font-extrabold">{precoAnuncio(a)}</p>
+          {a.finalidade === "aluguel" && (a.valor_condominio || a.valor_iptu) ? (
+            <p className="text-sm text-slate-600">
+              {a.valor_condominio ? `Condomínio ${brlInteiro(a.valor_condominio)}/mês. ` : ""}
+              {a.valor_iptu ? `IPTU ${brlInteiro(a.valor_iptu)}/mês.` : ""}
+            </p>
+          ) : null}
           <p className="text-sm text-slate-600">Anunciado por {a.contato_nome}, proprietário.</p>
           <a
             href={whatsDoDono(a, url)}
@@ -75,8 +88,10 @@ export default async function AvulsoPublicoPage({ params }: Props) {
             Falar com o proprietário no WhatsApp
           </a>
           <p className="text-xs leading-relaxed text-slate-500">
-            Antes de pagar qualquer valor, peça a matrícula atualizada do imóvel e as certidões do
-            vendedor. Quer que a nossa equipe confira para você?{" "}
+            {a.finalidade === "aluguel"
+              ? "Visite o imóvel antes e só pague com contrato de locação assinado."
+              : "Antes de pagar qualquer valor, peça a matrícula atualizada do imóvel e as certidões do vendedor."}{" "}
+            Quer que a nossa equipe confira para você?{" "}
             <Link href="/suporte" className="font-bold">
               Peça ajuda
             </Link>

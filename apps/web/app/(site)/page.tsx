@@ -1,10 +1,10 @@
 import Link from "next/link"
 
+import { BuscaAbas } from "@/components/portal/busca-abas"
 import { ListingCard } from "@/components/portal/listing-card"
 import { Responsavel } from "@/components/portal/responsavel"
 import { areCaixaPhotosEnabled } from "@/lib/caixa/photos"
 import { getPortalFacets, searchPortalListings, TIPOS_FILTRO } from "@/lib/portal/imoveis"
-import { BRAZILIAN_STATES } from "@workspace/core/br/states"
 
 export const revalidate = 600
 
@@ -45,52 +45,7 @@ export default async function PortalHome() {
               Leilões da Caixa, de outros bancos e da Justiça em todos os estados, com a conta dos
               custos antes do lance e assessoria até a chave na mão.
             </p>
-            <form
-              action="/leiloes"
-              className="flex max-w-2xl flex-col gap-2 rounded-2xl bg-white p-3 shadow-lg sm:flex-row sm:items-end"
-            >
-              <label className="flex flex-1 flex-col gap-1 text-xs font-bold text-slate-600">
-                Cidade, bairro ou código
-                <input
-                  name="q"
-                  placeholder="Ex.: Nova Iguaçu"
-                  className="h-12 rounded-lg border border-slate-300 px-3 text-base text-slate-900"
-                />
-              </label>
-              <label className="flex flex-col gap-1 text-xs font-bold text-slate-600 sm:w-36">
-                Estado
-                <select
-                  name="uf"
-                  defaultValue=""
-                  className="h-12 rounded-lg border border-slate-300 bg-white px-2 text-base text-slate-900"
-                >
-                  <option value="">Todos</option>
-                  {BRAZILIAN_STATES.map((s) => (
-                    <option key={s.code} value={s.code}>
-                      {s.code}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label className="flex flex-col gap-1 text-xs font-bold text-slate-600 sm:w-44">
-                Tipo
-                <select
-                  name="tipo"
-                  defaultValue=""
-                  className="h-12 rounded-lg border border-slate-300 bg-white px-2 text-base text-slate-900"
-                >
-                  <option value="">Todos</option>
-                  {TIPOS_FILTRO.map((t) => (
-                    <option key={t.value} value={t.value}>
-                      {t.label}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <button className="h-12 rounded-lg bg-[var(--brand)] px-6 font-bold text-white hover:opacity-90">
-                Buscar
-              </button>
-            </form>
+            <BuscaAbas tipos={TIPOS_FILTRO.map((t) => ({ value: t.value, label: t.label }))} />
             {facets.total > 0 ? (
               <span className="text-sm text-slate-600">
                 {facets.total.toLocaleString("pt-BR")} imóveis de leilão disponíveis agora

@@ -24,7 +24,9 @@ export function SiteFooter() {
             ["Todos os leilões", "/leiloes"],
             ["Como funciona", "/como-funciona"],
             ["Avalie seu crédito", "/credito"],
-            ["Direto com o proprietário", "/imoveis-a-venda"],
+            ["Imóveis à venda", "/imoveis-a-venda"],
+            ["Imóveis para alugar", "/imoveis-para-alugar"],
+            ["Quanto vale meu imóvel", "/quanto-vale-meu-imovel"],
             ["Anuncie seu imóvel", "/anuncie-gratis"],
           ]}
         />

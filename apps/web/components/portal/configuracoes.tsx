@@ -131,6 +131,10 @@ export function ConfiguracoesGestao() {
     for (const p of planos)
       if (!(p.mensal > 0) || !(p.anual > 0))
         return `Plano ${p.nome}: informe o preço mensal e o anual.`
+    const k = c.calculadora
+    if (!(k.aluguel_min_pct > 0) || !(k.aluguel_max_pct >= k.aluguel_min_pct))
+      return "Calculadora: o aluguel máximo precisa ser maior ou igual ao mínimo."
+    if (!(k.minimo_amostras >= 3)) return "Calculadora: use pelo menos 3 imóveis comparáveis."
     if (!c.termo_indicacao.versao.trim()) return "Informe a versão dos contratos."
     return null
   }
@@ -166,6 +170,7 @@ export function ConfiguracoesGestao() {
       { chave: "plano_anuncio_proprietario", valor: cfg.plano_anuncio_proprietario },
       { chave: "rodizio", valor: cfg.rodizio },
       { chave: "termo_indicacao", valor: cfg.termo_indicacao },
+      { chave: "calculadora", valor: cfg.calculadora },
     ].map((l) => ({ ...l, atualizado: agora }))
     const { error } = await sb.from("config_portal").upsert(linhas, { onConflict: "chave" })
     setSalvando(false)
@@ -400,6 +405,33 @@ export function ConfiguracoesGestao() {
           contrato publicado passa a mostrar a nova versão, o parceiro precisa aceitar o termo novo
           antes do próximo lead e cada aceite fica ligado à versão que valia naquele dia.
         </p>
+      </Bloco>
+
+      <Bloco
+        titulo="Calculadora de venda e aluguel"
+        texto="Usada em Quanto vale meu imóvel e Quanto cobrar de aluguel. O valor do m² vem das avaliações dos imóveis de leilão da região; o aluguel é um percentual mensal desse valor."
+      >
+        <div className="grid gap-4 sm:grid-cols-3">
+          <Numero
+            label="Aluguel mínimo (% do valor ao mês)"
+            sufixo="%"
+            passo={0.05}
+            valor={cfg.calculadora.aluguel_min_pct}
+            onChange={(v) => mudar("calculadora", { aluguel_min_pct: v ?? 0.4 })}
+          />
+          <Numero
+            label="Aluguel máximo (% do valor ao mês)"
+            sufixo="%"
+            passo={0.05}
+            valor={cfg.calculadora.aluguel_max_pct}
+            onChange={(v) => mudar("calculadora", { aluguel_max_pct: v ?? 0.6 })}
+          />
+          <Numero
+            label="Mínimo de imóveis comparáveis"
+            valor={cfg.calculadora.minimo_amostras}
+            onChange={(v) => mudar("calculadora", { minimo_amostras: v ?? 5 })}
+          />
+        </div>
       </Bloco>
 
       <Bloco titulo="Outros valores">

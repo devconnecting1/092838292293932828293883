@@ -24,6 +24,7 @@ export type ConfigPortal = {
   plano_anuncio_proprietario: { preco: number; dias: number }
   rodizio: { modo: "manual" | "automatico"; prazo_minutos: number }
   termo_indicacao: { versao: string; nao_aliciamento_meses?: number }
+  calculadora: { aluguel_min_pct: number; aluguel_max_pct: number; minimo_amostras: number }
 }
 
 export const CONFIG_PADRAO: ConfigPortal = {
@@ -44,6 +45,7 @@ export const CONFIG_PADRAO: ConfigPortal = {
   plano_anuncio_proprietario: { preco: 99.9, dias: 60 },
   rodizio: { modo: "manual", prazo_minutos: 30 },
   termo_indicacao: { versao: "2026-10-v1", nao_aliciamento_meses: 12 },
+  calculadora: { aluguel_min_pct: 0.4, aluguel_max_pct: 0.6, minimo_amostras: 5 },
 }
 
 /** Junta o que veio do banco com os padrões, chave a chave. */

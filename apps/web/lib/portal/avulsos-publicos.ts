@@ -5,6 +5,9 @@ import { getSupabaseEnv } from "@/lib/supabase/env"
 /** Anúncio de proprietário com plano no ar (vitrine pública /imoveis-a-venda). */
 export type AvulsoPublico = {
   id: string
+  finalidade: "venda" | "aluguel"
+  valor_condominio: number | null
+  valor_iptu: number | null
   tipo: string
   titulo: string
   descricao: string
@@ -25,6 +28,8 @@ export async function listarAvulsosPublicos(f: {
   uf?: string | null
   cidade?: string | null
   id?: string | null
+  finalidade?: "venda" | "aluguel" | null
+  quartos?: number | null
 }): Promise<AvulsoPublico[]> {
   const env = getSupabaseEnv()
   if (!env) return []
@@ -36,6 +41,8 @@ export async function listarAvulsosPublicos(f: {
       p_uf: f.uf || null,
       p_cidade: f.cidade || null,
       p_id: f.id || null,
+      p_finalidade: f.finalidade || null,
+      p_quartos: f.quartos || null,
     })
     if (error) return []
     return (data as AvulsoPublico[] | null) ?? []
@@ -55,3 +62,14 @@ export const brlInteiro = (v: number | null) =>
   v == null
     ? "Preço a combinar"
     : v.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 })
+
+export function precoAnuncio(a: Pick<AvulsoPublico, "preco" | "finalidade">) {
+  return a.finalidade === "aluguel" && a.preco != null
+    ? `${brlInteiro(a.preco)}/mês`
+    : brlInteiro(a.preco)
+}
+
+export const ROTA_FINALIDADE = {
+  venda: "/imoveis-a-venda",
+  aluguel: "/imoveis-para-alugar",
+} as const

@@ -221,7 +221,12 @@ function PlanoDoAnuncio({
   return (
     <div className={`${caixa} flex flex-col gap-2`}>
       <p>
-        <b>Quer vender sem corretor?</b> Publique este imóvel no site para compradores por{" "}
+        <b>
+          {avulso.finalidade === "aluguel"
+            ? "Publicar para interessados?"
+            : "Quer vender sem corretor?"}
+        </b>{" "}
+        Publique este imóvel no site por{" "}
         {reais(aberto?.valor ?? cfg.plano_anuncio_proprietario.preco)} durante{" "}
         {aberto?.dias ?? cfg.plano_anuncio_proprietario.dias} dias. Os dias só começam a contar com
         o anúncio aprovado.
@@ -260,6 +265,7 @@ export function AnuncioProprietario() {
   const [status, setStatus] = React.useState<"" | "enviando" | "ok" | "erro">("")
   const [erro, setErro] = React.useState("")
   const [aceitaCorretor, setAceitaCorretor] = React.useState(true)
+  const [finalidade, setFinalidade] = React.useState<"venda" | "aluguel">("venda")
   const [dados, setDados] = React.useState({
     tipo: "Apartamento",
     bairro: "",
@@ -334,7 +340,10 @@ export function AnuncioProprietario() {
         fotos,
         contato_nome: String(fd.get("contato_nome") ?? "").trim(),
         contato_telefone: String(fd.get("contato_telefone") ?? "").trim(),
-        aceita_corretor: aceitaCorretor,
+        aceita_corretor: finalidade === "venda" ? aceitaCorretor : false,
+        finalidade,
+        valor_condominio: n("valor_condominio"),
+        valor_iptu: n("valor_iptu"),
         autorizacao_versao: AUTORIZACAO_VERSAO,
         autorizacao_aceite_em: new Date().toISOString(),
       })
@@ -366,7 +375,8 @@ export function AnuncioProprietario() {
               <div className="flex flex-wrap justify-between gap-2">
                 <b>{a.titulo}</b>
                 <span>
-                  {brl(a.preco)} ·{" "}
+                  {brl(a.preco)}
+                  {a.finalidade === "aluguel" ? "/mês (aluguel)" : ""} ·{" "}
                   {
                     {
                       pendente: "aguardando aprovação",
@@ -398,6 +408,23 @@ export function AnuncioProprietario() {
           action={enviar}
           className="flex flex-col gap-5 rounded-2xl border border-slate-200 p-6"
         >
+          <div className="flex gap-1 self-start rounded-full border border-slate-300 p-1">
+            {(
+              [
+                ["venda", "Quero vender"],
+                ["aluguel", "Quero alugar"],
+              ] as const
+            ).map(([v, l]) => (
+              <button
+                key={v}
+                type="button"
+                onClick={() => setFinalidade(v)}
+                className={`rounded-full px-5 py-2 text-sm font-bold ${finalidade === v ? "bg-[var(--brand)] text-white" : "text-slate-700"}`}
+              >
+                {l}
+              </button>
+            ))}
+          </div>
           <fieldset className="grid gap-3 sm:grid-cols-2">
             <legend className="mb-2 font-extrabold">O imóvel</legend>
             <select
@@ -413,9 +440,25 @@ export function AnuncioProprietario() {
               name="preco"
               required
               inputMode="numeric"
-              placeholder="Preço de venda (R$)"
+              placeholder={finalidade === "venda" ? "Preço de venda (R$)" : "Aluguel por mês (R$)"}
               className={campo}
             />
+            {finalidade === "aluguel" ? (
+              <>
+                <input
+                  name="valor_condominio"
+                  inputMode="numeric"
+                  placeholder="Condomínio por mês (R$, opcional)"
+                  className={campo}
+                />
+                <input
+                  name="valor_iptu"
+                  inputMode="numeric"
+                  placeholder="IPTU por mês (R$, opcional)"
+                  className={campo}
+                />
+              </>
+            ) : null}
             <input
               value={dados.cidade}
               onChange={(e) => setDados({ ...dados, cidade: e.target.value })}
@@ -495,7 +538,7 @@ export function AnuncioProprietario() {
             />
           </fieldset>
           <fieldset className="grid gap-3 sm:grid-cols-2">
-            <legend className="mb-2 font-extrabold">Contato (só corretores veem)</legend>
+            <legend className="mb-2 font-extrabold">Contato</legend>
             <input
               name="contato_nome"
               required
@@ -510,30 +553,38 @@ export function AnuncioProprietario() {
               className={campo}
             />
           </fieldset>
-          <fieldset className="flex flex-col gap-2">
-            <legend className="mb-2 font-extrabold">Como você quer vender</legend>
-            <label className="block text-sm">
-              <input
-                type="radio"
-                checked={aceitaCorretor}
-                onChange={() => setAceitaCorretor(true)}
-                className="mr-2"
-              />
-              Grátis, com os corretores parceiros (comissão de {fmtPct(cfg.comissao_avulso.total)}{" "}
-              só se eles venderem)
-            </label>
-            <label className="block text-sm">
-              <input
-                type="radio"
-                checked={!aceitaCorretor}
-                onChange={() => setAceitaCorretor(false)}
-                className="mr-2"
-              />
-              Sem corretor: quero o plano de anúncio pago (
+          {finalidade === "venda" ? (
+            <fieldset className="flex flex-col gap-2">
+              <legend className="mb-2 font-extrabold">Como você quer vender</legend>
+              <label className="block text-sm">
+                <input
+                  type="radio"
+                  checked={aceitaCorretor}
+                  onChange={() => setAceitaCorretor(true)}
+                  className="mr-2"
+                />
+                Grátis, com os corretores parceiros (comissão de {fmtPct(cfg.comissao_avulso.total)}{" "}
+                só se eles venderem)
+              </label>
+              <label className="block text-sm">
+                <input
+                  type="radio"
+                  checked={!aceitaCorretor}
+                  onChange={() => setAceitaCorretor(false)}
+                  className="mr-2"
+                />
+                Sem corretor: anunciar direto para compradores no site (plano de{" "}
+                {reais(cfg.plano_anuncio_proprietario.preco)} por{" "}
+                {cfg.plano_anuncio_proprietario.dias} dias, contratado depois do envio)
+              </label>
+            </fieldset>
+          ) : (
+            <p className="rounded-lg bg-slate-50 p-3 text-sm">
+              Aluguel é anunciado direto para os interessados no site, com o plano de{" "}
               {reais(cfg.plano_anuncio_proprietario.preco)} por{" "}
-              {cfg.plano_anuncio_proprietario.dias} dias; a equipe entra em contato)
-            </label>
-          </fieldset>
+              {cfg.plano_anuncio_proprietario.dias} dias, contratado depois do envio.
+            </p>
+          )}
           <label className="block text-xs leading-relaxed text-slate-700">
             <input type="checkbox" required className="mr-2 inline size-4 align-[-3px]" />
             Li e aceito a{" "}

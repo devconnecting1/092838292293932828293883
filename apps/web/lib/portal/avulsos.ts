@@ -22,6 +22,9 @@ export type Avulso = {
   contato_telefone: string
   aceita_corretor: boolean
   comissao_total: number
+  finalidade?: "venda" | "aluguel"
+  valor_condominio?: number | null
+  valor_iptu?: number | null
   comissao_corretor?: number | null
   comissao_plataforma?: number | null
   status: "pendente" | "aprovado" | "recusado" | "vendido" | "pausado"
