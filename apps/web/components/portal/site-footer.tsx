@@ -1,7 +1,7 @@
 import { Logo } from "@/components/portal/logo"
 import Link from "next/link"
 
-import { PORTAL, whatsappHref } from "@/lib/portal/config"
+import { credenciais, PORTAL, whatsappHref } from "@/lib/portal/config"
 
 export function SiteFooter() {
   const year = new Date().getFullYear()
@@ -13,7 +13,7 @@ export function SiteFooter() {
           <span className="text-sm leading-relaxed">
             Leilões de imóveis em todo o Brasil, com assessoria do edital à chave.
           </span>
-          <span className="text-sm">{PORTAL.creci}</span>
+          <span className="text-xs leading-relaxed">{credenciais()}</span>
           <a href={whatsappHref()} className="text-sm font-semibold text-white">
             {PORTAL.whatsappLabel}
           </a>
@@ -39,6 +39,7 @@ export function SiteFooter() {
           links={[
             ["Página grátis", "/corretores"],
             ["Entrar", "/corretores/entrar"],
+            ["Suporte e chamados", "/suporte"],
             ["Política de privacidade", "/privacidade"],
           ]}
         />

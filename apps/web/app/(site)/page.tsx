@@ -3,7 +3,7 @@ import Link from "next/link"
 import { ListingCard } from "@/components/portal/listing-card"
 import { areCaixaPhotosEnabled } from "@/lib/caixa/photos"
 import { getPortalFacets, searchPortalListings, TIPOS_FILTRO } from "@/lib/portal/imoveis"
-import { PORTAL } from "@/lib/portal/config"
+import { credenciais, PORTAL } from "@/lib/portal/config"
 import { BRAZILIAN_STATES } from "@workspace/core/br/states"
 
 export const revalidate = 600
@@ -205,9 +205,7 @@ export default async function PortalHome() {
             Criar minha página grátis
           </Link>
         </div>
-        <p className="mt-4 text-xs text-slate-500">
-          {PORTAL.name} · {PORTAL.creci}
-        </p>
+        <p className="mt-4 text-xs text-slate-500">{credenciais()}</p>
       </section>
     </>
   )

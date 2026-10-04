@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 
 import { PageHero, Section } from "@/components/portal/content"
-import { PORTAL } from "@/lib/portal/config"
+import { credenciais, PORTAL } from "@/lib/portal/config"
 import { AUTORIZACAO_VERSAO } from "@/lib/portal/avulsos"
 
 export const metadata: Metadata = {
@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 
 export default function AutorizacaoPage() {
   const itens = [
-    `O PROPRIETÁRIO autoriza ${PORTAL.legalName} (${PORTAL.creci}) e os corretores parceiros cadastrados no portal a divulgar e a apresentar o imóvel anunciado a interessados, sem exclusividade.`,
+    `O PROPRIETÁRIO autoriza ${credenciais()} e os corretores parceiros cadastrados no portal a divulgar e a apresentar o imóvel anunciado a interessados, sem exclusividade.`,
     "O anúncio é grátis. Se o PROPRIETÁRIO vender diretamente a quem o procurou sem corretor, não há comissão.",
     "Se a venda acontecer com comprador apresentado por corretor parceiro (visita ou contato registrado no sistema), o PROPRIETÁRIO paga comissão de 6% sobre o valor da venda: 4% ao corretor e 2% à empresa.",
     "O PROPRIETÁRIO declara ser dono do imóvel ou ter poderes para vendê-lo e que as informações e fotos são verdadeiras.",

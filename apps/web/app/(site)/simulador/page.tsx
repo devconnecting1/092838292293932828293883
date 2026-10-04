@@ -8,7 +8,7 @@ import { PORTAL } from "@/lib/portal/config"
 export const metadata: Metadata = {
   title: "Simulador de proposta de compra de imóvel da Caixa, passo a passo",
   description:
-    "Veja como é uma proposta de compra de imóvel retomado, do imóvel à declaração final, com uma pessoa fictícia. Depois, simule o seu financiamento.",
+    "Veja como é uma proposta de compra de imóvel retomado, do imóvel à declaração final, com dados de exemplo. Depois, simule o seu financiamento.",
 }
 
 export default function SimuladorPage() {
@@ -26,6 +26,7 @@ export default function SimuladorPage() {
             nome: PORTAL.legalName,
             cnpj: PORTAL.cnpj,
             creci: PORTAL.creci,
+            creciJ: PORTAL.creciJ || null,
             endereco: PORTAL.address,
             corretor: "Fabrício Damião",
           }}

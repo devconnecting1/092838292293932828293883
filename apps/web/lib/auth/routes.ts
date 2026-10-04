@@ -122,6 +122,8 @@ export const PORTAL_PREFIXES = [
   "/anuncie-gratis",
   "/autorizacao-de-venda",
   "/parceria-corretor",
+  "/gestao",
+  "/suporte",
   "/api/portal",
 ] as const
 

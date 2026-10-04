@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 
 import { PageHero, Section } from "@/components/portal/content"
-import { PORTAL } from "@/lib/portal/config"
+import { credenciais, PORTAL } from "@/lib/portal/config"
 
 export const metadata: Metadata = {
   title: "Contrato de parceria do corretor",
@@ -14,7 +14,7 @@ const CLAUSULAS: [string, string[]][] = [
   [
     "1. Partes e objeto",
     [
-      `De um lado ${PORTAL.legalName}, CNPJ ${PORTAL.cnpj}, ${PORTAL.creci} (EMPRESA). De outro, o corretor de imóveis identificado no cadastro do portal, com CRECI ativo (PARCEIRO).`,
+      `De um lado ${credenciais()} (EMPRESA). De outro, o corretor de imóveis identificado no cadastro do portal, com CRECI ativo (PARCEIRO).`,
       "Objeto: parceria na intermediação de compra e venda de imóveis de leilão e de imóveis anunciados no portal, com divisão de comissão conforme este contrato.",
     ],
   ],

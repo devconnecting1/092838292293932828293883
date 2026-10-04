@@ -36,16 +36,17 @@ const IMOVEL = {
   fgts: false,
 }
 
+/** Proponente de exemplo: nome real do responsável, demais dados simulados e mascarados. */
 const PESSOA = {
-  nome: "Maria Exemplo da Silva",
-  cpf: "000.000.000-00",
-  nascimento: "15/03/1988",
-  estadoCivil: "Solteira",
-  profissao: "Professora",
+  nome: "Fabrício Damião",
+  cpf: "XXX.XXX.XXX-XX",
+  nascimento: "XX/09/19XX",
+  estadoCivil: "Casado",
+  profissao: "Empresário",
   renda: 9500,
-  email: "maria.exemplo@exemplo.com.br",
-  telefone: "(21) 90000-0000",
-  endereco: "Rua Fictícia, 50, Centro, Nova Iguaçu/RJ",
+  email: "exemplo@vamosarrematar.com.br",
+  telefone: "(21) 9XXXX-XXXX",
+  endereco: "Rua Exemplo, 100, Barra da Tijuca, Rio de Janeiro/RJ (simulado)",
 }
 
 const PASSOS = [
@@ -67,7 +68,14 @@ const DECLARACOES = [
   "Conferi a matrícula e a situação do imóvel antes de fazer a proposta.",
 ]
 
-type Empresa = { nome: string; cnpj: string; creci: string; endereco: string; corretor: string }
+type Empresa = {
+  nome: string
+  cnpj: string
+  creci: string
+  creciJ: string | null
+  endereco: string
+  corretor: string
+}
 
 function Linha({ k, v }: { k: string; v: React.ReactNode }) {
   return (
@@ -81,7 +89,7 @@ function Linha({ k, v }: { k: string; v: React.ReactNode }) {
 function Ficticio() {
   return (
     <span className="rounded-full bg-amber-100 px-2.5 py-1 text-xs font-bold text-amber-900">
-      Dados fictícios
+      Dados de exemplo
     </span>
   )
 }
@@ -270,7 +278,8 @@ export function PropostaSimulador({ empresa }: { empresa: Empresa }) {
               >
                 <Linha k="Imobiliária" v={empresa.nome} />
                 <Linha k="CNPJ" v={empresa.cnpj} />
-                <Linha k="CRECI" v={empresa.creci} />
+                {empresa.creciJ ? <Linha k="CRECI da empresa" v={empresa.creciJ} /> : null}
+                <Linha k="CRECI do responsável" v={empresa.creci} />
                 <Linha k="Corretor responsável" v={empresa.corretor} />
                 <Linha k="Endereço" v={empresa.endereco} />
               </div>
@@ -487,9 +496,9 @@ export function PropostaSimulador({ empresa }: { empresa: Empresa }) {
         </div>
       </div>
       <p className="text-xs leading-relaxed text-slate-500">
-        Simulação para aprender, com pessoa e imóvel fictícios. Não é o sistema da Caixa, nada é
-        enviado e nenhuma proposta é feita por aqui. As regras de cada venda estão no edital do
-        imóvel.
+        Simulação para aprender: o imóvel e os dados pessoais são de exemplo, com CPF e telefone
+        mascarados. Não é o sistema da Caixa, nada é enviado e nenhuma proposta é feita por aqui. As
+        regras de cada venda estão no edital do imóvel.
       </p>
     </div>
   )

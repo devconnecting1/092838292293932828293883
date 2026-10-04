@@ -4,7 +4,7 @@ import Link from "next/link"
 import { CtaBand, PageHero, Section } from "@/components/portal/content"
 import { AssessoriaForm } from "@/components/portal/assessoria-form"
 import { FinancingSimulator } from "@/components/portal/financing-simulator"
-import { PORTAL, whatsappHref } from "@/lib/portal/config"
+import { credenciais, PORTAL, whatsappHref } from "@/lib/portal/config"
 
 export const metadata: Metadata = {
   title: "Como funciona o leilão da Caixa: 1º e 2º leilão, licitação aberta e venda direta",
@@ -128,9 +128,7 @@ export default function LeilaoCaixaPage() {
               A negociação amigável também ajuda quando o caso precisa ir para a Justiça: a
               tentativa de acordo fica registrada e muitas vezes encurta o caminho.
             </p>
-            <p className="text-sm text-slate-500">
-              Serviço prestado por {PORTAL.legalName}, {PORTAL.creci}.
-            </p>
+            <p className="text-sm text-slate-500">Serviço prestado por {credenciais()}.</p>
           </div>
           <div className="rounded-2xl bg-white p-5 shadow-sm">
             <h3 className="mb-3 text-lg font-extrabold">Peça sua assessoria</h3>

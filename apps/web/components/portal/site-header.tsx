@@ -145,11 +145,11 @@ export function SiteHeader({
 
   return (
     <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur print:hidden">
-      <div className="mx-auto flex max-w-[1240px] items-center gap-6 px-4 py-3 sm:px-6">
+      <div className="mx-auto flex max-w-[1240px] items-center gap-3 px-4 py-3 sm:gap-6 sm:px-6">
         <Link
           href="/"
           onClick={close}
-          className="flex shrink-0 items-center"
+          className="flex min-w-0 shrink items-center"
           aria-label={`${name}, página inicial`}
         >
           {logoUrl ? (
@@ -181,7 +181,7 @@ export function SiteHeader({
           ))}
         </nav>
 
-        <div className="ml-auto flex items-center gap-2">
+        <div className="ml-auto flex shrink-0 items-center gap-2">
           {phone ? <HeaderPhone href={phone.href} label={phone.label} /> : null}
           <Link
             href="/corretores"
@@ -191,7 +191,7 @@ export function SiteHeader({
           </Link>
           <Link
             href="/corretores/entrar"
-            className="rounded-lg bg-[var(--brand)] px-4 py-2.5 text-sm font-bold text-white hover:opacity-90"
+            className="rounded-lg bg-[var(--brand)] px-3 py-2.5 text-sm font-bold text-white hover:opacity-90 sm:px-4"
           >
             Entrar
           </Link>

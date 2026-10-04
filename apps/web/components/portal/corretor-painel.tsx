@@ -189,6 +189,14 @@ export function CorretorPainel() {
         <div className="flex flex-wrap gap-2">
           {admin ? (
             <Link
+              href="/gestao"
+              className="rounded-lg bg-slate-900 px-4 py-2.5 text-sm font-bold text-white"
+            >
+              Gestão (CEO)
+            </Link>
+          ) : null}
+          {admin ? (
+            <Link
               href="/corretores/aprovar"
               className="rounded-lg bg-[var(--brand)] px-4 py-2.5 text-sm font-bold text-white"
             >
@@ -250,6 +258,7 @@ export function CorretorPainel() {
               ["Kit de anúncio para redes", "/corretores/kit"],
               ["Imóveis avulsos", "/corretores/imoveis-avulsos"],
               ["Processos, CPF e certidões", "/processos"],
+              ["Suporte e chamados", "/suporte"],
               ["Minha página", perfil?.slug ? `/corretor/${perfil.slug}` : "/corretores/painel"],
             ] as [string, string][]
           ).map(([t, h]) => (

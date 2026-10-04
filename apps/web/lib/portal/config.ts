@@ -22,6 +22,9 @@ export const PORTAL = {
   legalName: env("NEXT_PUBLIC_BRAND_LEGAL_NAME") || "FDS Corretagem de Imóveis Ltda.",
   cnpj: env("NEXT_PUBLIC_BRAND_CNPJ") || "41.485.670/0001-22",
   creci: env("NEXT_PUBLIC_BRAND_CRECI") || "CRECI-RJ 073649",
+  /** CRECI jurídico da empresa (pessoa jurídica). */
+  creciJ: env("NEXT_PUBLIC_BRAND_CRECI_J") || "08714PJ",
+  responsavel: env("NEXT_PUBLIC_BRAND_RESPONSAVEL") || "Fabrício Damião",
   address:
     env("NEXT_PUBLIC_BRAND_ADDRESS") ||
     "Av. das Américas, 4.200, bloco 01, sala 305, Barra da Tijuca, Rio de Janeiro/RJ",
@@ -65,4 +68,16 @@ export function brandCssVars(): React.CSSProperties {
     ["--brand-mid" as string]: mixColor(p, 0.78),
     ["--brand-deep" as string]: mixColor(p, -0.35),
   }
+}
+
+/** Linha de credenciais da empresa para rodapé, contratos e simulações. */
+export function credenciais() {
+  return [
+    PORTAL.legalName,
+    `CNPJ ${PORTAL.cnpj}`,
+    PORTAL.creciJ ? `CRECI ${PORTAL.creciJ}` : null,
+    `Responsável técnico: ${PORTAL.responsavel}, ${PORTAL.creci}`,
+  ]
+    .filter(Boolean)
+    .join(" · ")
 }
