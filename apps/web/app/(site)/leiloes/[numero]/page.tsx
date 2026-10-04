@@ -109,6 +109,22 @@ export default async function ImovelPage({ params }: Props) {
             {item.cidade}/{item.uf}
           </h1>
           <p className="mt-2 text-slate-600">{item.endereco}</p>
+          <a
+            href={
+              item.latitude != null && item.longitude != null
+                ? `https://www.google.com/maps/search/?api=1&query=${item.latitude},${item.longitude}`
+                : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                    [item.endereco, item.bairro, item.cidade, item.uf, "Brasil"]
+                      .filter(Boolean)
+                      .join(", ")
+                  )}`
+            }
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-2 inline-flex items-center gap-2 rounded-lg border border-slate-300 px-4 py-2 text-sm font-bold hover:border-[var(--brand)]"
+          >
+            📍 Ver no Google Maps
+          </a>
           <dl className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3">
             {facts.map(([k, v]) => (
               <div key={k} className="rounded-xl border border-slate-200 p-3">

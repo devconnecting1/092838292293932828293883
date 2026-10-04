@@ -14,6 +14,7 @@ import {
 } from "@/components/portal/campos-cadastro"
 import { AreaAtendimento, LeadsRodizio } from "@/components/portal/leads-rodizio"
 import { PlanoAtual } from "@/components/portal/plano-atual"
+import { MeuCrm } from "@/components/portal/meu-crm"
 import { MinhaPublicidade } from "@/components/portal/publicidade"
 import {
   docsDoTipo,
@@ -286,6 +287,8 @@ export function CorretorPainel() {
           />
         </>
       ) : null}
+
+      {status === "aprovado" ? <MeuCrm semClientes={perfil?.perfil === "investidor"} /> : null}
 
       {status === "aprovado" ? (
         <div className="grid gap-3 sm:grid-cols-3">

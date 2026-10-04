@@ -43,6 +43,7 @@ const ABAS: [string, string, boolean][] = [
   ["/gestao/leads", "Leads", true],
   ["/gestao/publicidade", "Publicidade", true],
   ["/gestao/chamados", "Chamados", false],
+  ["/gestao/crm", "Meu CRM", false],
   ["/gestao/equipe", "Equipe", true],
   ["/gestao/auditoria", "Auditoria", true],
 ]
@@ -250,6 +251,7 @@ const CATEGORIAS: [string, string][] = [
   ["imobiliaria", "Imobiliárias"],
   ["investidor", "Investidores"],
   ["proprietario", "Proprietários"],
+  ["comprador", "Compradores"],
   ["", "Todos"],
 ]
 
