@@ -1,4 +1,5 @@
-import { PLANOS } from "@/lib/portal/planos"
+import { lerConfigPortal } from "@/lib/portal/config-portal"
+import { aplicarAjustePlanos } from "@/lib/portal/planos"
 import { siteUrl } from "@/lib/portal/site-url"
 import { stripePortal } from "@/lib/portal/stripe-portal"
 import { usuarioDoPedido } from "@/lib/portal/usuario-api"
@@ -24,7 +25,8 @@ export async function POST(request: Request) {
   } catch {
     return json(400, { erro: "Pedido inválido." })
   }
-  const plano = PLANOS.find((p) => p.id === corpo.plano)
+  const planos = aplicarAjustePlanos((await lerConfigPortal()).planos)
+  const plano = planos.find((p) => p.id === corpo.plano)
   const anual = corpo.ciclo === "anual"
   if (!plano) return json(400, { erro: "Plano inválido." })
 

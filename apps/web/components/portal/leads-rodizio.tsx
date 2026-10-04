@@ -4,6 +4,7 @@ import * as React from "react"
 import Link from "next/link"
 
 import { portalBrowserClient } from "@/lib/portal/browser-client"
+import { useConfigPortal } from "@/lib/portal/use-config"
 
 type Lead = {
   id: string
@@ -145,6 +146,8 @@ function whats(tel: string, nome: string) {
  * corretor mais perto, e some desta lista.
  */
 export function LeadsRodizio({ uid }: { uid: string }) {
+  const cfg = useConfigPortal()
+  const versaoTermo = cfg.termo_indicacao.versao || TERMO_INDICACAO_VERSAO
   const [leads, setLeads] = React.useState<Lead[] | null>(null)
   const [agora, setAgora] = React.useState(() => Date.now())
   const [msg, setMsg] = React.useState("")
@@ -182,12 +185,14 @@ export function LeadsRodizio({ uid }: { uid: string }) {
     setMsg("")
     const { data, error } = await sb.rpc("aceitar_lead", {
       p_lead: id,
-      p_versao: TERMO_INDICACAO_VERSAO,
+      p_versao: versaoTermo,
     })
     setMsg(
-      error || !data
-        ? "O prazo deste lead acabou e ele voltou para a central."
-        : "Termo aceito. O cliente é da plataforma e agora está com você: registre cada passo do atendimento."
+      error && /termo|versao/i.test(error.message)
+        ? "O termo de indicação foi atualizado. Recarregue a página, leia a nova versão e aceite de novo."
+        : error || !data
+          ? "O prazo deste lead acabou e ele voltou para a central."
+          : "Termo aceito. O cliente é da plataforma e agora está com você: registre cada passo do atendimento."
     )
     await carregar()
   }
@@ -210,8 +215,9 @@ export function LeadsRodizio({ uid }: { uid: string }) {
       <div>
         <h2 className="text-xl font-extrabold">Leads para você</h2>
         <p className="text-sm text-slate-600">
-          A central encaminha clientes para o parceiro mais perto. Você tem 30 minutos para aceitar
-          o termo de indicação e atender. Se o prazo passar, o cliente volta para a central.
+          A central encaminha clientes para o parceiro mais perto. Você tem{" "}
+          {cfg.rodizio.prazo_minutos} minutos para aceitar o termo de indicação e atender. Se o
+          prazo passar, o cliente volta para a central.
         </p>
       </div>
       {msg ? <p className="rounded-lg bg-slate-50 p-3 text-sm font-bold">{msg}</p> : null}

@@ -4,13 +4,14 @@ import * as React from "react"
 import Link from "next/link"
 
 import { portalBrowserClient } from "@/lib/portal/browser-client"
-import { PLANOS } from "@/lib/portal/planos"
+import { usePlanos } from "@/lib/portal/use-config"
 
 /** Plano do usuário no painel, com acesso ao portal de pagamento da Stripe. */
 export function PlanoAtual({ plano, ate }: { plano: string | null; ate: string | null }) {
   const [erro, setErro] = React.useState("")
   const ativo = plano && plano !== "gratis" && ate && new Date(ate).getTime() > Date.now()
-  const nome = PLANOS.find((p) => p.id === plano)?.nome
+  const planos = usePlanos()
+  const nome = planos.find((p) => p.id === plano)?.nome
 
   async function gerenciar() {
     setErro("")

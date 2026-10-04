@@ -4,11 +4,13 @@ import * as React from "react"
 import { useRouter } from "next/navigation"
 
 import { portalBrowserClient } from "@/lib/portal/browser-client"
-import { PLANOS, precoBrl, type PlanoId } from "@/lib/portal/planos"
+import { precoBrl, type PlanoId } from "@/lib/portal/planos"
+import { usePlanos } from "@/lib/portal/use-config"
 
 /** Cards dos planos com troca mensal/anual e botão que abre o pagamento seguro. */
 export function TabelaPlanos() {
   const router = useRouter()
+  const planos = usePlanos()
   const [ciclo, setCiclo] = React.useState<"mensal" | "anual">("mensal")
   const [enviando, setEnviando] = React.useState<PlanoId | null>(null)
   const [erro, setErro] = React.useState("")
@@ -56,7 +58,7 @@ export function TabelaPlanos() {
         ))}
       </div>
       <div className="grid gap-5 lg:grid-cols-3">
-        {PLANOS.map((p) => (
+        {planos.map((p) => (
           <article
             key={p.id}
             className={`relative flex flex-col gap-4 rounded-3xl border p-6 ${p.destaque ? "border-2 border-[var(--brand)] shadow-lg" : "border-slate-200"}`}

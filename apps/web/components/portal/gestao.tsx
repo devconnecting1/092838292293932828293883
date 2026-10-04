@@ -3,8 +3,10 @@
 import * as React from "react"
 import Link from "next/link"
 
+import { EditarPerfil } from "@/components/portal/configuracoes"
 import { portalBrowserClient } from "@/lib/portal/browser-client"
 import { PLANOS } from "@/lib/portal/planos"
+import { useConfigPortal, usePlanos } from "@/lib/portal/use-config"
 
 /* ------------------------------------------------------------------ acesso */
 
@@ -46,6 +48,7 @@ const ABAS: [string, string, boolean][] = [
   ["/gestao/crm", "Meu CRM", false],
   ["/gestao/equipe", "Equipe", true],
   ["/gestao/auditoria", "Auditoria", true],
+  ["/gestao/configuracoes", "Configurações", true],
 ]
 
 export function GestaoShell({ ativo, children }: { ativo: string; children: React.ReactNode }) {
@@ -115,7 +118,7 @@ export function GestaoShell({ ativo, children }: { ativo: string; children: Reac
 }
 
 const PapelContexto = React.createContext<Papel>("carregando")
-const usePapel = () => React.useContext(PapelContexto)
+export const usePapel = () => React.useContext(PapelContexto)
 
 const brl = (v: number) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })
 const dataHora = (v: string | null) =>
@@ -153,7 +156,8 @@ export function PainelGestao() {
     })()
   }, [papel])
 
-  const receita = r ? PLANOS.reduce((s, p) => s + (r.assinantes[p.id] ?? 0) * p.mensal, 0) : null
+  const planos = usePlanos()
+  const receita = r ? planos.reduce((s, p) => s + (r.assinantes[p.id] ?? 0) * p.mensal, 0) : null
 
   const Card = ({ t, v, d }: { t: string; v: string; d?: string }) => (
     <div className="rounded-2xl border border-slate-200 p-5">
@@ -187,7 +191,7 @@ export function PainelGestao() {
         <div className="grid gap-4 md:grid-cols-3">
           <div className="rounded-2xl border border-slate-200 p-5 text-sm">
             <b>Assinantes por plano</b>
-            {PLANOS.map((p) => (
+            {planos.map((p) => (
               <p key={p.id} className="flex justify-between border-b border-slate-100 py-1.5">
                 <span>{p.nome}</span>
                 <b>{r.assinantes[p.id] ?? 0}</b>
@@ -270,6 +274,7 @@ export function ClientesGestao() {
   const [busca, setBusca] = React.useState("")
   const [lista, setLista] = React.useState<Cliente[] | null>(null)
   const [msg, setMsg] = React.useState("")
+  const [editando, setEditando] = React.useState<Cliente | null>(null)
 
   const carregar = React.useCallback(async () => {
     const sb = portalBrowserClient()
@@ -407,6 +412,15 @@ export function ClientesGestao() {
                       </button>
                     ) : null}
                     {papel === "ceo" ? (
+                      <button
+                        type="button"
+                        onClick={() => setEditando(c)}
+                        className="text-left text-xs font-bold text-slate-900 underline"
+                      >
+                        Editar dados
+                      </button>
+                    ) : null}
+                    {papel === "ceo" ? (
                       <select
                         value=""
                         onChange={(e) => e.target.value && mudarCategoria(c, e.target.value)}
@@ -427,8 +441,22 @@ export function ClientesGestao() {
         </table>
       </div>
       <p className="text-xs text-slate-500">
-        Dados bancários, PIX e documentos não aparecem aqui. Toda ação fica registrada na auditoria.
+        {papel === "ceo"
+          ? "Como CEO, você edita qualquer dado em Editar dados. Toda ação fica registrada na auditoria."
+          : "Dados bancários, PIX e documentos não aparecem aqui. Toda ação fica registrada na auditoria."}
       </p>
+      {editando ? (
+        <EditarPerfil
+          userId={editando.user_id}
+          onFechar={(salvou) => {
+            setEditando(null)
+            if (salvou) {
+              setMsg(`Dados de ${editando.nome ?? "cliente"} atualizados.`)
+              void carregar()
+            }
+          }}
+        />
+      ) : null}
     </div>
   )
 }
@@ -1142,6 +1170,7 @@ function LeadCard({
     null
   )
   const [msg, setMsg] = React.useState("")
+  const prazo = useConfigPortal().rodizio.prazo_minutos
 
   async function sugerir() {
     const sb = portalBrowserClient()
@@ -1157,7 +1186,7 @@ function LeadCard({
     setMsg(
       error || !data
         ? "Não foi possível encaminhar."
-        : `Encaminhado para ${p.nome}. Prazo de 30 minutos para aceitar.`
+        : `Encaminhado para ${p.nome}. Prazo de ${prazo} minutos para aceitar.`
     )
     setSug(null)
     aoMudar()
@@ -1247,6 +1276,7 @@ function LeadCard({
 }
 
 export function LeadsGestao() {
+  const prazoLeads = useConfigPortal().rodizio.prazo_minutos
   const [filtro, setFiltro] = React.useState("central")
   const [lista, setLista] = React.useState<LeadCentral[] | null>(null)
   const [nomes, setNomes] = React.useState<Record<string, string>>({})
@@ -1279,8 +1309,8 @@ export function LeadsGestao() {
     <div className="flex flex-col gap-4">
       <p className="text-sm text-slate-600">
         Todo lead cai aqui primeiro. Veja os parceiros mais próximos (corretores e imobiliárias,
-        nunca investidores) e encaminhe. O parceiro aceita o termo de indicação e tem 30 minutos; se
-        não aceitar, o lead volta para a central.
+        nunca investidores) e encaminhe. O parceiro aceita o termo de indicação e tem {prazoLeads}{" "}
+        minutos; se não aceitar, o lead volta para a central.
       </p>
       <div className="flex flex-wrap gap-2">
         {(

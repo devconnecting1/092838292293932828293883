@@ -13,6 +13,8 @@ import {
   type Avulso,
 } from "@/lib/portal/avulsos"
 import { portalBrowserClient } from "@/lib/portal/browser-client"
+import { pct as fmtPct, reais } from "@/lib/portal/config-portal"
+import { useConfigPortal } from "@/lib/portal/use-config"
 
 const campo = "h-11 rounded-lg border border-slate-300 px-3"
 const brl = (v: number) =>
@@ -95,6 +97,7 @@ function ContaRapida() {
 
 /** Cadastro do anúncio grátis pelo proprietário. */
 export function AnuncioProprietario() {
+  const cfg = useConfigPortal()
   const uid = useSessao()
   const [meus, setMeus] = React.useState<Avulso[]>([])
   const [status, setStatus] = React.useState<"" | "enviando" | "ok" | "erro">("")
@@ -344,7 +347,8 @@ export function AnuncioProprietario() {
                 onChange={() => setAceitaCorretor(true)}
                 className="mr-2"
               />
-              Grátis, com os corretores parceiros (comissão de 6% só se eles venderem)
+              Grátis, com os corretores parceiros (comissão de {fmtPct(cfg.comissao_avulso.total)}{" "}
+              só se eles venderem)
             </label>
             <label className="block text-sm">
               <input
@@ -353,7 +357,9 @@ export function AnuncioProprietario() {
                 onChange={() => setAceitaCorretor(false)}
                 className="mr-2"
               />
-              Sem corretor: quero o plano de anúncio pago (a equipe entra em contato)
+              Sem corretor: quero o plano de anúncio pago (
+              {reais(cfg.plano_anuncio_proprietario.preco)} por{" "}
+              {cfg.plano_anuncio_proprietario.dias} dias; a equipe entra em contato)
             </label>
           </fieldset>
           <label className="block text-xs leading-relaxed text-slate-700">
@@ -452,7 +458,8 @@ export function VitrineAvulsos({ admin = false }: { admin?: boolean }) {
                 <b>Proprietário:</b> {a.contato_nome} · {a.contato_telefone}
               </span>
               <span className="text-emerald-800">
-                Comissão de {a.comissao_total}% (4% para você, 2% para a plataforma)
+                Comissão de {fmtPct(a.comissao_total)} ({fmtPct(a.comissao_corretor ?? 4)} para
+                você, {fmtPct(a.comissao_plataforma ?? 2)} para a plataforma)
               </span>
               {a.fotos.length > 1 ? (
                 <details>

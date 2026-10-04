@@ -25,6 +25,7 @@ import {
   slugDe,
   type Perfil,
 } from "@/lib/portal/browser-client"
+import { useConfigPortal } from "@/lib/portal/use-config"
 
 const campo = "h-11 rounded-lg border border-slate-300 px-3"
 const TIPOS = ["image/jpeg", "image/png", "image/webp", "application/pdf"]
@@ -34,6 +35,7 @@ function extensao(f: File) {
 }
 
 export function CorretorPainel() {
+  const cfg = useConfigPortal()
   const router = useRouter()
   const [perfil, setPerfil] = React.useState<Perfil | null>(null)
   const [uid, setUid] = React.useState<string | null>(null)
@@ -136,7 +138,10 @@ export function CorretorPainel() {
           ]).filter(([, v]) => /^https:\/\/\S+$/.test(v))
         ),
         ...(fd.get("parceria") === "on" && !perfil?.parceria_aceite_em
-          ? { parceria_versao: PARCERIA_VERSAO, parceria_aceite_em: new Date().toISOString() }
+          ? {
+              parceria_versao: cfg.termo_indicacao.versao || PARCERIA_VERSAO,
+              parceria_aceite_em: new Date().toISOString(),
+            }
           : {}),
       }
       const envios: [string, string, File][] = []

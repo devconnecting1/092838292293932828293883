@@ -71,3 +71,38 @@ export const RANK: Record<string, number> = { gratis: 0, essencial: 1, profissio
 export function precoBrl(v: number) {
   return v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })
 }
+
+/** Ajustes que o CEO grava em config_portal.planos: {essencial: {mensal, anual, nome, ...}}. */
+export type AjustePlanos = Partial<
+  Record<
+    PlanoId,
+    Partial<Pick<Plano, "nome" | "para" | "mensal" | "anual" | "recursos" | "destaque">>
+  >
+>
+
+/** Junta a tabela padrão com os valores definidos pelo CEO. Valor inválido cai no padrão. */
+export function aplicarAjustePlanos(ajuste: unknown): Plano[] {
+  const a = (ajuste && typeof ajuste === "object" ? ajuste : {}) as AjustePlanos
+  return PLANOS.map((p) => {
+    const x = a[p.id] ?? {}
+    const n = (v: unknown, padrao: number) =>
+      typeof v === "number" && Number.isFinite(v) && v > 0 ? Math.round(v * 100) / 100 : padrao
+    const s = (v: unknown, padrao: string) =>
+      typeof v === "string" && v.trim() ? v.trim() : padrao
+    const recursos =
+      Array.isArray(x.recursos) &&
+      x.recursos.every((r) => typeof r === "string") &&
+      x.recursos.length
+        ? x.recursos.map((r) => r.trim()).filter(Boolean)
+        : p.recursos
+    return {
+      ...p,
+      nome: s(x.nome, p.nome),
+      para: s(x.para, p.para),
+      mensal: n(x.mensal, p.mensal),
+      anual: n(x.anual, p.anual),
+      destaque: typeof x.destaque === "boolean" ? x.destaque : p.destaque,
+      recursos,
+    }
+  })
+}

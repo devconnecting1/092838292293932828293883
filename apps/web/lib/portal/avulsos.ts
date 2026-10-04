@@ -22,6 +22,8 @@ export type Avulso = {
   contato_telefone: string
   aceita_corretor: boolean
   comissao_total: number
+  comissao_corretor?: number | null
+  comissao_plataforma?: number | null
   status: "pendente" | "aprovado" | "recusado" | "vendido" | "pausado"
   motivo: string | null
   criado: string
