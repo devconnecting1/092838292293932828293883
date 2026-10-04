@@ -5,6 +5,7 @@ import * as React from "react"
 import {
   ajustarAutomaticos,
   calcular,
+  lanceMaximo,
   MODALIDADES,
   type Cenario,
   type Entradas,
@@ -150,6 +151,8 @@ export function ViabilityCalculator({ inicial, empresa }: { inicial: Entradas; e
   const set = <K extends keyof Entradas>(k: K, v: Entradas[K]) =>
     setE((old) => ajustarAutomaticos({ ...old, [k]: v }, k))
   const r = React.useMemo(() => calcular(e), [e])
+  const [alvo, setAlvo] = React.useState(25)
+  const teto = React.useMemo(() => lanceMaximo(e, alvo), [e, alvo])
 
   return (
     <div className="flex flex-col gap-6">
@@ -327,6 +330,30 @@ export function ViabilityCalculator({ inicial, empresa }: { inicial: Entradas; e
         </div>
 
         <div className="flex flex-col gap-4 lg:sticky lg:top-24 lg:self-start">
+          <div className="flex flex-col gap-2 rounded-2xl bg-[var(--brand-deep)] p-5 text-white">
+            <span className="text-sm font-bold tracking-wide uppercase opacity-80">
+              Lance máximo seguro
+            </span>
+            <span className="text-3xl font-extrabold tracking-tight">
+              {teto != null ? brl(teto) : "Não fecha a conta"}
+            </span>
+            <label className="flex items-center gap-2 text-sm">
+              para um retorno líquido de
+              <input
+                type="number"
+                min={0}
+                max={300}
+                step={1}
+                value={alvo}
+                onChange={(ev) => setAlvo(Number(ev.target.value) || 0)}
+                className="h-9 w-16 rounded-md border-0 px-2 text-right font-bold text-slate-900"
+              />
+              %
+            </label>
+            <span className="text-xs opacity-80">
+              Acima desse valor o retorno à vista fica abaixo da meta, com os custos acima.
+            </span>
+          </div>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
             <Resultado c={r.avista} />
             <Resultado c={r.financiado} />

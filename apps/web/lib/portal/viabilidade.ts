@@ -252,3 +252,20 @@ export function calcular(e: Entradas): { avista: Cenario; financiado: Cenario } 
 
   return { avista, financiado: fin }
 }
+
+/**
+ * Lance máximo à vista que ainda entrega o retorno desejado (ROI líquido),
+ * mantendo os demais custos. Busca binária entre zero e o valor de venda.
+ */
+export function lanceMaximo(e: Entradas, roiAlvo: number): number | null {
+  if (e.valorVenda <= 0) return null
+  let lo = 0
+  let hi = e.valorVenda
+  if (calcular({ ...e, lance: 1 }).avista.roi < roiAlvo) return null
+  for (let k = 0; k < 60; k++) {
+    const mid = (lo + hi) / 2
+    if (calcular({ ...e, lance: mid }).avista.roi >= roiAlvo) lo = mid
+    else hi = mid
+  }
+  return Math.floor(lo / 100) * 100
+}
