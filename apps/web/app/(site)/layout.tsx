@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 
 import { AdCartBar } from "@/components/portal/ad-cart"
+import { BackButton } from "@/components/portal/back-button"
 import { ContactButton } from "@/components/portal/contact-button"
 import { PortalTracking } from "@/components/portal/portal-tracking"
 import { SiteFooter } from "@/components/portal/site-footer"
@@ -24,7 +25,10 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
         logoUrl={PORTAL.logoUrl || undefined}
         phone={{ href: `tel:${PORTAL.whatsapp}`, label: PORTAL.whatsappLabel }}
       />
-      <main className="flex-1">{children}</main>
+      <main className="flex-1">
+        <BackButton />
+        {children}
+      </main>
       <SiteFooter />
       <ContactButton />
       <AdCartBar />

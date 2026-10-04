@@ -52,6 +52,7 @@ export const PORTAL_MENU: MenuItem[] = [
         title: "Entenda",
         links: [
           { label: "Como funciona o leilão", href: "/como-funciona" },
+          { label: "Leilão da Caixa explicado", href: "/como-funciona/caixa" },
           { label: "Para morar ou para investir", href: "/como-funciona#perfis" },
         ],
       },
