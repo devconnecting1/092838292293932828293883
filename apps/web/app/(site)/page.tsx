@@ -1,9 +1,9 @@
 import Link from "next/link"
 
 import { ListingCard } from "@/components/portal/listing-card"
+import { Responsavel } from "@/components/portal/responsavel"
 import { areCaixaPhotosEnabled } from "@/lib/caixa/photos"
 import { getPortalFacets, searchPortalListings, TIPOS_FILTRO } from "@/lib/portal/imoveis"
-import { credenciais, PORTAL } from "@/lib/portal/config"
 import { BRAZILIAN_STATES } from "@workspace/core/br/states"
 
 export const revalidate = 600
@@ -147,25 +147,93 @@ export default async function PortalHome() {
         )}
       </section>
 
+      <section className="mx-auto max-w-[1240px] px-4 py-14 sm:px-6">
+        <h2 className="mb-6 text-3xl font-extrabold tracking-tight">Ferramentas em destaque</h2>
+        <div className="grid gap-4 md:grid-cols-3">
+          <Link
+            href="/simulador"
+            className="flex flex-col gap-2 rounded-3xl bg-[linear-gradient(135deg,#005CA9,#003B73)] p-7 text-white md:col-span-2 md:row-span-2"
+          >
+            <span className="self-start rounded-full bg-[#F39200] px-3 py-1 text-xs font-extrabold">
+              Passo a passo
+            </span>
+            <span className="text-3xl leading-tight font-extrabold">
+              Como preencher a proposta da Caixa
+            </span>
+            <span className="max-w-xl leading-relaxed opacity-90">
+              As 9 telas da proposta com um exemplo preenchido: dados do imóvel, do proponente, da
+              imobiliária, forma de pagamento e declarações. Depois, simule o seu financiamento.
+            </span>
+            <span className="mt-auto pt-4 font-extrabold">Abrir o passo a passo →</span>
+          </Link>
+          {(
+            [
+              [
+                "/leiloes",
+                "Calculadora de viabilidade",
+                "Lucro, custos e lance máximo de cada imóvel.",
+              ],
+              [
+                "/processos",
+                "Processo, CPF e certidões",
+                "Confira o processo e as pendências antes do lance.",
+              ],
+              ["/cotas", "Arremate em cotas", "Invista a partir de 10% com amigos e família."],
+              ["/anuncie-gratis", "Anuncie grátis", "Seu imóvel na mão dos corretores parceiros."],
+            ] as [string, string, string][]
+          ).map(([h, t, d]) => (
+            <Link
+              key={h}
+              href={h}
+              className="flex flex-col gap-1 rounded-3xl border border-slate-200 p-6 hover:border-[var(--brand)]"
+            >
+              <b className="text-lg">{t}</b>
+              <span className="text-sm text-slate-600">{d}</span>
+            </Link>
+          ))}
+        </div>
+      </section>
+
       <section id="perfis" className="border-y border-slate-200 bg-slate-50">
         <div className="mx-auto max-w-[1240px] px-4 py-14 sm:px-6">
           <h2 className="mb-6 text-3xl font-extrabold tracking-tight">Como você quer participar</h2>
-          <div className="grid gap-5 md:grid-cols-3">
-            <Step
-              n="1"
-              t="Comprador final"
-              d="Quer um imóvel para morar pagando menos. Um corretor parceiro acompanha você do edital à chave."
-            />
-            <Step
-              n="2"
-              t="Investidor"
-              d="Compra para revender ou alugar. Acesso grátis; anuncia em parceria 50/50 ou com pacote de anúncio."
-            />
-            <Step
-              n="3"
-              t="Corretor com CRECI"
-              d="Página grátis com o seu nome e todos os leilões, Selo Verde e assessoria por trás."
-            />
+          <div className="grid overflow-hidden rounded-3xl border border-slate-200 bg-white md:grid-cols-2">
+            <div className="flex flex-col gap-3 p-8">
+              <span className="self-start rounded-full bg-[var(--brand-soft)] px-3 py-1 text-xs font-extrabold text-[var(--brand-deep)] uppercase">
+                Para morar
+              </span>
+              <h3 className="text-2xl font-extrabold">Comprador final</h3>
+              <p className="leading-relaxed text-slate-700">
+                Quer um imóvel para morar pagando menos. Um corretor parceiro acompanha você do
+                edital à chave, com a conta dos custos e a simulação do financiamento.
+              </p>
+              <ul className="flex flex-col gap-1.5 text-sm text-slate-700">
+                <li>✓ Imóveis que aceitam financiamento e FGTS</li>
+                <li>✓ Passo a passo da proposta da Caixa</li>
+                <li>✓ Negociação com quem estiver no imóvel</li>
+              </ul>
+              <Link href="/credito" className="mt-auto self-start font-bold text-[var(--brand)]">
+                Simular meu crédito →
+              </Link>
+            </div>
+            <div className="flex flex-col gap-3 border-t border-slate-200 bg-slate-50 p-8 md:border-t-0 md:border-l">
+              <span className="self-start rounded-full bg-[#C2410C]/10 px-3 py-1 text-xs font-extrabold text-[#C2410C] uppercase">
+                Para investir
+              </span>
+              <h3 className="text-2xl font-extrabold">Investidor</h3>
+              <p className="leading-relaxed text-slate-700">
+                Compra para revender ou alugar. Calcula o lucro e o lance máximo antes de entrar e
+                pode investir sozinho ou em cotas.
+              </p>
+              <ul className="flex flex-col gap-1.5 text-sm text-slate-700">
+                <li>✓ Calculadora de viabilidade com lance máximo</li>
+                <li>✓ Processo, CPF e certidões conferidos</li>
+                <li>✓ Arremate em cotas a partir de 10%</li>
+              </ul>
+              <Link href="/leiloes" className="mt-auto self-start font-bold text-[var(--brand)]">
+                Ver oportunidades →
+              </Link>
+            </div>
           </div>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link
@@ -205,7 +273,9 @@ export default async function PortalHome() {
             Criar minha página grátis
           </Link>
         </div>
-        <p className="mt-4 text-xs text-slate-500">{credenciais()}</p>
+        <div className="mt-10">
+          <Responsavel compacto />
+        </div>
       </section>
     </>
   )
@@ -233,17 +303,5 @@ function PromoCard({
       <span className="text-lg font-extrabold">{title}</span>
       <span className="text-sm leading-relaxed text-slate-600">{text}</span>
     </Link>
-  )
-}
-
-function Step({ n, t, d }: { n: string; t: string; d: string }) {
-  return (
-    <div className="flex flex-col gap-2.5 rounded-2xl border border-slate-200 bg-white p-6">
-      <span className="flex size-9 items-center justify-center rounded-full bg-[var(--brand)] font-extrabold text-white">
-        {n}
-      </span>
-      <span className="text-lg font-extrabold">{t}</span>
-      <span className="leading-relaxed text-slate-600">{d}</span>
-    </div>
   )
 }

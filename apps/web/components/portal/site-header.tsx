@@ -6,6 +6,7 @@ import { ChevronDownIcon, MenuIcon, XIcon } from "lucide-react"
 
 import { HeaderPhone } from "@/components/portal/contact-button"
 import { Logo } from "@/components/portal/logo"
+import { BotaoTema, SeletorIdioma } from "@/components/portal/tema-idioma"
 
 type MenuLink = { label: string; href: string }
 type MenuGroup = { title: string; links: MenuLink[] }
@@ -52,8 +53,9 @@ export const PORTAL_MENU: MenuItem[] = [
         title: "Entenda",
         links: [
           { label: "Como funciona o leilão", href: "/como-funciona" },
+          { label: "Quem somos", href: "/quem-somos" },
           { label: "Leilão da Caixa explicado", href: "/como-funciona/caixa" },
-          { label: "Simulador de proposta", href: "/simulador" },
+          { label: "Como preencher a proposta da Caixa", href: "/simulador" },
           { label: "Consulta processual", href: "/processos" },
           { label: "Para morar ou para investir", href: "/como-funciona#perfis" },
           { label: "Arremate em cotas", href: "/cotas" },
@@ -149,7 +151,7 @@ export function SiteHeader({
         <Link
           href="/"
           onClick={close}
-          className="flex min-w-0 shrink items-center"
+          className="flex min-w-0 shrink items-center lg:shrink-0"
           aria-label={`${name}, página inicial`}
         >
           {logoUrl ? (
@@ -160,14 +162,14 @@ export function SiteHeader({
           )}
         </Link>
 
-        <nav aria-label="Menu principal" className="hidden flex-1 items-center gap-1 lg:flex">
+        <nav aria-label="Menu principal" className="hidden flex-1 items-center gap-0.5 lg:flex">
           {PORTAL_MENU.map((item, i) => (
             <button
               key={item.label}
               type="button"
               aria-expanded={open === i}
               onClick={() => setOpen(open === i ? null : i)}
-              className={`flex items-center gap-1 rounded-lg px-3 py-2 text-[15px] font-semibold transition-colors ${
+              className={`flex items-center gap-1 rounded-lg px-2.5 py-2 text-[15px] font-semibold whitespace-nowrap transition-colors ${
                 open === i
                   ? "bg-[var(--brand-soft)] text-[var(--brand)]"
                   : "text-slate-900 hover:bg-slate-100"
@@ -182,6 +184,10 @@ export function SiteHeader({
         </nav>
 
         <div className="ml-auto flex shrink-0 items-center gap-2">
+          <div className="hidden items-center gap-1.5 xl:flex">
+            <SeletorIdioma />
+            <BotaoTema />
+          </div>
           {phone ? <HeaderPhone href={phone.href} label={phone.label} /> : null}
           <Link
             href="/corretores"
@@ -252,6 +258,10 @@ export function SiteHeader({
               </div>
             </div>
           ))}
+          <div className="mt-4 flex items-center gap-2">
+            <SeletorIdioma />
+            <BotaoTema />
+          </div>
           <Link
             href="/corretores"
             onClick={close}

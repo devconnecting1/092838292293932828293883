@@ -1,8 +1,8 @@
 /**
- * Logomarca do Vamos Arrematar: casa com o martelo de leilão dentro (leilão e
- * imóvel no mesmo símbolo) e o nome em minúsculas.
- * Fundo claro: casa na cor da marca (--brand), martelo vermelho, texto preto.
- * Fundo escuro (`claro`): tudo branco.
+ * Logomarca do Vamos Arrematar: casa com efeito 3D (duas faces) e o martelo de
+ * leilão vazado no meio. Simples, sólida e legível em tamanho pequeno.
+ * Fundo claro: casa na cor da marca, texto preto. Fundo escuro (`claro`): tudo branco.
+ * O martelo é recortado (máscara), então aparece a cor de fundo em qualquer tela.
  */
 export function LogoSimbolo({
   className = "size-10",
@@ -11,34 +11,24 @@ export function LogoSimbolo({
   className?: string
   claro?: boolean
 }) {
-  const casa = claro ? "#ffffff" : "var(--brand)"
-  const martelo = claro ? "#ffffff" : "#C2410C"
-  const faixa = claro ? "#0B1220" : "#ffffff"
+  const id = claro ? "va-logo-claro" : "va-logo"
+  const faceEsq = claro ? "#ffffff" : "var(--brand)"
+  const faceDir = claro ? "rgba(255,255,255,0.78)" : "color-mix(in srgb, var(--brand) 72%, #ffffff)"
   return (
     <svg viewBox="0 0 48 48" className={className} aria-hidden="true">
-      <path
-        d="M5 22 24 7l19 15"
-        fill="none"
-        stroke={casa}
-        strokeWidth="3.8"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M10.5 19V39.5a1.5 1.5 0 0 0 1.5 1.5h24a1.5 1.5 0 0 0 1.5-1.5V19"
-        fill="none"
-        stroke={casa}
-        strokeWidth="3.8"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <g transform="rotate(-35 22 23)">
-        <rect x="14" y="16" width="16" height="8" rx="2.4" fill={martelo} />
-        <rect x="17" y="16" width="1.4" height="8" fill={faixa} opacity="0.85" />
-        <rect x="25.6" y="16" width="1.4" height="8" fill={faixa} opacity="0.85" />
-        <rect x="20.2" y="24" width="3.6" height="13" rx="1.6" fill={martelo} />
+      <defs>
+        <mask id={id} maskUnits="userSpaceOnUse" x="0" y="0" width="48" height="48">
+          <rect width="48" height="48" fill="#fff" />
+          <g transform="rotate(-40 24 29)" fill="#000">
+            <rect x="16.5" y="23" width="15" height="6.5" rx="2" />
+            <rect x="22.5" y="29.5" width="3" height="10" rx="1.5" />
+          </g>
+        </mask>
+      </defs>
+      <g mask={`url(#${id})`}>
+        <path d="M6 23 24 8v34H9a3 3 0 0 1-3-3z" fill={faceEsq} />
+        <path d="M24 8l18 15v16a3 3 0 0 1-3 3H24z" fill={faceDir} />
       </g>
-      <rect x="25" y="35" width="9" height="2.8" rx="1.2" fill={casa} />
     </svg>
   )
 }

@@ -20,6 +20,109 @@ type Lead = {
   criado: string
 }
 
+export const TERMO_INDICACAO_VERSAO = "2026-10-v1"
+
+const ETAPAS: [string, string][] = [
+  ["contato", "Fiz contato"],
+  ["visita", "Visita marcada ou feita"],
+  ["proposta", "Proposta enviada"],
+  ["vendido", "Vendido"],
+  ["perdido", "Cliente desistiu"],
+  ["sem_resposta", "Cliente não responde"],
+]
+
+function ClienteComFeedback({ lead }: { lead: Lead }) {
+  const [etapa, setEtapa] = React.useState("contato")
+  const [texto, setTexto] = React.useState("")
+  const [hist, setHist] = React.useState<{ etapa: string; texto: string; criado: string }[]>([])
+  const [ok, setOk] = React.useState("")
+  const carregar = React.useCallback(async () => {
+    const sb = portalBrowserClient()
+    if (!sb) return
+    const { data } = await sb
+      .from("lead_feedbacks")
+      .select("etapa, texto, criado")
+      .eq("lead_id", lead.id)
+      .order("criado", { ascending: false })
+    setHist((data as typeof hist | null) ?? [])
+  }, [lead.id])
+  React.useEffect(() => {
+    const t = setTimeout(carregar, 0)
+    return () => clearTimeout(t)
+  }, [carregar])
+  async function salvar(e: React.FormEvent) {
+    e.preventDefault()
+    const sb = portalBrowserClient()
+    if (!sb) return
+    const { error } = await sb
+      .from("lead_feedbacks")
+      .insert({ lead_id: lead.id, etapa, texto: texto.trim() })
+    setOk(error ? "Não foi possível salvar." : "Retorno registrado.")
+    if (!error) setTexto("")
+    await carregar()
+  }
+  return (
+    <details className="rounded-xl border border-slate-200 p-3 text-sm">
+      <summary className="flex cursor-pointer flex-wrap justify-between gap-2">
+        <b>{lead.nome}</b>
+        <span className="text-slate-500">
+          {hist[0] ? ETAPAS.find(([v]) => v === hist[0]?.etapa)?.[1] : "sem retorno ainda"}
+        </span>
+      </summary>
+      <div className="mt-2 flex flex-col gap-2">
+        <span>
+          <a
+            href={whats(lead.telefone, lead.nome)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-bold text-emerald-700"
+          >
+            {lead.telefone}
+          </a>
+          {lead.email ? ` · ${lead.email}` : ""}
+        </span>
+        {lead.mensagem ? <p className="text-slate-600">{lead.mensagem}</p> : null}
+        <form onSubmit={salvar} className="flex flex-col gap-2">
+          <select
+            value={etapa}
+            onChange={(e) => setEtapa(e.target.value)}
+            className="h-10 rounded-lg border border-slate-300 bg-white px-2"
+          >
+            {ETAPAS.map(([v, t]) => (
+              <option key={v} value={v}>
+                {t}
+              </option>
+            ))}
+          </select>
+          <textarea
+            value={texto}
+            onChange={(e) => setTexto(e.target.value)}
+            required
+            minLength={5}
+            rows={2}
+            placeholder="O que aconteceu? (obrigatório)"
+            className="rounded-lg border border-slate-300 p-2"
+          />
+          <button className="self-start rounded-lg bg-[var(--brand)] px-4 py-2 font-bold text-white">
+            Registrar retorno
+          </button>
+          {ok ? <span className="font-bold">{ok}</span> : null}
+        </form>
+        {hist.length ? (
+          <ol className="flex flex-col gap-1 text-xs text-slate-600">
+            {hist.map((h, i) => (
+              <li key={i}>
+                {new Date(h.criado).toLocaleString("pt-BR")}:{" "}
+                <b>{ETAPAS.find(([v]) => v === h.etapa)?.[1]}</b>, {h.texto}
+              </li>
+            ))}
+          </ol>
+        ) : null}
+      </div>
+    </details>
+  )
+}
+
 function restante(ate: string | null, agora: number) {
   if (!ate) return null
   const ms = new Date(ate).getTime() - agora
@@ -45,6 +148,7 @@ export function LeadsRodizio({ uid }: { uid: string }) {
   const [leads, setLeads] = React.useState<Lead[] | null>(null)
   const [agora, setAgora] = React.useState(() => Date.now())
   const [msg, setMsg] = React.useState("")
+  const [termo, setTermo] = React.useState<Record<string, boolean>>({})
 
   const carregar = React.useCallback(async () => {
     const sb = portalBrowserClient()
@@ -72,15 +176,28 @@ export function LeadsRodizio({ uid }: { uid: string }) {
     }
   }, [carregar])
 
-  async function acao(fn: "assumir_lead" | "devolver_lead", id: string) {
+  async function aceitar(id: string) {
     const sb = portalBrowserClient()
     if (!sb) return
     setMsg("")
-    const { data, error } = await sb.rpc(fn, { p_lead: id })
-    if (error || !data)
-      setMsg("O prazo deste lead já acabou e ele foi passado para outro corretor.")
-    else if (fn === "assumir_lead") setMsg("Lead confirmado. Agora ele é seu.")
-    else setMsg("Lead passado para o próximo corretor.")
+    const { data, error } = await sb.rpc("aceitar_lead", {
+      p_lead: id,
+      p_versao: TERMO_INDICACAO_VERSAO,
+    })
+    setMsg(
+      error || !data
+        ? "O prazo deste lead acabou e ele voltou para a central."
+        : "Termo aceito. O cliente é da plataforma e agora está com você: registre cada passo do atendimento."
+    )
+    await carregar()
+  }
+
+  async function devolver(id: string) {
+    const sb = portalBrowserClient()
+    if (!sb) return
+    setMsg("")
+    await sb.rpc("devolver_lead", { p_lead: id })
+    setMsg("Lead devolvido para a central.")
     await carregar()
   }
 
@@ -93,8 +210,8 @@ export function LeadsRodizio({ uid }: { uid: string }) {
       <div>
         <h2 className="text-xl font-extrabold">Leads para você</h2>
         <p className="text-sm text-slate-600">
-          Você tem 30 minutos para falar com o cliente e marcar &quot;Já falei&quot;. Depois disso o
-          lead vai para o próximo corretor mais perto.
+          A central encaminha clientes para o parceiro mais perto. Você tem 30 minutos para aceitar
+          o termo de indicação e atender. Se o prazo passar, o cliente volta para a central.
         </p>
       </div>
       {msg ? <p className="rounded-lg bg-slate-50 p-3 text-sm font-bold">{msg}</p> : null}
@@ -121,11 +238,12 @@ export function LeadsRodizio({ uid }: { uid: string }) {
                   ) : null}
                 </div>
                 <span className="text-sm text-slate-700">
-                  {l.telefone}
-                  {l.email ? ` · ${l.email}` : ""}
-                  {l.origem ? ` · veio de ${l.origem}` : ""}
+                  {l.cidade ? `${l.cidade} · ` : ""}
+                  {l.origem ? `veio de ${l.origem}` : "veio do portal"}
                 </span>
-                {l.mensagem ? <p className="text-sm text-slate-600">{l.mensagem}</p> : null}
+                <p className="text-xs text-slate-500">
+                  Telefone e e-mail aparecem depois que você aceitar o termo.
+                </p>
                 {l.imovel_id ? (
                   <Link
                     href={`/leiloes/${l.imovel_id}`}
@@ -134,25 +252,32 @@ export function LeadsRodizio({ uid }: { uid: string }) {
                     Ver o imóvel
                   </Link>
                 ) : null}
-                <div className="grid gap-2 sm:grid-cols-3">
-                  <a
-                    href={whats(l.telefone, l.nome)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="rounded-lg bg-emerald-600 py-2.5 text-center text-sm font-bold text-white"
-                  >
-                    Chamar no WhatsApp
-                  </a>
+                <label className="block text-xs leading-relaxed text-slate-700">
+                  <input
+                    type="checkbox"
+                    checked={!!termo[l.id]}
+                    onChange={(e) => setTermo((t) => ({ ...t, [l.id]: e.target.checked }))}
+                    className="mr-2 inline size-4 align-[-3px]"
+                  />
+                  Li e aceito o{" "}
+                  <Link href="/termo-indicacao" target="_blank" className="font-bold underline">
+                    Termo de Indicação
+                  </Link>
+                  : o cliente é da plataforma, vou dar retorno de cada etapa e não vou negociar por
+                  fora.
+                </label>
+                <div className="grid gap-2 sm:grid-cols-2">
                   <button
                     type="button"
-                    onClick={() => acao("assumir_lead", l.id)}
-                    className="rounded-lg bg-[var(--brand)] py-2.5 text-sm font-bold text-white"
+                    disabled={!termo[l.id]}
+                    onClick={() => aceitar(l.id)}
+                    className="rounded-lg bg-[var(--brand)] py-2.5 text-sm font-bold text-white disabled:opacity-40"
                   >
-                    Já falei com o cliente
+                    Aceitar e atender
                   </button>
                   <button
                     type="button"
-                    onClick={() => acao("devolver_lead", l.id)}
+                    onClick={() => devolver(l.id)}
                     className="rounded-lg border border-slate-300 py-2.5 text-sm font-bold"
                   >
                     Não posso atender
@@ -164,29 +289,12 @@ export function LeadsRodizio({ uid }: { uid: string }) {
         </ul>
       )}
       {meus.length ? (
-        <details>
-          <summary className="cursor-pointer text-sm font-bold">
-            Meus clientes ({meus.length})
-          </summary>
-          <ul className="mt-2 flex flex-col gap-2 text-sm">
-            {meus.map((l) => (
-              <li
-                key={l.id}
-                className="flex flex-wrap justify-between gap-2 border-b border-slate-100 py-2"
-              >
-                <span className="font-bold">{l.nome}</span>
-                <a
-                  href={whats(l.telefone, l.nome)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-emerald-700"
-                >
-                  {l.telefone}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </details>
+        <div className="flex flex-col gap-2">
+          <h3 className="font-extrabold">Meus clientes ({meus.length})</h3>
+          {meus.map((l) => (
+            <ClienteComFeedback key={l.id} lead={l} />
+          ))}
+        </div>
       ) : null}
     </section>
   )

@@ -6,6 +6,7 @@ import { ContactButton } from "@/components/portal/contact-button"
 import { PortalTracking } from "@/components/portal/portal-tracking"
 import { SiteFooter } from "@/components/portal/site-footer"
 import { SiteHeader } from "@/components/portal/site-header"
+import { CSS_TEMA_ESCURO, SCRIPT_TEMA } from "@/components/portal/tema-idioma"
 import { brandCssVars, PORTAL } from "@/lib/portal/config"
 
 export const metadata: Metadata = {
@@ -20,6 +21,8 @@ export const metadata: Metadata = {
 export default function SiteLayout({ children }: { children: React.ReactNode }) {
   return (
     <div style={brandCssVars()} className="flex min-h-screen flex-col bg-white text-slate-900">
+      <script dangerouslySetInnerHTML={{ __html: SCRIPT_TEMA }} />
+      <style dangerouslySetInnerHTML={{ __html: CSS_TEMA_ESCURO }} />
       <SiteHeader
         name={PORTAL.name}
         logoUrl={PORTAL.logoUrl || undefined}

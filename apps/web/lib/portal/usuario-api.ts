@@ -42,5 +42,8 @@ export async function usuarioDoPedido(request: Request) {
         : p.perfil === "corretor" && p.status === "aprovado" && p.creci_ok && p.parceria_aceite_em
           ? "profissional"
           : "gratis"
-  return { id: data.user.id, perfil: p.perfil ?? null, plano: planoAtivo, sb }
+  // A regra completa (inatividade de 3 meses, bônus de 1 ano por venda) fica no banco.
+  const { data: doBanco, error } = await sb.rpc("plano_ativo", { p_user: data.user.id })
+  const plano = !error && typeof doBanco === "string" ? doBanco : planoAtivo
+  return { id: data.user.id, perfil: p.perfil ?? null, plano, sb }
 }

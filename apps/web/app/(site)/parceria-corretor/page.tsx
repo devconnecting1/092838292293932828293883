@@ -19,15 +19,19 @@ const CLAUSULAS: [string, string[]][] = [
     ],
   ],
   [
-    "2. Sem mensalidade",
+    "2. Sem mensalidade, com atividade",
     [
-      "O PARCEIRO aprovado não paga mensalidade e usa as ferramentas do plano Profissional enquanto o contrato estiver ativo e o CRECI regular.",
+      "O PARCEIRO aprovado não paga mensalidade e usa as ferramentas do plano Profissional enquanto estiver ativo e com o CRECI regular.",
+      "Ativo é quem fecha pelo menos um negócio ou serviço a cada 3 meses. Depois de 3 meses sem fechar nada, a gratuidade é suspensa e o PARCEIRO é convidado a pagar a taxa de administração para continuar.",
+      "Cada venda concluída garante mais 1 ano de permanência grátis.",
+      "Quem anuncia imóveis por conta própria, sem parceria, paga a taxa de adesão e a mensalidade do plano escolhido.",
     ],
   ],
   [
     "3. Comissão nos imóveis de leilão",
     [
-      "Negócio concluído com cliente trazido e atendido pelo PARCEIRO, que entrega toda a documentação do cliente: 40% da comissão recebida pela EMPRESA vão para o PARCEIRO.",
+      "Negócio concluído com cliente atendido pelo PARCEIRO corretor, que entrega toda a documentação do cliente: 40% da comissão recebida pela EMPRESA vão para o PARCEIRO.",
+      "PARCEIRO imobiliária: 50% da comissão recebida pela EMPRESA, com emissão de nota fiscal pela imobiliária.",
       "Quando a EMPRESA precisar levantar a documentação do cliente: 20% para o PARCEIRO.",
       "Indicação simples, sem atendimento: percentual definido na proposta de cada negócio.",
       "A comissão só é devida com o negócio concluído e a comissão efetivamente recebida pela EMPRESA.",

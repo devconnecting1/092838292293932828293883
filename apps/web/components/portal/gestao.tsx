@@ -40,6 +40,8 @@ export function useEquipe() {
 const ABAS: [string, string, boolean][] = [
   ["/gestao", "Painel", false],
   ["/gestao/clientes", "Clientes", false],
+  ["/gestao/leads", "Leads", true],
+  ["/gestao/publicidade", "Publicidade", true],
   ["/gestao/chamados", "Chamados", false],
   ["/gestao/equipe", "Equipe", true],
   ["/gestao/auditoria", "Auditoria", true],
@@ -245,6 +247,7 @@ type Cliente = {
 
 const CATEGORIAS: [string, string][] = [
   ["corretor", "Corretores"],
+  ["imobiliaria", "Imobiliárias"],
   ["investidor", "Investidores"],
   ["proprietario", "Proprietários"],
   ["", "Todos"],
@@ -295,6 +298,21 @@ export function ClientesGestao() {
     })
     setMsg(
       error ? "Não foi possível enviar agora." : `Link de troca de senha enviado para ${c.email}.`
+    )
+  }
+
+  async function fechamento(c: Cliente) {
+    const sb = portalBrowserClient()
+    if (!sb) return
+    const { error } = await sb.rpc("registrar_fechamento", {
+      p_user: c.user_id,
+      p_venda: true,
+      p_nota: "venda registrada pelo CEO",
+    })
+    setMsg(
+      error
+        ? "Não foi possível registrar."
+        : `Venda registrada: ${c.nome} ganhou mais 1 ano grátis.`
     )
   }
 
@@ -377,6 +395,15 @@ export function ClientesGestao() {
                     >
                       Abrir chamado
                     </Link>
+                    {papel === "ceo" && (c.perfil === "corretor" || c.perfil === "imobiliaria") ? (
+                      <button
+                        type="button"
+                        onClick={() => fechamento(c)}
+                        className="text-left text-xs font-bold text-emerald-700"
+                      >
+                        Registrar venda (+1 ano grátis)
+                      </button>
+                    ) : null}
                     {papel === "ceo" ? (
                       <select
                         value=""
@@ -385,6 +412,7 @@ export function ClientesGestao() {
                       >
                         <option value="">Mudar categoria...</option>
                         <option value="corretor">Corretor</option>
+                        <option value="imobiliaria">Imobiliária</option>
                         <option value="investidor">Investidor</option>
                         <option value="proprietario">Proprietário</option>
                       </select>
@@ -1065,4 +1093,218 @@ export function SuporteCliente() {
       </p>
     )
   return <Chamados equipe={false} />
+}
+
+/* -------------------------------------------------------- leads (só o CEO) */
+
+type LeadCentral = {
+  id: string
+  nome: string
+  telefone: string
+  email: string | null
+  mensagem: string | null
+  imovel_id: string | null
+  origem: string | null
+  interesse: string
+  status: string
+  etapa: string | null
+  corretor_id: string | null
+  trava_ate: string | null
+  cidade: string | null
+  uf: string | null
+  criado: string
+}
+
+type Sugestao = {
+  user_id: string
+  nome: string | null
+  perfil: string
+  cidade: string | null
+  uf: string | null
+  nivel: string
+  km: number | null
+  ja_recebeu: boolean
+}
+
+function LeadCard({
+  l,
+  nomes,
+  aoMudar,
+}: {
+  l: LeadCentral
+  nomes: Record<string, string>
+  aoMudar: () => void
+}) {
+  const [sug, setSug] = React.useState<Sugestao[] | null>(null)
+  const [fb, setFb] = React.useState<{ etapa: string; texto: string; criado: string }[] | null>(
+    null
+  )
+  const [msg, setMsg] = React.useState("")
+
+  async function sugerir() {
+    const sb = portalBrowserClient()
+    if (!sb) return
+    const { data, error } = await sb.rpc("sugerir_parceiros", { p_lead: l.id })
+    if (error) setMsg("Sugestão indisponível: o banco precisa da atualização 010.")
+    setSug((data as Sugestao[] | null) ?? [])
+  }
+  async function encaminhar(p: Sugestao) {
+    const sb = portalBrowserClient()
+    if (!sb) return
+    const { data, error } = await sb.rpc("encaminhar_lead", { p_lead: l.id, p_parceiro: p.user_id })
+    setMsg(
+      error || !data
+        ? "Não foi possível encaminhar."
+        : `Encaminhado para ${p.nome}. Prazo de 30 minutos para aceitar.`
+    )
+    setSug(null)
+    aoMudar()
+  }
+  async function verRetornos() {
+    const sb = portalBrowserClient()
+    if (!sb) return
+    const { data } = await sb
+      .from("lead_feedbacks")
+      .select("etapa, texto, criado")
+      .eq("lead_id", l.id)
+      .order("criado", { ascending: false })
+    setFb((data as typeof fb) ?? [])
+  }
+
+  return (
+    <li className="flex flex-col gap-2 rounded-2xl border border-slate-200 p-4 text-sm">
+      <div className="flex flex-wrap justify-between gap-2">
+        <b className="text-base">{l.nome}</b>
+        <span className="text-xs text-slate-500">
+          {dataHora(l.criado)} · {l.origem ?? "site"} · {l.interesse}
+        </span>
+      </div>
+      <span>
+        {l.telefone}
+        {l.email ? ` · ${l.email}` : ""}
+        {l.imovel_id ? (
+          <>
+            {" · "}
+            <Link href={`/leiloes/${l.imovel_id}`} className="font-bold text-[var(--brand)]">
+              imóvel {l.imovel_id}
+            </Link>
+          </>
+        ) : null}
+      </span>
+      {l.mensagem ? <p className="text-slate-600">{l.mensagem}</p> : null}
+      <span className="text-xs">
+        Situação: <b>{l.status}</b>
+        {l.etapa ? ` · etapa ${l.etapa}` : ""}
+        {l.corretor_id ? ` · com ${nomes[l.corretor_id] ?? "parceiro"}` : " · na central"}
+        {l.trava_ate ? ` · aceitar até ${dataHora(l.trava_ate)}` : ""}
+      </span>
+      <div className="flex flex-wrap gap-3">
+        {!["em_atendimento", "vendido", "perdido"].includes(l.status) ? (
+          <button type="button" onClick={sugerir} className="font-bold text-[var(--brand)]">
+            Parceiros mais próximos
+          </button>
+        ) : null}
+        <button type="button" onClick={verRetornos} className="font-bold text-slate-700">
+          Ver retornos do parceiro
+        </button>
+      </div>
+      {msg ? <p className="font-bold">{msg}</p> : null}
+      {sug ? (
+        <ul className="flex flex-col gap-1 rounded-xl bg-slate-50 p-3">
+          {sug.length === 0 ? <li>Nenhum corretor ou imobiliária parceira no estado.</li> : null}
+          {sug.map((p) => (
+            <li key={p.user_id} className="flex flex-wrap items-center justify-between gap-2">
+              <span>
+                <b>{p.nome}</b> · {p.perfil} · {p.cidade}/{p.uf} · {p.nivel}
+                {p.km != null ? ` · ${p.km} km` : ""}
+                {p.ja_recebeu ? " · já recebeu este lead" : ""}
+              </span>
+              <button
+                type="button"
+                onClick={() => encaminhar(p)}
+                className="rounded-lg bg-[var(--brand)] px-3 py-1.5 text-xs font-bold text-white"
+              >
+                Encaminhar
+              </button>
+            </li>
+          ))}
+        </ul>
+      ) : null}
+      {fb ? (
+        <ol className="flex flex-col gap-1 text-xs text-slate-600">
+          {fb.length === 0 ? <li>Sem retorno registrado ainda.</li> : null}
+          {fb.map((f, i) => (
+            <li key={i}>
+              {dataHora(f.criado)} · <b>{f.etapa}</b>: {f.texto}
+            </li>
+          ))}
+        </ol>
+      ) : null}
+    </li>
+  )
+}
+
+export function LeadsGestao() {
+  const [filtro, setFiltro] = React.useState("central")
+  const [lista, setLista] = React.useState<LeadCentral[] | null>(null)
+  const [nomes, setNomes] = React.useState<Record<string, string>>({})
+  const carregar = React.useCallback(async () => {
+    const sb = portalBrowserClient()
+    if (!sb) return
+    await sb.rpc("redistribuir_leads_vencidos")
+    let q = sb.from("leads").select("*").order("criado", { ascending: false }).limit(200)
+    if (filtro === "central") q = q.is("corretor_id", null).not("status", "in", "(vendido,perdido)")
+    else if (filtro === "encaminhados") q = q.not("corretor_id", "is", null)
+    const { data } = await q
+    const ls = (data as LeadCentral[] | null) ?? []
+    setLista(ls)
+    const ids = [...new Set(ls.map((l) => l.corretor_id).filter((x): x is string => !!x))]
+    if (ids.length) {
+      const { data: ps } = await sb.from("perfis").select("user_id, nome").in("user_id", ids)
+      setNomes(
+        Object.fromEntries(
+          ((ps ?? []) as { user_id: string; nome: string }[]).map((p) => [p.user_id, p.nome])
+        )
+      )
+    }
+  }, [filtro])
+  React.useEffect(() => {
+    const t = setTimeout(carregar, 0)
+    return () => clearTimeout(t)
+  }, [carregar])
+
+  return (
+    <div className="flex flex-col gap-4">
+      <p className="text-sm text-slate-600">
+        Todo lead cai aqui primeiro. Veja os parceiros mais próximos (corretores e imobiliárias,
+        nunca investidores) e encaminhe. O parceiro aceita o termo de indicação e tem 30 minutos; se
+        não aceitar, o lead volta para a central.
+      </p>
+      <div className="flex flex-wrap gap-2">
+        {(
+          [
+            ["central", "Na central"],
+            ["encaminhados", "Com parceiros"],
+            ["todos", "Todos"],
+          ] as [string, string][]
+        ).map(([v, l]) => (
+          <button
+            key={v}
+            type="button"
+            onClick={() => setFiltro(v)}
+            className={`rounded-full px-4 py-2 text-sm font-bold ${filtro === v ? "bg-slate-900 text-white" : "border border-slate-300"}`}
+          >
+            {l}
+          </button>
+        ))}
+      </div>
+      {lista === null ? <p className="text-slate-600">Carregando...</p> : null}
+      {lista?.length === 0 ? <p className="text-slate-500">Nenhum lead aqui.</p> : null}
+      <ul className="flex flex-col gap-3">
+        {lista?.map((l) => (
+          <LeadCard key={l.id} l={l} nomes={nomes} aoMudar={carregar} />
+        ))}
+      </ul>
+    </div>
+  )
 }

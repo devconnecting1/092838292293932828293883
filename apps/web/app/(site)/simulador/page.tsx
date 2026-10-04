@@ -6,7 +6,7 @@ import { PropostaSimulador } from "@/components/portal/proposta-simulador"
 import { PORTAL } from "@/lib/portal/config"
 
 export const metadata: Metadata = {
-  title: "Simulador de proposta de compra de imóvel da Caixa, passo a passo",
+  title: "Como preencher a proposta de compra de imóvel da Caixa, passo a passo",
   description:
     "Veja como é uma proposta de compra de imóvel retomado, do imóvel à declaração final, com dados de exemplo. Depois, simule o seu financiamento.",
 }
@@ -16,8 +16,8 @@ export default function SimuladorPage() {
     <>
       <div className="h-1.5 bg-[linear-gradient(90deg,#005CA9_70%,#F39200_70%)]" />
       <PageHero
-        kicker="Tutorial: proposta + simulador"
-        title="Veja como é uma proposta de compra, passo a passo."
+        kicker="Passo a passo"
+        title="Como preencher a proposta de compra da Caixa."
         text="Montamos uma proposta completa com uma pessoa e um imóvel de exemplo. Clique em cada etapa, mude o valor e a forma de pagamento e veja o resultado no final."
       />
       <Section title="Simulador de proposta">

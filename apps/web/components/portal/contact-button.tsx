@@ -48,7 +48,7 @@ export function HeaderPhone({ href, label }: { href: string; label: string }) {
   return (
     <a
       href={href}
-      className="mr-1 hidden items-center gap-2 rounded-lg px-2 py-2 text-sm font-bold text-slate-900 hover:text-[var(--brand)] xl:inline-flex"
+      className="mr-1 hidden items-center gap-2 rounded-lg px-2 py-2 text-sm font-bold text-slate-900 hover:text-[var(--brand)] 2xl:inline-flex"
     >
       <PhoneIcon className="size-4 text-[var(--brand)]" />
       {label}

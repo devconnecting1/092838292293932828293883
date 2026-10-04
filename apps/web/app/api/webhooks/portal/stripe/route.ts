@@ -42,6 +42,20 @@ async function definir(sub: Stripe.Subscription) {
   return !error
 }
 
+async function marcarPago(pedido: string, ref: string) {
+  const env = getSupabaseEnv()
+  const token = process.env.PORTAL_BILLING_TOKEN?.trim()
+  if (!env || !token) return false
+  const sb = createClient(env.url, env.publishableKey, { auth: { persistSession: false } })
+  const { error } = await sb.rpc("marcar_pedido_pago", {
+    p_token: token,
+    p_pedido: pedido,
+    p_ref: ref,
+  })
+  if (error) console.error(`[portal/stripe] marcar_pedido_pago falhou (${error.code ?? "?"})`)
+  return !error
+}
+
 export async function POST(request: Request) {
   const stripe = stripePortal()
   const segredo = process.env.PORTAL_STRIPE_WEBHOOK_SECRET?.trim()
@@ -54,7 +68,11 @@ export async function POST(request: Request) {
     return r(400)
   }
   let ok = true
-  if (evento.type === "checkout.session.completed") {
+  if (evento.type === "checkout.session.completed" && evento.data.object.mode === "payment") {
+    const s = evento.data.object
+    const pedido = s.metadata?.pedido_id
+    if (pedido && s.payment_status === "paid") ok = await marcarPago(pedido, s.id)
+  } else if (evento.type === "checkout.session.completed") {
     const s = evento.data.object
     if (s.mode === "subscription" && s.subscription) {
       const id = typeof s.subscription === "string" ? s.subscription : s.subscription.id

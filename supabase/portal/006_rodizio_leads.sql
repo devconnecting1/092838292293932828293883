@@ -116,7 +116,7 @@ begin
     into c
     from perfis p
     left join municipios m on m.uf = upper(p.uf) and m.chave = chave_cidade(p.cidade)
-   where p.perfil = 'corretor' and p.status = 'aprovado' and p.creci_ok and p.recebe_leads
+   where p.perfil in ('corretor', 'imobiliaria') and p.status = 'aprovado' and p.creci_ok and p.recebe_leads
      and upper(p.uf) = upper(v_uf)
      and not exists (select 1 from lead_ofertas o where o.lead_id = p_lead and o.corretor_id = p.user_id)
    order by

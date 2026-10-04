@@ -79,7 +79,7 @@ declare
   v_mudou jsonb := '{}'::jsonb;
   k text;
   v_nome text;
-  sensiveis text[] := array['pix_chave', 'banco', 'telefone', 'contato_telefone', 'email', 'endereco'];
+  sensiveis text[] := array['pix_chave', 'banco', 'telefone', 'telefone_1', 'telefone_2', 'contato_telefone', 'email', 'endereco', 'numero', 'cep', 'whatsapp'];
 begin
   if tg_op = 'UPDATE' then
     for k in select jsonb_object_keys(v_novo) loop

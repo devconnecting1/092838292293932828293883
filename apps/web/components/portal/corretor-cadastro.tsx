@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation"
 
 import { BRAZILIAN_STATES } from "@workspace/core/br/states"
 
+import { LgpdAceite, lerTelefones, TelefonesCampos } from "@/components/portal/campos-cadastro"
 import { portalBrowserClient } from "@/lib/portal/browser-client"
 
 const campo = "h-11 rounded-lg border border-slate-300 px-3"
@@ -15,7 +16,7 @@ export function CorretorCadastro({ modo }: { modo: "cadastro" | "entrar" }) {
   const [erro, setErro] = React.useState("")
   const [aviso, setAviso] = React.useState("")
   const [enviando, setEnviando] = React.useState(false)
-  const [tipo, setTipo] = React.useState<"corretor" | "investidor">("corretor")
+  const [tipo, setTipo] = React.useState<"corretor" | "imobiliaria" | "investidor">("corretor")
 
   async function enviar(fd: FormData) {
     setErro("")
@@ -41,7 +42,7 @@ export function CorretorCadastro({ modo }: { modo: "cadastro" | "entrar" }) {
         email,
         password: senha,
         options: {
-          data: { nome, tipo },
+          data: { nome, tipo, ...lerTelefones(fd), lgpd_aceite_em: new Date().toISOString() },
           emailRedirectTo: `${window.location.origin}/corretores/entrar`,
         },
       })
@@ -52,9 +53,10 @@ export function CorretorCadastro({ modo }: { modo: "cadastro" | "entrar" }) {
           nome,
           email,
           perfil: tipo,
-          creci: tipo === "corretor" ? String(fd.get("creci") ?? "").trim() : null,
-          creci_uf: tipo === "corretor" ? String(fd.get("creci_uf") ?? "") : null,
-          whatsapp: String(fd.get("whatsapp") ?? "").trim(),
+          creci: tipo !== "investidor" ? String(fd.get("creci") ?? "").trim() : null,
+          creci_uf: tipo !== "investidor" ? String(fd.get("creci_uf") ?? "") : null,
+          ...lerTelefones(fd),
+          lgpd_aceite_em: new Date().toISOString(),
           creci_ok: false,
         })
         router.push("/corretores/painel")
@@ -87,10 +89,11 @@ export function CorretorCadastro({ modo }: { modo: "cadastro" | "entrar" }) {
       <form action={enviar} className="flex flex-col gap-3 rounded-2xl border border-slate-200 p-6">
         {modo === "cadastro" ? (
           <>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-3 gap-2">
               {(
                 [
                   ["corretor", "Sou corretor (CRECI)"],
+                  ["imobiliaria", "Sou imobiliária (CRECI-J)"],
                   ["investidor", "Sou investidor ou comprador"],
                 ] as const
               ).map(([v, l]) => (
@@ -111,7 +114,7 @@ export function CorretorCadastro({ modo }: { modo: "cadastro" | "entrar" }) {
               placeholder="Nome completo"
               className={campo}
             />
-            {tipo === "corretor" ? (
+            {tipo !== "investidor" ? (
               <div className="grid grid-cols-[1fr_110px] gap-2">
                 <input name="creci" required placeholder="Número do CRECI" className={campo} />
                 <select name="creci_uf" required defaultValue="RJ" className={`${campo} bg-white`}>
@@ -123,13 +126,7 @@ export function CorretorCadastro({ modo }: { modo: "cadastro" | "entrar" }) {
                 </select>
               </div>
             ) : null}
-            <input
-              name="whatsapp"
-              required
-              inputMode="tel"
-              placeholder="WhatsApp com DDD"
-              className={campo}
-            />
+            <TelefonesCampos />
           </>
         ) : null}
         <input name="email" type="email" required placeholder="E-mail" className={campo} />
@@ -142,16 +139,7 @@ export function CorretorCadastro({ modo }: { modo: "cadastro" | "entrar" }) {
           placeholder={modo === "cadastro" ? "Crie uma senha (mínimo 8 caracteres)" : "Senha"}
           className={campo}
         />
-        {modo === "cadastro" ? (
-          <label className="block text-xs leading-relaxed text-slate-700">
-            <input type="checkbox" required className="mr-2 inline size-4 align-[-3px]" />
-            Li e aceito a{" "}
-            <Link href="/privacidade" className="font-bold underline">
-              Política de Privacidade
-            </Link>
-            . Sei que meus documentos serão usados só para conferir o Selo Verde.
-          </label>
-        ) : null}
+        {modo === "cadastro" ? <LgpdAceite /> : null}
         {modo === "entrar" ? (
           <Link
             href="/corretores/recuperar"

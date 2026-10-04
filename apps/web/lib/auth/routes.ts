@@ -123,6 +123,8 @@ export const PORTAL_PREFIXES = [
   "/autorizacao-de-venda",
   "/parceria-corretor",
   "/gestao",
+  "/quem-somos",
+  "/termo-indicacao",
   "/suporte",
   "/api/portal",
 ] as const

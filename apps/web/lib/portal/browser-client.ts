@@ -26,6 +26,7 @@ export const DOCS = [
   { campo: "doc_creci_verso_path", rotulo: "Carteira do CRECI (verso)" },
   { campo: "doc_print_creci_path", rotulo: "Print do seu cadastro ativo no site do CRECI" },
   { campo: "doc_certidao_creci_path", rotulo: "Certidão de regularidade do CRECI" },
+  { campo: "doc_identidade_path", rotulo: "Documento de identidade com foto (RG ou CNH)" },
   { campo: "doc_residencia_path", rotulo: "Comprovante de residência" },
   { campo: "doc_certidao_estadual_path", rotulo: "Certidão criminal estadual" },
   { campo: "doc_certidao_federal_path", rotulo: "Certidão criminal federal" },
@@ -57,6 +58,16 @@ export type Perfil = {
   pix_chave?: string | null
   banco?: Record<string, string> | null
   parceria_aceite_em?: string | null
+  telefone_1?: string | null
+  telefone_1_whats?: boolean | null
+  telefone_2?: string | null
+  telefone_2_whats?: boolean | null
+  cep?: string | null
+  numero?: string | null
+  complemento?: string | null
+  bairro?: string | null
+  doc_identidade_path?: string | null
+  lgpd_aceite_em?: string | null
   doc_residencia_path: string | null
   doc_certidao_estadual_path: string | null
   doc_certidao_federal_path: string | null

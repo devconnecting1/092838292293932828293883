@@ -6,8 +6,15 @@ import { useRouter } from "next/navigation"
 
 import { BRAZILIAN_STATES } from "@workspace/core/br/states"
 
+import {
+  EnderecoCampos,
+  LgpdAceite,
+  lerTelefones,
+  TelefonesCampos,
+} from "@/components/portal/campos-cadastro"
 import { AreaAtendimento, LeadsRodizio } from "@/components/portal/leads-rodizio"
 import { PlanoAtual } from "@/components/portal/plano-atual"
+import { MinhaPublicidade } from "@/components/portal/publicidade"
 import {
   DOCS,
   PARCERIA_VERSAO,
@@ -29,6 +36,12 @@ export function CorretorPainel() {
   const [perfil, setPerfil] = React.useState<Perfil | null>(null)
   const [uid, setUid] = React.useState<string | null>(null)
   const [tipoMeta, setTipoMeta] = React.useState<string | null>(null)
+  const [metaTel, setMetaTel] = React.useState<{
+    t1?: string | null
+    w1?: boolean | null
+    t2?: string | null
+    w2?: boolean | null
+  }>({})
   const [admin, setAdmin] = React.useState(false)
   const [carregando, setCarregando] = React.useState(true)
   const [erro, setErro] = React.useState("")
@@ -46,6 +59,13 @@ export function CorretorPainel() {
     }
     setUid(u.user.id)
     setTipoMeta(typeof u.user.user_metadata?.tipo === "string" ? u.user.user_metadata.tipo : null)
+    const md = (u.user.user_metadata ?? {}) as Record<string, unknown>
+    setMetaTel({
+      t1: typeof md.telefone_1 === "string" ? md.telefone_1 : null,
+      w1: typeof md.telefone_1_whats === "boolean" ? md.telefone_1_whats : null,
+      t2: typeof md.telefone_2 === "string" ? md.telefone_2 : null,
+      w2: typeof md.telefone_2_whats === "boolean" ? md.telefone_2_whats : null,
+    })
     const [{ data: p }, { data: a }] = await Promise.all([
       sb.from("perfis").select("*").eq("user_id", u.user.id).maybeSingle(),
       sb.rpc("sou_admin"),
@@ -64,6 +84,7 @@ export function CorretorPainel() {
     perfil?.perfil === "investidor" || (!perfil && tipoMeta === "investidor")
       ? "investidor"
       : "corretor"
+  const ehImobiliaria = perfil?.perfil === "imobiliaria" || (!perfil && tipoMeta === "imobiliaria")
 
   async function salvar(fd: FormData) {
     const sb = portalBrowserClient()
@@ -75,19 +96,24 @@ export function CorretorPainel() {
       const nome = String(fd.get("nome") ?? "").trim()
       const linha: Record<string, unknown> = {
         user_id: uid,
-        ...(admin ? {} : { perfil: tipo, creci_ok: false }),
+        ...(admin ? {} : { perfil: ehImobiliaria ? "imobiliaria" : tipo, creci_ok: false }),
         nome,
         creci: String(fd.get("creci") ?? "").trim(),
         creci_uf: String(fd.get("creci_uf") ?? ""),
-        whatsapp: String(fd.get("whatsapp") ?? "").trim(),
+        ...lerTelefones(fd),
+        cep: String(fd.get("cep") ?? "").replace(/\D/g, "") || null,
+        numero: String(fd.get("numero") ?? "").trim() || null,
+        complemento: String(fd.get("complemento") ?? "").trim() || null,
+        bairro: String(fd.get("bairro") ?? "").trim() || null,
+        ...(perfil?.lgpd_aceite_em ? {} : { lgpd_aceite_em: new Date().toISOString() }),
         endereco: String(fd.get("endereco") ?? "").trim(),
         cidade: String(fd.get("cidade") ?? "").trim(),
-        uf: String(fd.get("uf") ?? ""),
+        uf: String(fd.get("uf") ?? "")
+          .toUpperCase()
+          .slice(0, 2),
         slug: slugDe(String(fd.get("slug") ?? "") || nome),
         aceite_termos: new Date().toISOString(),
         enviado_em: new Date().toISOString(),
-        recado_1: String(fd.get("recado_1") ?? "").trim() || null,
-        recado_2: String(fd.get("recado_2") ?? "").trim() || null,
         pix_chave: String(fd.get("pix_chave") ?? "").trim() || null,
         banco: {
           banco: String(fd.get("banco_nome") ?? "").trim(),
@@ -129,8 +155,14 @@ export function CorretorPainel() {
         linha[col] = path
       }
       const faltando = (
-        tipo === "corretor" ? DOCS : DOCS.filter((d) => d.campo === "doc_residencia_path")
+        tipo === "corretor"
+          ? DOCS
+          : DOCS.filter(
+              (d) => d.campo === "doc_residencia_path" || d.campo === "doc_identidade_path"
+            )
       ).filter((d) => !linha[d.campo] && !perfil?.[d.campo])
+      if (!linha.foto_path && !perfil?.foto_path)
+        throw new Error("Envie a sua foto (ou a logo da imobiliária).")
       if (faltando.length)
         throw new Error(`Falta enviar: ${faltando.map((d) => d.rotulo).join(", ")}.`)
       const { error } = await sb.from("perfis").upsert(linha)
@@ -236,9 +268,12 @@ export function CorretorPainel() {
 
       <PlanoAtual plano={perfil?.plano ?? null} ate={perfil?.plano_ate ?? null} />
 
-      {status === "aprovado" && uid && (perfil?.perfil === "corretor" || admin) ? (
+      {status === "aprovado" &&
+      uid &&
+      (perfil?.perfil === "corretor" || perfil?.perfil === "imobiliaria" || admin) ? (
         <>
           <LeadsRodizio uid={uid} />
+          <MinhaPublicidade />
           <AreaAtendimento
             uid={uid}
             cidade={perfil?.cidade ?? null}
@@ -301,7 +336,9 @@ export function CorretorPainel() {
                   name="creci"
                   required
                   defaultValue={perfil?.creci ?? ""}
-                  placeholder="Número do CRECI"
+                  placeholder={
+                    ehImobiliaria ? "CRECI jurídico (PJ) da imobiliária" : "Número do CRECI"
+                  }
                   className={campo}
                 />
                 <select
@@ -318,13 +355,16 @@ export function CorretorPainel() {
                 </select>
               </>
             ) : null}
-            <input
-              name="whatsapp"
-              required
-              defaultValue={perfil?.whatsapp ?? ""}
-              placeholder="WhatsApp com DDD"
-              className={campo}
-            />
+            <div className="sm:col-span-2">
+              <TelefonesCampos
+                inicial={{
+                  t1: perfil?.telefone_1 ?? metaTel.t1 ?? perfil?.whatsapp,
+                  w1: perfil?.telefone_1_whats ?? metaTel.w1,
+                  t2: perfil?.telefone_2 ?? metaTel.t2 ?? perfil?.recado_1,
+                  w2: perfil?.telefone_2_whats ?? metaTel.w2,
+                }}
+              />
+            </div>
             <label className="flex flex-col gap-1 text-sm font-semibold text-slate-700">
               Endereço da sua página
               <span className="flex items-center gap-1 text-slate-500">
@@ -338,51 +378,22 @@ export function CorretorPainel() {
               </span>
             </label>
           </fieldset>
-          <fieldset className="grid gap-3 sm:grid-cols-2">
-            <legend className="mb-2 font-extrabold">Endereço residencial</legend>
-            <input
-              name="endereco"
-              required
-              defaultValue={perfil?.endereco ?? ""}
-              placeholder="Rua, número e complemento"
-              className={`${campo} sm:col-span-2`}
+          <fieldset className="flex flex-col gap-3">
+            <legend className="mb-2 font-extrabold">Endereço</legend>
+            <EnderecoCampos
+              inicial={{
+                cep: perfil?.cep ?? "",
+                endereco: perfil?.endereco ?? "",
+                numero: perfil?.numero ?? "",
+                complemento: perfil?.complemento ?? "",
+                bairro: perfil?.bairro ?? "",
+                cidade: perfil?.cidade ?? "",
+                uf: perfil?.uf ?? "",
+              }}
             />
-            <input
-              name="cidade"
-              required
-              defaultValue={perfil?.cidade ?? ""}
-              placeholder="Cidade"
-              className={campo}
-            />
-            <select
-              name="uf"
-              required
-              defaultValue={perfil?.uf ?? "RJ"}
-              className={`${campo} bg-white`}
-            >
-              {BRAZILIAN_STATES.map((s) => (
-                <option key={s.code} value={s.code}>
-                  {s.name}
-                </option>
-              ))}
-            </select>
           </fieldset>
           <fieldset className="grid gap-3 sm:grid-cols-2">
-            <legend className="mb-2 font-extrabold">Contatos para recado e pagamento</legend>
-            <input
-              name="recado_1"
-              required
-              defaultValue={perfil?.recado_1 ?? ""}
-              placeholder="Telefone para recado 1"
-              className={campo}
-            />
-            <input
-              name="recado_2"
-              required
-              defaultValue={perfil?.recado_2 ?? ""}
-              placeholder="Telefone para recado 2"
-              className={campo}
-            />
+            <legend className="mb-2 font-extrabold">Dados para pagamento</legend>
             <input
               name="pix_chave"
               required={tipo === "corretor"}
@@ -445,7 +456,9 @@ export function CorretorPainel() {
             </label>
             {(tipo === "corretor"
               ? DOCS
-              : DOCS.filter((d) => d.campo === "doc_residencia_path")
+              : DOCS.filter(
+                  (d) => d.campo === "doc_residencia_path" || d.campo === "doc_identidade_path"
+                )
             ).map((d) => (
               <label
                 key={d.campo}
@@ -488,6 +501,7 @@ export function CorretorPainel() {
               . Corretor parceiro aprovado não paga mensalidade.
             </label>
           ) : null}
+          {perfil?.lgpd_aceite_em ? null : <LgpdAceite />}
           <label className="block text-xs leading-relaxed text-slate-700">
             <input type="checkbox" required className="mr-2 inline size-4 align-[-3px]" />
             Declaro que as informações são verdadeiras e que sou o único responsável técnico pelas
