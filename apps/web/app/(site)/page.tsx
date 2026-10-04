@@ -174,9 +174,9 @@ export default async function PortalHome() {
                 "Lucro, custos e lance máximo de cada imóvel.",
               ],
               [
-                "/processos",
-                "Processo, CPF e certidões",
-                "Confira o processo e as pendências antes do lance.",
+                "/como-funciona/caixa#assessoria",
+                "Diligência do imóvel",
+                "A nossa equipe confere processo, dívidas e documentos para você.",
               ],
               ["/cotas", "Arremate em cotas", "Invista a partir de 10% com amigos e família."],
               ["/anuncie-gratis", "Anuncie grátis", "Seu imóvel na mão dos corretores parceiros."],
@@ -227,7 +227,7 @@ export default async function PortalHome() {
               </p>
               <ul className="flex flex-col gap-1.5 text-sm text-slate-700">
                 <li>✓ Calculadora de viabilidade com lance máximo</li>
-                <li>✓ Processo, CPF e certidões conferidos</li>
+                <li>✓ Diligência de processo, dívidas e documentos</li>
                 <li>✓ Arremate em cotas a partir de 10%</li>
               </ul>
               <Link href="/leiloes" className="mt-auto self-start font-bold text-[var(--brand)]">

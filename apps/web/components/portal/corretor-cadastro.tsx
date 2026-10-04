@@ -63,7 +63,7 @@ export function CorretorCadastro({ modo }: { modo: "cadastro" | "entrar" }) {
         return
       }
       setAviso(
-        "Conta criada. Enviamos um link de confirmação para o seu e-mail. Confirme e depois entre para enviar os documentos do Selo Verde."
+        "Conta criada. Enviamos um link de confirmação para o seu e-mail. Confirme e depois entre para enviar a foto do CRECI e completar o cadastro."
       )
     } finally {
       setEnviando(false)
@@ -81,7 +81,7 @@ export function CorretorCadastro({ modo }: { modo: "cadastro" | "entrar" }) {
         </h1>
         {modo === "cadastro" ? (
           <p className="mt-2 leading-relaxed text-slate-600">
-            É grátis. Depois do cadastro você envia os documentos do Selo Verde e a nossa equipe
+            É grátis. Depois do cadastro você envia a foto do CRECI e a identidade, e a nossa equipe
             libera o seu acesso.
           </p>
         ) : null}

@@ -227,19 +227,33 @@ export function AdKit({
   }, [formato, imovel, c, cor, marca, fotoImovel])
 
   const legenda = [
-    `${imovel.desconto ? `${Math.round(imovel.desconto)}% abaixo da avaliação. ` : ""}${imovel.titulo}, ${imovel.local}.`,
-    `${[imovel.modalidade, imovel.origem].filter(Boolean).join(" ")}: ${imovel.preco}${imovel.avaliacao ? ` (avaliação ${imovel.avaliacao})` : ""}.`,
-    imovel.financiamento ? "Aceita financiamento." : "",
+    imovel.desconto
+      ? `🔨 OPORTUNIDADE: ${Math.round(imovel.desconto)}% abaixo da avaliação!`
+      : editavel
+        ? "🏡 IMÓVEL À VENDA"
+        : "🔨 IMÓVEL DE LEILÃO",
+    "",
+    `📍 ${imovel.titulo}, ${imovel.local}`,
+    `💰 ${editavel ? "Valor" : "Lance mínimo"}: ${imovel.preco}${imovel.avaliacao ? ` | Avaliação: ${imovel.avaliacao}` : ""}`,
+    [imovel.modalidade, imovel.origem].filter(Boolean).length
+      ? `📄 ${[imovel.modalidade, imovel.origem].filter(Boolean).join(" · ")}`
+      : "",
+    imovel.financiamento ? "✅ Aceita financiamento" : "",
+    "",
     editavel
-      ? ""
-      : "Valores e condições sujeitos ao edital; confira matrícula e edital antes do lance.",
-    `Fale comigo${c.whatsapp ? ` no WhatsApp ${c.whatsapp}` : ""}: ${c.nome || "[seu nome]"}, ${c.creci || "[seu CRECI]"}.`,
-    imovel.url ? `Detalhes: ${imovel.url}` : "",
+      ? "Agende a sua visita e tire todas as dúvidas comigo."
+      : "Eu faço a conta dos custos, confiro edital e matrícula e acompanho você até a chave na mão.",
+    "",
+    `📲 ${c.nome || "[seu nome]"}${c.creci ? ` | ${c.creci}` : ""}`,
+    c.whatsapp ? `WhatsApp: ${c.whatsapp}` : "",
+    imovel.url ? `🔗 ${imovel.url}` : "",
+    editavel ? "" : "Condições sujeitas ao edital. Confira edital e matrícula antes do lance.",
+    "",
     editavel
-      ? "#imoveis #imovel #corretordeimoveis"
-      : "#leilaodeimoveis #imovel #investimentoimobiliario",
+      ? "#imoveis #imovelavenda #corretordeimoveis"
+      : "#leilaodeimoveis #imoveldeleilao #investimentoimobiliario #oportunidade",
   ]
-    .filter(Boolean)
+    .filter((l, i, arr) => l !== "" || (i > 0 && arr[i - 1] !== ""))
     .join("\n")
 
   const baixar = () => {

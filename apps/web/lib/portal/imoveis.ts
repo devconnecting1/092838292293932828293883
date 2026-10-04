@@ -66,6 +66,8 @@ export type PortalFilters = {
   leiloeiro: string
   financiamento: boolean | null
   minDesconto: number | null
+  /** Só venda direta e venda online (sem comissão de leiloeiro). */
+  semLeiloeiro?: boolean
   maxPreco: number | null
   sort: PortalSort
   page: number
@@ -153,6 +155,7 @@ export function parsePortalFilters(params: Params): PortalFilters {
     leiloeiro: first(params.leiloeiro).slice(0, 160),
     financiamento: fin === "sim" ? true : fin === "nao" ? false : null,
     minDesconto: int(first(params.desconto), 99),
+    semLeiloeiro: first(params.semleiloeiro) === "1",
     maxPreco: int(first(params.ate), 999_999_999),
     sort: (SORTS as readonly string[]).includes(sort) ? (sort as PortalSort) : "desconto",
     page: Math.max(1, int(first(params.pagina), 800) ?? 1),
@@ -169,6 +172,7 @@ export function filtersToParams(f: PortalFilters) {
   if (f.leiloeiro) p.set("leiloeiro", f.leiloeiro)
   if (f.financiamento != null) p.set("financiamento", f.financiamento ? "sim" : "nao")
   if (f.minDesconto != null) p.set("desconto", String(f.minDesconto))
+  if (f.semLeiloeiro) p.set("semleiloeiro", "1")
   if (f.maxPreco != null) p.set("ate", String(f.maxPreco))
   if (f.sort !== "desconto") p.set("ordem", f.sort)
   return p
@@ -281,6 +285,8 @@ export async function searchPortalListings(f: PortalFilters, limit = PORTAL_PAGE
   if (f.leiloeiro) query = query.eq("leiloeiro", f.leiloeiro)
   if (f.financiamento != null) query = query.eq("financiamento", f.financiamento)
   if (f.minDesconto != null) query = query.gte("desconto", f.minDesconto)
+  if (f.semLeiloeiro)
+    query = query.or("modalidade.ilike.%venda direta%,modalidade.ilike.%venda online%")
   if (f.maxPreco != null) query = query.lte("preco", f.maxPreco)
 
   const term = safeTerm(f.q)

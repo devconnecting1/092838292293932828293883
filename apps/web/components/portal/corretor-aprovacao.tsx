@@ -48,6 +48,25 @@ export function CorretorAprovacao() {
     return () => clearTimeout(t)
   }, [carregar])
 
+  async function verificar(
+    p: Perfil,
+    campo: "selo_verde" | "email_verificado" | "whatsapp_verificado" | "redes_verificadas"
+  ) {
+    const sb = portalBrowserClient()
+    if (!sb) return
+    const novo = !p[campo]
+    const { error } = await sb
+      .from("perfis")
+      .update({ [campo]: novo })
+      .eq("user_id", p.user_id)
+    setMsg(
+      error
+        ? "Não foi possível salvar a verificação."
+        : `${p.nome}: ${campo.replace("_", " ")} ${novo ? "marcado" : "desmarcado"}.`
+    )
+    await carregar()
+  }
+
   async function decidir(p: Perfil, status: "aprovado" | "recusado", motivo?: string) {
     const sb = portalBrowserClient()
     if (!sb) return
@@ -158,15 +177,33 @@ export function CorretorAprovacao() {
                           {d.rotulo}
                         </a>
                       ) : (
-                        <span key={d.campo} className="text-red-700">
-                          Falta: {d.rotulo}
+                        <span key={d.campo} className={d.selo ? "text-slate-400" : "text-red-700"}>
+                          {d.selo ? "Sem" : "Falta"}: {d.rotulo}
                         </span>
                       )
                     })}
                   </div>
                   {p.motivo ? <p className="mt-1 text-red-700">Motivo: {p.motivo}</p> : null}
                 </div>
-                <div className="flex flex-col gap-2 md:w-40">
+                <div className="flex flex-col gap-2 md:w-48">
+                  {(
+                    [
+                      ["selo_verde", "Selo Verde"],
+                      ["email_verificado", "E-mail verificado"],
+                      ["whatsapp_verificado", "WhatsApp no CPF dele"],
+                      ["redes_verificadas", "Redes verificadas"],
+                    ] as const
+                  ).map(([k, l]) => (
+                    <button
+                      key={k}
+                      type="button"
+                      onClick={() => verificar(p, k)}
+                      className={`rounded-lg px-3 py-1.5 text-xs font-bold ${p[k] ? "bg-emerald-600 text-white" : "border border-slate-300"}`}
+                    >
+                      {p[k] ? "✓ " : ""}
+                      {l}
+                    </button>
+                  ))}
                   {p.status !== "aprovado" ? (
                     <button
                       type="button"

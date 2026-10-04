@@ -21,16 +21,65 @@ export function portalBrowserClient() {
   return cliente
 }
 
+/**
+ * Documentos do cadastro. Para entrar basta o CRECI ativo (foto do CRECI) e a identidade.
+ * Os marcados com `selo` são opcionais e servem para o Selo Verde (verificação).
+ */
 export const DOCS = [
-  { campo: "doc_creci_frente_path", rotulo: "Carteira do CRECI (frente)" },
-  { campo: "doc_creci_verso_path", rotulo: "Carteira do CRECI (verso)" },
-  { campo: "doc_print_creci_path", rotulo: "Print do seu cadastro ativo no site do CRECI" },
-  { campo: "doc_certidao_creci_path", rotulo: "Certidão de regularidade do CRECI" },
-  { campo: "doc_identidade_path", rotulo: "Documento de identidade com foto (RG ou CNH)" },
-  { campo: "doc_residencia_path", rotulo: "Comprovante de residência" },
-  { campo: "doc_certidao_estadual_path", rotulo: "Certidão criminal estadual" },
-  { campo: "doc_certidao_federal_path", rotulo: "Certidão criminal federal" },
+  {
+    campo: "doc_identidade_path",
+    rotulo: "Documento de identidade com foto (RG ou CNH)",
+    selo: false,
+    corretor: false,
+  },
+  {
+    campo: "doc_creci_frente_path",
+    rotulo: "Carteira do CRECI (frente)",
+    selo: false,
+    corretor: true,
+  },
+  {
+    campo: "doc_creci_verso_path",
+    rotulo: "Carteira do CRECI (verso)",
+    selo: false,
+    corretor: true,
+  },
+  {
+    campo: "doc_print_creci_path",
+    rotulo: "Print do cadastro ativo no site do CRECI",
+    selo: true,
+    corretor: true,
+  },
+  {
+    campo: "doc_certidao_creci_path",
+    rotulo: "Certidão de regularidade do CRECI",
+    selo: true,
+    corretor: true,
+  },
+  {
+    campo: "doc_residencia_path",
+    rotulo: "Comprovante de residência",
+    selo: true,
+    corretor: false,
+  },
+  {
+    campo: "doc_certidao_estadual_path",
+    rotulo: "Certidão criminal estadual",
+    selo: true,
+    corretor: true,
+  },
+  {
+    campo: "doc_certidao_federal_path",
+    rotulo: "Certidão criminal federal",
+    selo: true,
+    corretor: true,
+  },
 ] as const
+
+/** Documentos que aparecem para cada tipo de cadastro. */
+export function docsDoTipo(tipo: "corretor" | "investidor") {
+  return DOCS.filter((d) => tipo === "corretor" || !d.corretor)
+}
 
 export type Perfil = {
   user_id: string
@@ -68,6 +117,12 @@ export type Perfil = {
   bairro?: string | null
   doc_identidade_path?: string | null
   lgpd_aceite_em?: string | null
+  bio?: string | null
+  atua_desde?: number | null
+  selo_verde?: boolean | null
+  email_verificado?: boolean | null
+  whatsapp_verificado?: boolean | null
+  redes_verificadas?: boolean | null
   doc_residencia_path: string | null
   doc_certidao_estadual_path: string | null
   doc_certidao_federal_path: string | null

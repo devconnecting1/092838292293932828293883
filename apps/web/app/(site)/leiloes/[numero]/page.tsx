@@ -132,13 +132,13 @@ export default async function ImovelPage({ params }: Props) {
                   </div>
                 ))}
             </dl>
-            {item.processo && item.processo.replace(/\D/g, "").length === 20 ? (
-              <Link
-                href={`/processos?numero=${item.processo.replace(/\D/g, "")}`}
+            {item.processo ? (
+              <a
+                href="#assessoria"
                 className="mt-3 inline-block rounded-lg border-[1.5px] border-[var(--brand)] px-4 py-2 text-sm font-bold text-[var(--brand)]"
               >
-                Ver andamento do processo
-              </Link>
+                Pedir diligência deste processo
+              </a>
             ) : null}
           </div>
           {item.aceitaFinanciamento ? (

@@ -37,6 +37,33 @@ export default async function LeiloesPage({ searchParams }: Props) {
     const qs = p.toString()
     return `/leiloes${qs ? `?${qs}` : ""}`
   }
+  const chip = (pares: [string, string][]) => {
+    const p = new URLSearchParams(base)
+    p.delete("pagina")
+    const ativo = pares.every(([k, v]) => p.get(k) === v)
+    for (const [k, v] of pares) {
+      if (ativo) p.delete(k)
+      else p.set(k, v)
+    }
+    const qs = p.toString()
+    return { href: `/leiloes${qs ? `?${qs}` : ""}`, ativo }
+  }
+  const CHIPS: [string, [string, string][]][] = [
+    [
+      "Maior desconto",
+      [
+        ["desconto", "50"],
+        ["ordem", "desconto"],
+      ],
+    ],
+    ["Aceita financiamento", [["financiamento", "sim"]]],
+    ["Sem comissão de leiloeiro", [["semleiloeiro", "1"]]],
+    ["Até R$ 150 mil", [["ate", "150000"]]],
+    ["Até R$ 300 mil", [["ate", "300000"]]],
+    ["Apartamentos", [["tipo", "Apartamento"]]],
+    ["Casas", [["tipo", "Casa"]]],
+    ["Encerra primeiro", [["ordem", "encerra"]]],
+  ]
   const lugar = filters.cidade ? `${filters.cidade}/${filters.uf}` : filters.uf || "todo o Brasil"
 
   return (
@@ -166,6 +193,16 @@ export default async function LeiloesPage({ searchParams }: Props) {
               <option value="nao">Só à vista</option>
             </select>
           </Field>
+          <label className="flex items-center gap-2 text-sm font-semibold">
+            <input
+              type="checkbox"
+              name="semleiloeiro"
+              value="1"
+              defaultChecked={filters.semLeiloeiro}
+              className="size-4"
+            />
+            Sem comissão de leiloeiro (venda direta)
+          </label>
           <Field label="Ordenar por">
             <select
               name="ordem"
@@ -201,7 +238,30 @@ export default async function LeiloesPage({ searchParams }: Props) {
             Filtrar
           </a>
         </div>
-        <div className="mt-1 flex flex-wrap items-start justify-between gap-3">
+        <nav aria-label="Filtros rápidos" className="mt-4 flex flex-wrap gap-2">
+          {CHIPS.map(([rotulo, pares]) => {
+            const c = chip(pares)
+            return (
+              <Link
+                key={rotulo}
+                href={c.href}
+                className={`rounded-full px-4 py-2 text-sm font-bold transition-colors ${c.ativo ? "bg-[var(--brand)] text-white" : "border border-slate-300 bg-white text-slate-800 hover:border-[var(--brand)]"}`}
+              >
+                {c.ativo ? "✓ " : ""}
+                {rotulo}
+              </Link>
+            )
+          })}
+          {base.toString() ? (
+            <Link
+              href="/leiloes"
+              className="rounded-full px-4 py-2 text-sm font-bold text-slate-500 underline"
+            >
+              Limpar tudo
+            </Link>
+          ) : null}
+        </nav>
+        <div className="mt-3 flex flex-wrap items-start justify-between gap-3">
           <p className="text-slate-600">
             {result.total.toLocaleString("pt-BR")} imóve{result.total === 1 ? "l" : "is"} encontrado
             {result.total === 1 ? "" : "s"}

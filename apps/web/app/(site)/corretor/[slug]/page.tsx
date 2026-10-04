@@ -22,6 +22,24 @@ type Corretor = {
   uf: string | null
   foto_path: string | null
   redes?: Record<string, string> | null
+  perfil?: string | null
+  bio?: string | null
+  atua_desde?: number | null
+  bairros?: string[] | null
+  email?: string | null
+  selo_verde?: boolean | null
+  email_verificado?: boolean | null
+  whatsapp_verificado?: boolean | null
+  redes_verificadas?: boolean | null
+}
+
+function Verificado({ ok, children }: { ok?: boolean | null; children: React.ReactNode }) {
+  if (!ok) return null
+  return (
+    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-800">
+      ✓ {children}
+    </span>
+  )
 }
 
 const NOMES_REDES: Record<string, string> = {
@@ -79,16 +97,34 @@ export default async function CorretorPage({ params }: Props) {
           />
         ) : null}
         <div className="flex-1">
-          <span className="rounded-full bg-emerald-600 px-3 py-1 text-xs font-extrabold text-white">
-            Selo Verde
-          </span>
+          {c.selo_verde ? (
+            <span className="rounded-full bg-emerald-600 px-3 py-1 text-xs font-extrabold text-white">
+              Selo Verde: corretor verificado
+            </span>
+          ) : null}
           <h1 className="mt-2 text-3xl font-extrabold tracking-tight">{c.nome}</h1>
           <p className="text-slate-700">
-            {c.creci
-              ? `Corretor de imóveis, CRECI ${c.creci}${c.creci_uf ? `/${c.creci_uf}` : ""}`
-              : "Investidor imobiliário"}
+            {c.perfil === "imobiliaria"
+              ? `Imobiliária, CRECI ${c.creci ?? ""}${c.creci_uf ? `/${c.creci_uf}` : ""}`
+              : c.creci
+                ? `Corretor de imóveis, CRECI ${c.creci}${c.creci_uf ? `/${c.creci_uf}` : ""}`
+                : "Investidor imobiliário"}
             {c.cidade ? ` · ${c.cidade}/${c.uf}` : ""}
+            {c.atua_desde ? ` · ${new Date().getFullYear() - c.atua_desde} anos de mercado` : ""}
           </p>
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            <Verificado ok={c.whatsapp_verificado}>WhatsApp verificado</Verificado>
+            <Verificado ok={c.email_verificado}>E-mail verificado</Verificado>
+            <Verificado ok={c.redes_verificadas}>Redes verificadas</Verificado>
+          </div>
+          {c.email ? (
+            <a
+              href={`mailto:${c.email}`}
+              className="mt-2 inline-block text-sm font-bold text-[var(--brand)]"
+            >
+              {c.email}
+            </a>
+          ) : null}
         </div>
         {wa ? (
           <a href={wa} className="rounded-xl bg-[#15803D] px-6 py-3.5 font-extrabold text-white">
@@ -96,6 +132,28 @@ export default async function CorretorPage({ params }: Props) {
           </a>
         ) : null}
       </section>
+      {c.bio || c.bairros?.length ? (
+        <section className="grid gap-6 rounded-3xl border border-slate-200 p-6 sm:p-8 md:grid-cols-[2fr_1fr]">
+          {c.bio ? (
+            <div>
+              <h2 className="text-xl font-extrabold">Quem sou eu</h2>
+              <p className="mt-2 leading-relaxed whitespace-pre-line text-slate-700">{c.bio}</p>
+            </div>
+          ) : null}
+          {c.bairros?.length ? (
+            <div>
+              <h2 className="text-xl font-extrabold">Onde eu atendo</h2>
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {c.bairros.map((b) => (
+                  <span key={b} className="rounded-full bg-slate-100 px-3 py-1 text-sm">
+                    {b}
+                  </span>
+                ))}
+              </div>
+            </div>
+          ) : null}
+        </section>
+      ) : null}
       {c.redes && Object.keys(c.redes).length ? (
         <nav className="flex flex-wrap gap-2" aria-label="Redes sociais">
           {Object.entries(c.redes)

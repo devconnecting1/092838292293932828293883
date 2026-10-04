@@ -16,7 +16,7 @@ import { AreaAtendimento, LeadsRodizio } from "@/components/portal/leads-rodizio
 import { PlanoAtual } from "@/components/portal/plano-atual"
 import { MinhaPublicidade } from "@/components/portal/publicidade"
 import {
-  DOCS,
+  docsDoTipo,
   PARCERIA_VERSAO,
   portalBrowserClient,
   REDES,
@@ -115,6 +115,13 @@ export function CorretorPainel() {
         aceite_termos: new Date().toISOString(),
         enviado_em: new Date().toISOString(),
         pix_chave: String(fd.get("pix_chave") ?? "").trim() || null,
+        bio:
+          String(fd.get("bio") ?? "")
+            .trim()
+            .slice(0, 1500) || null,
+        atua_desde: /^\d{4}$/.test(String(fd.get("atua_desde") ?? "").trim())
+          ? Number(String(fd.get("atua_desde")).trim())
+          : null,
         banco: {
           banco: String(fd.get("banco_nome") ?? "").trim(),
           agencia: String(fd.get("banco_agencia") ?? "").trim(),
@@ -133,7 +140,7 @@ export function CorretorPainel() {
       const envios: [string, string, File][] = []
       const foto = fd.get("foto")
       if (foto instanceof File && foto.size) envios.push(["corretores-fotos", "foto_path", foto])
-      for (const d of DOCS) {
+      for (const d of docsDoTipo(tipo)) {
         const f = fd.get(d.campo)
         if (f instanceof File && f.size) envios.push(["corretores-docs", d.campo, f])
       }
@@ -154,13 +161,9 @@ export function CorretorPainel() {
         if (error) throw new Error(`Não foi possível enviar ${f.name}.`)
         linha[col] = path
       }
-      const faltando = (
-        tipo === "corretor"
-          ? DOCS
-          : DOCS.filter(
-              (d) => d.campo === "doc_residencia_path" || d.campo === "doc_identidade_path"
-            )
-      ).filter((d) => !linha[d.campo] && !perfil?.[d.campo])
+      const faltando = docsDoTipo(tipo).filter(
+        (d) => !d.selo && !linha[d.campo] && !perfil?.[d.campo]
+      )
       if (!linha.foto_path && !perfil?.foto_path)
         throw new Error("Envie a sua foto (ou a logo da imobiliária).")
       if (faltando.length)
@@ -422,6 +425,27 @@ export function CorretorPainel() {
               />
             </div>
           </fieldset>
+          {tipo === "corretor" ? (
+            <fieldset className="flex flex-col gap-3">
+              <legend className="mb-2 font-extrabold">Sua história (aparece na sua página)</legend>
+              <input
+                name="atua_desde"
+                inputMode="numeric"
+                maxLength={4}
+                defaultValue={perfil?.atua_desde ?? ""}
+                placeholder="Corretor desde (ano), ex.: 2014"
+                className={campo}
+              />
+              <textarea
+                name="bio"
+                rows={4}
+                maxLength={1500}
+                defaultValue={perfil?.bio ?? ""}
+                placeholder="Quem você é, como trabalha, em que tipo de imóvel e região é especialista"
+                className="rounded-lg border border-slate-300 p-3"
+              />
+            </fieldset>
+          ) : null}
           <fieldset className="grid gap-3 sm:grid-cols-2">
             <legend className="mb-2 font-extrabold">Redes sociais profissionais</legend>
             <p className="text-xs text-slate-500 sm:col-span-2">
@@ -454,17 +478,20 @@ export function CorretorPainel() {
                 className="text-sm"
               />
             </label>
-            {(tipo === "corretor"
-              ? DOCS
-              : DOCS.filter(
-                  (d) => d.campo === "doc_residencia_path" || d.campo === "doc_identidade_path"
-                )
-            ).map((d) => (
+            {docsDoTipo(tipo).map((d) => (
               <label
                 key={d.campo}
                 className="flex flex-col gap-1 text-sm font-semibold text-slate-700"
               >
-                {d.rotulo}{" "}
+                {d.rotulo}
+                {d.selo ? (
+                  <span className="text-xs font-normal text-emerald-700">
+                    {" "}
+                    Selo Verde, opcional
+                  </span>
+                ) : (
+                  <span className="text-xs font-normal text-red-700"> obrigatório</span>
+                )}{" "}
                 {perfil?.[d.campo] ? (
                   <span className="text-emerald-700">
                     (já enviado; envie de novo só para trocar)
@@ -479,8 +506,9 @@ export function CorretorPainel() {
               </label>
             ))}
             <p className="text-xs leading-relaxed text-slate-500">
-              Os documentos ficam em área privada e só a equipe de aprovação vê. Servem apenas para
-              conferir o Selo Verde, conforme a Política de Privacidade.
+              Para entrar basta o CRECI ativo e a identidade. Os documentos do Selo Verde são
+              opcionais: com eles a nossa equipe verifica o seu cadastro e a sua página ganha o selo
+              de corretor verificado, que passa mais confiança. Tudo fica em área privada.
             </p>
           </fieldset>
           {tipo === "corretor" ? (

@@ -51,13 +51,15 @@ export default function CorretoresPage() {
           ))}
         </div>
       </Section>
-      <Section id="selo-verde" title="Selo Verde: só entra quem está regular" muted>
+      <Section id="selo-verde" title="Selo Verde: corretor verificado" muted>
         <p className="leading-relaxed text-slate-700">
-          Para receber o Selo Verde e entrar no portal, o corretor envia:
+          Para entrar no portal basta o CRECI ativo, com a foto da carteira, e um documento de
+          identidade. O Selo Verde é opcional: quem envia os documentos abaixo passa pela nossa
+          verificação e ganha o selo na página, o que passa mais confiança ao cliente.
         </p>
         <ul className="grid gap-2 sm:grid-cols-2">
           {[
-            "CRECI ativo, com foto da carteira",
+            "Print do cadastro ativo no site do CRECI",
             "Certidão criminal da Justiça Estadual",
             "Certidão criminal da Justiça Federal",
             "Comprovante de residência de até 90 dias",
@@ -103,7 +105,7 @@ export default function CorretoresPage() {
       </Section>
       <CtaBand
         title="Comece hoje, de graça"
-        text="Cadastre-se, envie os documentos do Selo Verde pelo site e receba o acesso após a aprovação."
+        text="Cadastre-se com o CRECI ativo e receba o acesso após a conferência. O Selo Verde é opcional."
         href={CTA}
         label="Quero minha página"
       />
