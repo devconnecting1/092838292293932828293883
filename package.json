@@ -18,7 +18,7 @@
     "@workspace/typescript-config": "*",
     "husky": "^9.1.7",
     "lint-staged": "^17.5.1",
-    "prettier": "^3.9.7",
+    "prettier": "^3.9.9",
     "prettier-plugin-tailwindcss": "^0.8.0",
     "turbo": "^2.9.18",
     "typescript": "~6.0.3"

@@ -9,10 +9,10 @@
     "test": "vitest run"
   },
   "devDependencies": {
-    "@types/node": "^24.13.5",
+    "@types/node": "^24.19.0",
     "@workspace/eslint-config": "*",
     "@workspace/typescript-config": "*",
-    "eslint": "^10.10.0",
+    "eslint": "^10.11.0",
     "typescript": "~6.0.3",
     "vitest": "^5.0.1"
   },
